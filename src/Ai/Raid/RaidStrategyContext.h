@@ -21,6 +21,7 @@
 #include "OnyStrategy.h"
 #include "ICCStrategy.h"
 #include "RSStrategy.h"
+#include "SWPStrategy.h
 
 class RaidStrategyContext : public NamedObjectContext<Strategy>
 {
@@ -38,6 +39,7 @@ public:
         creators["tempestkeep"] = &RaidStrategyContext::tempestkeep;
         creators["hyjal"] = &RaidStrategyContext::hyjal;
         creators["blacktemple"] = &RaidStrategyContext::blacktemple;
+        creators["sunwellplateau"] = &RaidStrategyContext::sunwellplateau;
         creators["zulaman"] = &RaidStrategyContext::zulaman;
         creators["wotlk-os"] = &RaidStrategyContext::wotlk_os;
         creators["wotlk-eoe"] = &RaidStrategyContext::wotlk_eoe;
@@ -60,6 +62,7 @@ private:
     static Strategy* tempestkeep(PlayerbotAI* botAI) { return new RaidTempestKeepStrategy(botAI); }
     static Strategy* hyjal(PlayerbotAI* botAI) { return new RaidHyjalSummitStrategy(botAI); }
     static Strategy* blacktemple(PlayerbotAI* botAI) { return new RaidBlackTempleStrategy(botAI); }
+    static Strategy* sunwellplateau(PlayerbotAI* botAI) { return new RaidSunwellPlateauStrategy(botAI); }
     static Strategy* zulaman(PlayerbotAI* botAI) { return new RaidZulAmanStrategy(botAI); }
     static Strategy* wotlk_os(PlayerbotAI* botAI) { return new RaidOsStrategy(botAI); }
     static Strategy* wotlk_eoe(PlayerbotAI* botAI) { return new RaidEoEStrategy(botAI); }
