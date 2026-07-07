@@ -13,6 +13,7 @@
 #include "TKActionContext.h"
 #include "HyjalActionContext.h"
 #include "BTActionContext.h"
+#include "SWPActionContext.h"
 #include "ZAActionContext.h"
 #include "OSActionContext.h"
 #include "EoEActionContext.h"
@@ -39,6 +40,7 @@ void AiObjectContext::BuildSharedActionContexts(SharedNamedObjectContextList<Act
     actionContexts.Add(new RaidTempestKeepActionContext());
     actionContexts.Add(new RaidHyjalSummitActionContext());
     actionContexts.Add(new RaidBlackTempleActionContext());
+    actionContexts.Add(new RaidSunwellPlateauActionContext());
     actionContexts.Add(new RaidZulAmanActionContext());
     actionContexts.Add(new RaidNaxxActionContext());
     actionContexts.Add(new RaidOsActionContext());
