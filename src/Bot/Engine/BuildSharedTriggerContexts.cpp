@@ -41,6 +41,7 @@ void AiObjectContext::BuildSharedTriggerContexts(SharedNamedObjectContextList<Tr
     triggerContexts.Add(new RaidTempestKeepTriggerContext());
     triggerContexts.Add(new RaidHyjalSummitTriggerContext());
     triggerContexts.Add(new RaidBlackTempleTriggerContext());
+    triggerContexts.Add(new RaidSunwellPlateauTriggerContext());
     triggerContexts.Add(new RaidZulAmanTriggerContext());
     triggerContexts.Add(new RaidOsTriggerContext());
     triggerContexts.Add(new RaidEoETriggerContext());
