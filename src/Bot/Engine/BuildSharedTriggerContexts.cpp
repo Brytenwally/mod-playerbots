@@ -13,6 +13,7 @@
 #include "TKTriggerContext.h"
 #include "HyjalTriggerContext.h"
 #include "BTTriggerContext.h"
+#include "SWPTriggerContext.h"
 #include "ZATriggerContext.h"
 #include "OSTriggerContext.h"
 #include "EoETriggerContext.h"
