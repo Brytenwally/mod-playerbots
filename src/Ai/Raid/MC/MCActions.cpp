@@ -59,46 +59,6 @@ bool McShazzrahMoveAwayAction::Execute(Event /*event*/)
     return false;
 }
 
-bool McMoveFromShazzrahReflectionAction::Execute(Event /*event*/)
-{
-    Creature* reflection = FindReflectionNear(bot, bot, REFLECTION_DISTANCE);
-    if (!reflection)
-        return false;
-
-    return MoveAway(reflection, REFLECTION_DISTANCE - bot->GetDistance2d(reflection));
-}
-
-bool McShazzrahTankMoveFromReflectionAction::Execute(Event /*event*/)
-{
-    Unit* boss = AI_VALUE2(Unit*, "find target", "shazzrah");
-    if (!boss)
-        return false;
-
-    // Shazzrah follows his tank: walking the tank clear of the reflection by the boss's reach brings him along,
-    // which keeps every later Blink's reflection apart from the earlier ones.
-    Creature* reflection = FindReflectionNear(bot, boss, REFLECTION_DISTANCE);
-    if (!reflection)
-        reflection = FindReflectionNear(bot, bot, REFLECTION_DISTANCE);
-    if (!reflection)
-        return false;
-
-    float const clearDistance = REFLECTION_DISTANCE + boss->GetCombatReach();
-    float const distToTravel = clearDistance - bot->GetDistance2d(reflection);
-    if (distToTravel <= 0.0f)
-        return false;
-
-    return MoveAway(reflection, distToTravel);
-}
-
-bool McAttackSacrificialChainsAction::Execute(Event /*event*/)
-{
-    Creature* chain = FindSacrificialChains(bot);
-    if (!chain || bot->GetVictim() == chain)
-        return false;
-
-    return Attack(chain);
-}
-
 bool McMoveFromLavaAction::Execute(Event /*event*/)
 {
     // Escape to the nearest raid member on dry ground: raids fight on the
