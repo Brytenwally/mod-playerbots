@@ -23,6 +23,8 @@
   guard is off for every bot: nearly every step in a dungeon room came within its distance, so the bots stayed
   behind, then ran through the packs to the player once he fought.
 - A tank always takes back an enemy hitting one of its group, however far from the healer.
+- **Bloodmage Eternal takes its tank form**, Eternal Curse: its rotation had no line for it, so an Eternal alt
+  fought in mortal form (#38). Random bots still leave Eternal out (`AiPlayerbot.CoaExcludedSpecializations = 99`).
 - **Melee out of the boss's cone**: behind or beside a creature, melee bots stand more than 2 yd from its centre, where
   a cone hits at any angle (a Barbarian died behind Tinkerer Gizlock to every Dragon Gun). Not against players.
   The cone dodge also steps out when a bot stands that close.
