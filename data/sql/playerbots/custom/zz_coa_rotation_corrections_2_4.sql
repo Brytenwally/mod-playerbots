@@ -155,5 +155,11 @@ DELETE FROM `playerbots_custom_strategy`
 CALL coa24_set('venomancer-rot', 'buff missing::Spider Form>cast buff::Spider Form!95', 'buff missing::Weaver Form>cast buff::Weaver Form!95');
 CALL coa24_set('venomancer-vizier', 'buff missing::Spider Form>cast buff::Spider Form!95', 'buff missing::Weaver Form>cast buff::Weaver Form!95');
 
+-- 13. Bloodmage Eternal: no line took its tank form, Eternal Curse (800157, which the core teaches at 10 through the
+-- specialization talent 92114). The form's threat and armor come from 807736 and 804320, which the core lays when the
+-- form goes up, so "coa buff" sees no threat stance and takes only the stance the rotation asks for: the tank fought
+-- outside its form (Zyth45/mod-playerbots#38).
+CALL coa24_add('bloodmage-eternal', 'buff missing::Eternal Curse>cast buff::Eternal Curse!95');
+
 DROP PROCEDURE IF EXISTS coa24_add;
 DROP PROCEDURE IF EXISTS coa24_set;
