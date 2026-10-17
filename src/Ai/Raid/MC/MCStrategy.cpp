@@ -50,6 +50,12 @@ void RaidMcStrategy::InitTriggers(std::vector<TriggerNode*>& triggers)
     triggers.push_back(
         new TriggerNode("mc shazzrah ranged",
                         { NextAction("mc shazzrah move away", ACTION_RAID) }));
+    triggers.push_back(
+        new TriggerNode("mc shazzrah reflection",
+                        { NextAction("mc move from shazzrah reflection", ACTION_RAID + 1) }));
+    triggers.push_back(
+        new TriggerNode("mc shazzrah tank reflection",
+                        { NextAction("mc shazzrah tank move from reflection", ACTION_RAID) }));
 
     // Sulfuron Harbinger
     // Alternatively, shadow resistance is also possible.
@@ -81,6 +87,9 @@ void RaidMcStrategy::InitTriggers(std::vector<TriggerNode*>& triggers)
     triggers.push_back(
         new TriggerNode("mc majordomo shadow resistance",
                         { NextAction("mc majordomo shadow resistance", ACTION_RAID) }));
+    triggers.push_back(
+        new TriggerNode("mc sacrificial chains",
+                        { NextAction("mc attack sacrificial chains", ACTION_RAID) }));
 
     // Ragnaros
     triggers.push_back(
@@ -103,6 +112,7 @@ void RaidMcStrategy::InitMultipliers(std::vector<Multiplier*>& multipliers)
     multipliers.push_back(new GarrDisableDpsAoeMultiplier(botAI));
     multipliers.push_back(new BaronGeddonAbilityMultiplier(botAI));
     multipliers.push_back(new GolemaggMultiplier(botAI));
+    multipliers.push_back(new ShazzrahReflectionMultiplier(botAI));
 }
 
 void RaidMcStrategy::AppendTargetExclusions(GuidSet& exclusions, TargetValueExclusionType type)
