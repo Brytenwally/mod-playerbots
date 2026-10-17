@@ -765,8 +765,9 @@ bool PlayerbotAIConfig::Initialize()
     excludedBotRaces.clear();
     LoadList<std::vector<uint32>>(sConfigMgr->GetOption<std::string>("AiPlayerbot.ExcludedBotRaces", "", false),
                                   excludedBotRaces);
-    LoadList<std::vector<uint32>>(sConfigMgr->GetOption<std::string>("AiPlayerbot.CrashingBotRaces", "65,72,77,80,81"),
-                                  excludedBotRaces);
+    LoadList<std::vector<uint32>>(
+        sConfigMgr->GetOption<std::string>("AiPlayerbot.CrashingBotRaces", "32,72,77,97", false),
+        excludedBotRaces);
     customRacesForBots = sConfigMgr->GetOption<bool>("CoACustomRaces.BotsEnable", false, false);
     coaSpecRotations = sConfigMgr->GetOption<bool>("AiPlayerbot.CoaSpecRotations", true);
     coaHealerManaReserve = sConfigMgr->GetOption<uint32>("AiPlayerbot.CoaHealerManaReserve", 35);
@@ -776,6 +777,8 @@ bool PlayerbotAIConfig::Initialize()
     coaSmartTank = sConfigMgr->GetOption<bool>("AiPlayerbot.CoaSmartTank", true);
     coaLfgMissingRoles = sConfigMgr->GetOption<bool>("AiPlayerbot.CoaLfgMissingRoles", true, false);
     coaHoldBehindTank = sConfigMgr->GetOption<bool>("AiPlayerbot.CoaHoldBehindTank", false, false);
+    coaPlayersReplaceBots = std::min<uint32>(sConfigMgr->GetOption<uint32>("AiPlayerbot.CoaPlayersReplaceBots", 0, false), 1000);
+    coaPlayersReplaceBotsMin = sConfigMgr->GetOption<uint32>("AiPlayerbot.CoaPlayersReplaceBotsMin", 0, false);
     coaChaseLeash = sConfigMgr->GetOption<bool>("AiPlayerbot.CoaChaseLeash", true, false);
     coaBodyPullGuard = sConfigMgr->GetOption<bool>("AiPlayerbot.CoaBodyPullGuard", true, false);
     coaKeepTargetOutOfSight = sConfigMgr->GetOption<bool>("AiPlayerbot.CoaKeepTargetOutOfSight", true, false);

@@ -1413,10 +1413,11 @@ AiPlayerbot.GatherOnlySkillUp = 1
 # Default: "" (none)
 # AiPlayerbot.ExcludedBotRaces = ""
 
-# Custom races that crash the client, always left out of the random bots on top of AiPlayerbot.ExcludedBotRaces.
-# Default, from the module's author: 65 (Test Race), 72 and 77 (Skyborne), 80 and 81 (Darkfallen).
-# Default: "65,72,77,80,81"
-AiPlayerbot.CrashingBotRaces = "65,72,77,80,81"
+# Custom races never given to random bots, on top of AiPlayerbot.ExcludedBotRaces, from a race by race client test
+# (15/10): 32 (Thin Human) and 97 (Saberon) crash a client that sees them, 72 and 77 (Skyborne) have no model in the
+# patched client. 65, 80, 81 and 82 showed no crash as bots (Sethrak only crashes when played, at its first login).
+# Default: "32,72,77,97"
+AiPlayerbot.CrashingBotRaces = "32,72,77,97"
 
 # Authored combat rotations for the Conquest of Azeroth specializations.
 # Off: CoA bots are driven by the runtime classifier alone, which picks a spell
@@ -1643,6 +1644,19 @@ AiPlayerbot.CoaChaseLeash = 1
 # Off since 2.3: it could take a player who is not a tank for the group's tank.
 # Default: 0 (disabled)
 AiPlayerbot.CoaHoldBehindTank = 0
+
+# Real players take the place of random bots, so the world keeps about the same population. Percentage
+# of a bot removed per real player online: 100 = one bot fewer per player (500 bots, 40 players online:
+# 460 bots), 50 = one bot fewer per two players. Bots leave a few at a time, never while grouped, in a
+# dungeon, a battleground, an arena or a queue, and come back when players log out. Your alt bots and
+# other bots of a real player are not random bots: never counted, never removed.
+# Default: 0 (disabled)
+AiPlayerbot.CoaPlayersReplaceBots = 0
+
+# Random bots always kept with CoaPlayersReplaceBots, however many players are online (e.g. 100 keeps
+# a hundred bots for the auction house, the battlegrounds and the dungeon finder).
+# Default: 0
+AiPlayerbot.CoaPlayersReplaceBotsMin = 0
 
 # Dungeon finder: random damage dealers hold back only while a queued party of real players
 # still misses a tank or a healer that no queued bot covers. The old test held them back
