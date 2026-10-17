@@ -1,5 +1,75 @@
 # CoA Bots — changelog
 
+## v2.4 — in progress
+
+### Players and bots
+- **Real players take the place of random bots** (`AiPlayerbot.CoaPlayersReplaceBots`, off by default): at 100,
+  500 bots and 40 players online leave 460 bots; `AiPlayerbot.CoaPlayersReplaceBotsMin` keeps a floor. Idea by
+  CWO4PapaBear.
+- Bots are ready for the added races edition (later): with this core they keep the usual races, nothing changes.
+
+### Server and repack
+- Core on the latest Conquest of Azeroth main (15/10): about 95 new fixes since 2.3, plus fixes for four crashes
+  seen under a heavy bot load.
+- No more log flood: every module settings file is installed where the server reads it (Mythic+ included), the
+  settings new cores add are filled in with their defaults, a missing setting is reported once per load, the
+  playerbots log keeps warnings only, and a console log over 50 MB is set aside at start.
+- SquidBots Lite 2.4: "Ask for all three" keeps a tank and a healer among the offers.
+
+### Tanks and dungeons
+- **The tank walks its route again**: the guard that keeps bots from walking into an idle pack in a dungeon
+  (`AiPlayerbot.CoaBodyPullGuard`, 2.2) no longer applies to the tank, who goes to the packs it means to pull. A tank
+  leading a group of bots stood still off its route until the run timed out. In a group led by a real player the
+  guard is off for every bot: nearly every step in a dungeon room came within its distance, so the bots stayed
+  behind, then ran through the packs to the player once he fought.
+- A tank always takes back an enemy hitting one of its group, however far from the healer.
+- **Melee out of the boss's cone**: behind or beside a creature, melee bots stand more than 2 yd from its centre, where
+  a cone hits at any angle (a Barbarian died behind Tinkerer Gizlock to every Dragon Gun). Not against players.
+  The cone dodge also steps out when a bot stands that close.
+- In a dungeon, damage dealers and healers no longer open on an idle creature while their group has a living tank:
+  the tank pulls (Houndmaster's hounds pulled whole packs, Blood Steward included).
+
+### Battlegrounds
+- Random bots leave a battleground queue that will not start: 2 minutes after the last real player left it, or after
+  10 minutes in any case. Bots had filled a queue to 26/20 for two players who then left it, and the next players of
+  that bracket could not get a battle.
+
+### All classes
+- Buffs on a cooldown are cast when ready again: a buff shorter than its cooldown was set aside as "never lands" and
+  came 15-30 s late (Unbridled Rage, Light's Hope).
+- Buff lines skip spells the bot has not learned yet, and rotation lines skip a spell the bot lacks the power for
+  (they failed every tick before the next line could run).
+- A cleave or cone around the caster is no longer cast from beyond its reach (Celestial Cleave from 20 yd).
+- Purges only aim at enemies within their own reach (Gavel of Wrath, 5 yd, was aimed at 30 yd).
+- Buffs are no longer held by the threat hold (Light's Hope, which lowers threat, was held 530 times in two runs).
+- A silenced bot no longer counts on its dispels, kicks and other silenced spells as ready.
+- The attack kit skips a self-aura the bot already wears (Searing Quiver) and cleanses that deal no damage
+  (Resonance Rune).
+- Rotations: Break, Condemn and Blade of Faith in melee only; Guardian tanks enchant Spiked Reinforcement first.
+
+### Rotations (`zz_coa_rotation_corrections_2_4.sql`, default rotations only, rows chosen by content)
+- **Guardian Vanguard / Reaper Domination** (tanks): Shield Challenge and Writhe taunt at 30 yd, Unyielding Stand on
+  packs; no more Reclaim Standards right after placing the standard (Vanguard, Gladiator).
+- **Reaper**: Soul Strike and Requiem before Reap; no single-target Rites aimed at the enemy.
+- **Ranger**: Survival Potion under low health, not at the pull; Archery drops its stealth-only spells.
+- **Sun Cleric Blessings**: Bless and Daybreak on the wounded ally, Ascension on group damage; no Vow of Grace,
+  Radiance or Blazing Chariot lines; Gavel of Light in melee only.
+- **Starcaller Sentinel**: Moon Arrow at medium mana. **Witch Hunter**: no Infiltrate in rotations, no Stoicism with
+  nothing on the bot. **Chronomancer Infinite**: Discordance higher. Dead lines removed (Templar Chastise, Barbarian
+  Whirling Advance, Runemaster Palm Sigil: Fire, Incarnation of Chaos, Wand of Time).
+
+### Rotations — from the specs site reports (thanks kuribo)
+- **Cultist Heretic / Sun Cleric Blessings** (healers): Abyssal Covenant and Bless kept on the tank, so it gets the
+  extra healing; Bless on the wounded ally stays below.
+- **Sun Cleric Blessings**: no Shoot, Wand, Horusath Blast, Gavel of Wrath or Chains of Light; Ascension only on group
+  damage; Gavel of Grace only when out of mana; Dawnfall on big packs; Devotion of Grace when missing; Paragon and
+  Solar Prayer when the healer itself is low.
+- **Knight of Xoroth Defiance** (tank): Flesh Hook on a single target only, Meatsaw on packs, Shieldgore on cooldown,
+  Chains of Malice to take a target back; Black Shield, Sacrificial Circle and Juggernaut kept for low health, one at
+  a time instead of on cooldown.
+- **Witch Doctor Shadowhunting**: Shadowflare put back only when missing instead of cast again and again on packs.
+- **Venomancer Rot and Vizier**: Weaver Form instead of Spider Form. With the 2.4 core, Spider Form forbids their spells and a bot in it only cast Blight Venom.
+
 ## v2.3.1 — Version command (October 2026)
 
 - **`.playerbots version`** gives the CoA Bots version and its source, for players and the console: the login

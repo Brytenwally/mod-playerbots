@@ -96,32 +96,3 @@ bool McCoreHoundMarkTrigger::IsActive()
 {
     return PlayerbotAI::IsMainTank(bot) && AI_VALUE2(Unit*, "find target", "core hound");
 }
-
-bool McShazzrahReflectionTrigger::IsActive()
-{
-    if (PlayerbotAI::IsTank(bot))
-        return false;
-
-    return FindReflectionNear(bot, bot, REFLECTION_DISTANCE) != nullptr;
-}
-
-bool McShazzrahTankReflectionTrigger::IsActive()
-{
-    if (!PlayerbotAI::IsTank(bot))
-        return false;
-
-    Unit* boss = AI_VALUE2(Unit*, "find target", "shazzrah");
-    if (!boss || boss->GetVictim() != bot)
-        return false;
-
-    return FindReflectionNear(bot, boss, REFLECTION_DISTANCE) || FindReflectionNear(bot, bot, REFLECTION_DISTANCE);
-}
-
-bool McSacrificialChainsTrigger::IsActive()
-{
-    // Healers keep the raid alive and tanks keep Majordomo's adds; chained bots cannot act.
-    if (PlayerbotAI::IsHeal(bot) || PlayerbotAI::IsTank(bot) || bot->HasUnitFlag(UNIT_FLAG_PACIFIED))
-        return false;
-
-    return FindSacrificialChains(bot) != nullptr;
-}

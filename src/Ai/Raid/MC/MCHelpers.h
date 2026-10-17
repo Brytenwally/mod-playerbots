@@ -7,7 +7,6 @@
 #ifndef PLAYERBOTS_MCHELPERS_H
 #define PLAYERBOTS_MCHELPERS_H
 
-#include "Creature.h"
 #include "Define.h"
 #include "Spell.h"
 #include "SpellAuras.h"
@@ -15,7 +14,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <list>
 
 // Stock and Conquest of Azeroth (mod-coa-raid-difficulty) ids side by side.
 // CoA runs Molten Core on four difficulties. Every cast is resolved through
@@ -33,14 +31,6 @@ enum MoltenCoreNPCs
 
     // Core Hound (trash)
     NPC_CORE_HOUND = 11671,
-
-    // CoA: left by Shazzrah's Blink where he stood; rooted and immune, it repeats Mirrored Arcane
-    // Explosion (2105650) until the encounter ends (boss_shazzrah_coa.cpp)
-    NPC_REFLECTION_OF_SHAZZRAH = 11504,
-
-    // CoA: Majordomo's periodic add; it roots, silences and pacifies the players it chains until it dies
-    // (npc_sacrificial_chains_coa.cpp)
-    NPC_SACRIFICIAL_CHAINS = 92030,
 };
 
 // CoA difficulty copies of a Molten Core creature: base + offset (01_mc_difficulty_templates.sql)
@@ -83,11 +73,6 @@ constexpr float MAGMA_SPLASH_BACK_OFF_DISTANCE = 12.0f;
 // Shazzrah's Arcane Explosion radius (stock 19712: 18 yd, CoA 2105601: 20 yd)
 constexpr float ARCANE_EXPLOSION_DISTANCE = 26.0f;
 
-// Mirrored Arcane Explosion has no measured radius; the reflections are kept at Shazzrah's own distance
-constexpr float REFLECTION_DISTANCE = ARCANE_EXPLOSION_DISTANCE;
-
-constexpr float SACRIFICIAL_CHAINS_SEARCH_DISTANCE = 60.0f;
-
 template <std::size_t N>
 inline bool HasAnyAura(Unit const* unit, uint32 const (&spellIds)[N])
 {
@@ -121,40 +106,6 @@ inline bool IsLivingBombCastAt(Unit const* geddon, Unit const* target)
 {
     Spell* spell = geddon->FindCurrentSpellBySpellId(SPELL_LIVING_BOMB_COA_CAST);
     return spell && spell->m_targets.GetUnitTargetGUID() == target->GetGUID();
-}
-
-// The nearest living Reflection of Shazzrah within `range` of `where`, searched around `searcher`.
-inline Creature* FindReflectionNear(WorldObject const* searcher, WorldObject const* where, float range)
-{
-    std::list<Creature*> reflections;
-    searcher->GetCreatureListWithEntryInGrid(reflections, NPC_REFLECTION_OF_SHAZZRAH,
-                                             range + searcher->GetDistance(where));
-    Creature* nearest = nullptr;
-    float nearestDist = range;
-    for (Creature* reflection : reflections)
-    {
-        if (!reflection->IsAlive())
-            continue;
-        float const dist = where->GetDistance2d(reflection);
-        if (dist < nearestDist)
-        {
-            nearestDist = dist;
-            nearest = reflection;
-        }
-    }
-    return nearest;
-}
-
-// The living Sacrificial Chains with the least health, so every bot finishes the same one first.
-inline Creature* FindSacrificialChains(WorldObject const* searcher)
-{
-    std::list<Creature*> chains;
-    searcher->GetCreatureListWithEntryInGrid(chains, NPC_SACRIFICIAL_CHAINS, SACRIFICIAL_CHAINS_SEARCH_DISTANCE);
-    Creature* weakest = nullptr;
-    for (Creature* chain : chains)
-        if (chain->IsAlive() && (!weakest || chain->GetHealth() < weakest->GetHealth()))
-            weakest = chain;
-    return weakest;
 }
 
 // Matches the base entry or one of its CoA difficulty copies. A spawn that
