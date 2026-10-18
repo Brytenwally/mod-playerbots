@@ -8,6 +8,7 @@
 #define PLAYERBOTS_VANILLADUNGEONTRIGGERCONTEXT_H
 
 #include "BFDTriggerContext.h"
+#include "BRDTriggerContext.h"
 #include "RFCTriggerContext.h"
 #include "RFDTriggerContext.h"
 #include "RFKTriggerContext.h"
