@@ -17,7 +17,7 @@ using namespace BlackfathomDeeps;
 
 float GhamooraMultiplier::GetValue(Action* action)
 {
-    if (!dynamic_cast<MovementAction*>(action) || dynamic_cast<BfdMoveAroundBossAction*>(action) ||
+    if (!dynamic_cast<MovementAction*>(action) || dynamic_cast<DungeonBossMovementAction*>(action) ||
         dynamic_cast<ReachTargetAction*>(action) || dynamic_cast<AvoidAoeAction*>(action) ||
         action->getName() == "coa boss dodge")
         return 1.0f;

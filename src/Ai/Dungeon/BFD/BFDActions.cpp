@@ -7,25 +7,12 @@
 #include "BFDActions.h"
 
 #include "AiObjectContext.h"
-#include "Map.h"
 #include "Playerbots.h"
 
 #include <algorithm>
 
 using namespace BlackfathomDeeps;
-
-bool BfdMoveAroundBossAction::MoveAround(Unit* boss, float angle, float distance)
-{
-    float const absolute = Position::NormalizeOrientation(boss->GetOrientation() + angle);
-    float x = boss->GetPositionX() + std::cos(absolute) * distance;
-    float y = boss->GetPositionY() + std::sin(absolute) * distance;
-    float z = bot->GetPositionZ();
-    if (!bot->GetMap()->CheckCollisionAndGetValidCoords(bot, bot->GetPositionX(), bot->GetPositionY(),
-                                                        bot->GetPositionZ(), x, y, z))
-        return false;
-
-    return MoveTo(bot->GetMapId(), x, y, z, false, false, false, false, MovementPriority::MOVEMENT_COMBAT);
-}
+using namespace DungeonBoss;
 
 bool BfdMoveFromTorrentAction::Execute(Event /*event*/)
 {
@@ -47,12 +34,6 @@ bool BfdMoveFromTorrentAction::Execute(Event /*event*/)
 bool BfdMoveFromFrontalConeAction::Execute(Event /*event*/)
 {
     FrontalCone const* cone = nullptr;
-    Unit* boss = ConeOver(botAI, context, bot, cone);
-    if (!boss)
-        return false;
-
-    float const side = cone->halfArc + CONE_SIDE_STEP;
-    float const angle = RelativeAngle(boss, bot) >= 0.0f ? side : -side;
-    float const distance = std::max(bot->GetExactDist2d(boss), boss->GetCombatReach() + 2.0f);
-    return MoveAround(boss, angle, distance);
+    Unit* boss = ConeOver(botAI, context, bot, FRONTAL_CONES, cone);
+    return boss && MoveOutOfCone(boss, *cone);
 }

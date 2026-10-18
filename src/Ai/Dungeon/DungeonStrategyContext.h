@@ -22,7 +22,9 @@
 #include "NexStrategy.h"
 #include "OCStrategy.h"
 #include "PoSStrategy.h"
+#include "RFDStrategy.h"
 #include "RFCStrategy.h"
+#include "RFKStrategy.h"
 #include "SethStrategy.h"
 #include "SFKStrategy.h"
 #include "SMStrategy.h"
@@ -32,6 +34,7 @@
 #include "UKStrategy.h"
 #include "UPStrategy.h"
 #include "VHStrategy.h"
+#include "WCStrategy.h"
 
 class DungeonStrategyContext : public NamedObjectContext<Strategy>
 {
@@ -43,6 +46,9 @@ class DungeonStrategyContext : public NamedObjectContext<Strategy>
             creators["vanilla-rfc"] = &DungeonStrategyContext::vanilla_rfc;  // Ragefire Chasm
             creators["vanilla-sfk"] = &DungeonStrategyContext::vanilla_sfk;  // Shadowfang Keep
             creators["vanilla-sm"] = &DungeonStrategyContext::vanilla_sm;  // Scarlet Monastery
+            creators["vanilla-wc"] = &DungeonStrategyContext::vanilla_wc;  // Wailing Caverns
+            creators["vanilla-rfk"] = &DungeonStrategyContext::vanilla_rfk;  // Razorfen Kraul
+            creators["vanilla-rfd"] = &DungeonStrategyContext::vanilla_rfd;  // Razorfen Downs
 
             // Burning Crusade
             creators["tbc-ac"] = &DungeonStrategyContext::tbc_ac;           // Auchindoun: Auchenai Crypts
@@ -73,6 +79,9 @@ class DungeonStrategyContext : public NamedObjectContext<Strategy>
         static Strategy* vanilla_rfc(PlayerbotAI* botAI) { return new VanillaDungeonRFCStrategy(botAI); }
         static Strategy* vanilla_sfk(PlayerbotAI* botAI) { return new VanillaDungeonSFKStrategy(botAI); }
         static Strategy* vanilla_sm(PlayerbotAI* botAI) { return new VanillaDungeonSMStrategy(botAI); }
+        static Strategy* vanilla_wc(PlayerbotAI* botAI) { return new VanillaDungeonWCStrategy(botAI); }
+        static Strategy* vanilla_rfk(PlayerbotAI* botAI) { return new VanillaDungeonRFKStrategy(botAI); }
+        static Strategy* vanilla_rfd(PlayerbotAI* botAI) { return new VanillaDungeonRFDStrategy(botAI); }
         static Strategy* tbc_ac(PlayerbotAI* botAI) { return new TbcDungeonAuchenaiCryptsStrategy(botAI); }
         static Strategy* tbc_seth(PlayerbotAI* botAI) { return new TbcDungeonSethekkHallsStrategy(botAI); }
         static Strategy* tbc_mech(PlayerbotAI* botAI) { return new TbcDungeonMechanarStrategy(botAI); }
