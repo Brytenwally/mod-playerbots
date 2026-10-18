@@ -10,6 +10,7 @@
 #include "ACStrategy.h"
 #include "AKStrategy.h"
 #include "ANStrategy.h"
+#include "BFDStrategy.h"
 #include "CoSStrategy.h"
 #include "DTKStrategy.h"
 #include "FoSStrategy.h"
@@ -38,6 +39,7 @@ class DungeonStrategyContext : public NamedObjectContext<Strategy>
         DungeonStrategyContext() : NamedObjectContext<Strategy>(false, true)
         {
             // Vanilla
+            creators["vanilla-bfd"] = &DungeonStrategyContext::vanilla_bfd;  // Blackfathom Deeps
             creators["vanilla-rfc"] = &DungeonStrategyContext::vanilla_rfc;  // Ragefire Chasm
             creators["vanilla-sfk"] = &DungeonStrategyContext::vanilla_sfk;  // Shadowfang Keep
             creators["vanilla-sm"] = &DungeonStrategyContext::vanilla_sm;  // Scarlet Monastery
@@ -67,6 +69,7 @@ class DungeonStrategyContext : public NamedObjectContext<Strategy>
             creators["wotlk-fos"] = &DungeonStrategyContext::wotlk_fos;     // The Forge of Souls
         }
     private:
+        static Strategy* vanilla_bfd(PlayerbotAI* botAI) { return new VanillaDungeonBFDStrategy(botAI); }
         static Strategy* vanilla_rfc(PlayerbotAI* botAI) { return new VanillaDungeonRFCStrategy(botAI); }
         static Strategy* vanilla_sfk(PlayerbotAI* botAI) { return new VanillaDungeonSFKStrategy(botAI); }
         static Strategy* vanilla_sm(PlayerbotAI* botAI) { return new VanillaDungeonSMStrategy(botAI); }
