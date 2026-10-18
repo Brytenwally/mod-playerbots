@@ -43,14 +43,14 @@ class DungeonStrategyContext : public NamedObjectContext<Strategy>
         DungeonStrategyContext() : NamedObjectContext<Strategy>(false, true)
         {
             // Vanilla
-            creators["coa-bfd"] = &DungeonStrategyContext::coa_bfd;  // Blackfathom Deeps
-            creators["coa-rfc"] = &DungeonStrategyContext::coa_rfc;  // Ragefire Chasm
-            creators["coa-sfk"] = &DungeonStrategyContext::coa_sfk;  // Shadowfang Keep
-            creators["coa-sm"] = &DungeonStrategyContext::coa_sm;  // Scarlet Monastery
-            creators["coa-wc"] = &DungeonStrategyContext::coa_wc;  // Wailing Caverns
-            creators["coa-rfk"] = &DungeonStrategyContext::coa_rfk;  // Razorfen Kraul
-            creators["coa-rfd"] = &DungeonStrategyContext::coa_rfd;  // Razorfen Downs
-            creators["coa-brd"] = &DungeonStrategyContext::coa_brd;  // Blackrock Depths
+            creators["vanilla-bfd"] = &DungeonStrategyContext::vanilla_bfd;  // Blackfathom Deeps
+            creators["vanilla-rfc"] = &DungeonStrategyContext::vanilla_rfc;  // Ragefire Chasm
+            creators["vanilla-sfk"] = &DungeonStrategyContext::vanilla_sfk;  // Shadowfang Keep
+            creators["vanilla-sm"] = &DungeonStrategyContext::vanilla_sm;  // Scarlet Monastery
+            creators["vanilla-wc"] = &DungeonStrategyContext::vanilla_wc;  // Wailing Caverns
+            creators["vanilla-rfk"] = &DungeonStrategyContext::vanilla_rfk;  // Razorfen Kraul
+            creators["vanilla-rfd"] = &DungeonStrategyContext::vanilla_rfd;  // Razorfen Downs
+            creators["vanilla-brd"] = &DungeonStrategyContext::vanilla_brd;  // Blackrock Depths
 
             // Burning Crusade
             creators["tbc-ac"] = &DungeonStrategyContext::tbc_ac;           // Auchindoun: Auchenai Crypts
@@ -77,14 +77,14 @@ class DungeonStrategyContext : public NamedObjectContext<Strategy>
             creators["wotlk-fos"] = &DungeonStrategyContext::wotlk_fos;     // The Forge of Souls
         }
     private:
-        static Strategy* coa_bfd(PlayerbotAI* botAI) { return new VanillaDungeonBFDStrategy(botAI); }
-        static Strategy* coa_rfc(PlayerbotAI* botAI) { return new VanillaDungeonRFCStrategy(botAI); }
-        static Strategy* coa_sfk(PlayerbotAI* botAI) { return new VanillaDungeonSFKStrategy(botAI); }
-        static Strategy* coa_sm(PlayerbotAI* botAI) { return new VanillaDungeonSMStrategy(botAI); }
-        static Strategy* coa_wc(PlayerbotAI* botAI) { return new VanillaDungeonWCStrategy(botAI); }
-        static Strategy* coa_rfk(PlayerbotAI* botAI) { return new VanillaDungeonRFKStrategy(botAI); }
-        static Strategy* coa_rfd(PlayerbotAI* botAI) { return new VanillaDungeonRFDStrategy(botAI); }
-        static Strategy* coa_brd(PlayerbotAI* botAI) { return new VanillaDungeonBRDStrategy(botAI); }
+        static Strategy* vanilla_bfd(PlayerbotAI* botAI) { return new VanillaDungeonBFDStrategy(botAI); }
+        static Strategy* vanilla_rfc(PlayerbotAI* botAI) { return new VanillaDungeonRFCStrategy(botAI); }
+        static Strategy* vanilla_sfk(PlayerbotAI* botAI) { return new VanillaDungeonSFKStrategy(botAI); }
+        static Strategy* vanilla_sm(PlayerbotAI* botAI) { return new VanillaDungeonSMStrategy(botAI); }
+        static Strategy* vanilla_wc(PlayerbotAI* botAI) { return new VanillaDungeonWCStrategy(botAI); }
+        static Strategy* vanilla_rfk(PlayerbotAI* botAI) { return new VanillaDungeonRFKStrategy(botAI); }
+        static Strategy* vanilla_rfd(PlayerbotAI* botAI) { return new VanillaDungeonRFDStrategy(botAI); }
+        static Strategy* vanilla_brd(PlayerbotAI* botAI) { return new VanillaDungeonBRDStrategy(botAI); }
         static Strategy* tbc_ac(PlayerbotAI* botAI) { return new TbcDungeonAuchenaiCryptsStrategy(botAI); }
         static Strategy* tbc_seth(PlayerbotAI* botAI) { return new TbcDungeonSethekkHallsStrategy(botAI); }
         static Strategy* tbc_mech(PlayerbotAI* botAI) { return new TbcDungeonMechanarStrategy(botAI); }

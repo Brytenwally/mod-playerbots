@@ -14,7 +14,7 @@ class VanillaDungeonWCStrategy : public Strategy
 {
 public:
     VanillaDungeonWCStrategy(PlayerbotAI* ai) : Strategy(ai) {}
-    std::string const getName() override { return "coa-wc"; }
+    std::string const getName() override { return "vanilla-wc"; }
     void InitTriggers(std::vector<TriggerNode*>& triggers) override;
     void InitMultipliers(std::vector<Multiplier*>& multipliers) override;
 };
