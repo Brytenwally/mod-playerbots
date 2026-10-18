@@ -44,6 +44,9 @@ namespace DungeonBoss
     constexpr float CONE_MARGIN = DegreesToRadians(15.0f);
     constexpr float CONE_SIDE_STEP = DegreesToRadians(30.0f);
 
+    // In front of the unit, within `reach` of its edge and `halfArc` (plus the margin) of its facing.
+    bool InFront(Unit const* unit, Player* bot, float reach, float halfArc);
+
     // The boss whose frontal cone the bot stands in, nullptr if none. The cone's own target is not counted.
     Unit* ConeOver(PlayerbotAI* botAI, AiObjectContext* context, Player* bot,
                    std::span<FrontalCone const> cones, FrontalCone const*& cone);

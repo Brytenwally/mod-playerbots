@@ -52,6 +52,11 @@ namespace DungeonBoss
         return angle > float(M_PI) ? angle - 2.0f * float(M_PI) : angle;
     }
 
+    bool InFront(Unit const* unit, Player* bot, float reach, float halfArc)
+    {
+        return Within(bot, unit, reach) && std::fabs(RelativeAngle(unit, bot)) < halfArc + CONE_MARGIN;
+    }
+
     Unit* ConeOver(PlayerbotAI* botAI, AiObjectContext* context, Player* bot,
                    std::span<FrontalCone const> cones, FrontalCone const*& cone)
     {
@@ -64,10 +69,7 @@ namespace DungeonBoss
             if (candidate.spell && !IsCastingNamed(boss, candidate.spell))
                 continue;
 
-            if (!Within(bot, boss, candidate.reach))
-                continue;
-
-            if (std::fabs(RelativeAngle(boss, bot)) < candidate.halfArc + CONE_MARGIN)
+            if (InFront(boss, bot, candidate.reach, candidate.halfArc))
             {
                 cone = &candidate;
                 return boss;
