@@ -14,7 +14,7 @@ class VanillaDungeonBFDStrategy : public Strategy
 {
 public:
     VanillaDungeonBFDStrategy(PlayerbotAI* ai) : Strategy(ai) {}
-    std::string const getName() override { return "vanilla-bfd"; }
+    std::string const getName() override { return "coa-bfd"; }
     void InitTriggers(std::vector<TriggerNode*>& triggers) override;
     void InitMultipliers(std::vector<Multiplier*>& multipliers) override;
 };

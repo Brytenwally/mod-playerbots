@@ -1917,12 +1917,11 @@ void PlayerbotAI::ApplyInstanceStrategies(uint32 mapId, bool tellMaster)
 {
     static const std::vector<std::string> allInstanceStrategies =
     {
-        "aq20", "blacktemple", "bwl", "gruulslair", "hyjal", "icc", "karazhan", "magtheridon",
-        "moltencore", "naxx", "onyxia", "rs", "ssc", "tbc-ac", "tbc-mech", "tbc-mgt", "tbc-seth", "tbc-ub",
-        "tempestkeep", "ulduar", "vanilla-bfd", "vanilla-brd", "vanilla-rfc", "vanilla-rfd", "vanilla-rfk",
-        "vanilla-sfk", "vanilla-sm", "vanilla-wc", "voa", "wotlk-an", "wotlk-cos", "wotlk-dtk", "wotlk-eoe",
-        "wotlk-fos", "wotlk-gd", "wotlk-hol", "wotlk-hos", "wotlk-nex", "wotlk-occ", "wotlk-ok", "wotlk-os",
-        "wotlk-pos", "wotlk-toc", "wotlk-uk", "wotlk-up", "wotlk-vh", "zulaman"
+        "aq20", "blacktemple", "bwl", "coa-bfd", "coa-brd", "coa-rfc", "coa-rfd", "coa-rfk", "coa-sfk", "coa-sm",
+        "coa-wc", "gruulslair", "hyjal", "icc", "karazhan", "magtheridon", "moltencore", "naxx", "onyxia", "rs", "ssc",
+        "tbc-ac", "tbc-mech", "tbc-mgt", "tbc-seth", "tbc-ub", "tempestkeep", "ulduar", "voa", "wotlk-an", "wotlk-cos",
+        "wotlk-dtk", "wotlk-eoe", "wotlk-fos", "wotlk-gd", "wotlk-hol", "wotlk-hos", "wotlk-nex", "wotlk-occ",
+        "wotlk-ok", "wotlk-os", "wotlk-pos", "wotlk-toc", "wotlk-uk", "wotlk-up", "wotlk-vh", "zulaman"
     };
 
     for (std::string const& strat : allInstanceStrategies)
@@ -1935,31 +1934,31 @@ void PlayerbotAI::ApplyInstanceStrategies(uint32 mapId, bool tellMaster)
     switch (mapId)
     {
         case 33:
-            strategyName = "vanilla-sfk";  // Shadowfang Keep
+            strategyName = "coa-sfk";  // Shadowfang Keep
             break;
         case 43:
-            strategyName = "vanilla-wc";  // Wailing Caverns
+            strategyName = "coa-wc";  // Wailing Caverns
             break;
         case 47:
-            strategyName = "vanilla-rfk";  // Razorfen Kraul
+            strategyName = "coa-rfk";  // Razorfen Kraul
             break;
         case 48:
-            strategyName = "vanilla-bfd";  // Blackfathom Deeps
+            strategyName = "coa-bfd";  // Blackfathom Deeps
             break;
         case 129:
-            strategyName = "vanilla-rfd";  // Razorfen Downs
+            strategyName = "coa-rfd";  // Razorfen Downs
             break;
         case 189:
-            strategyName = "vanilla-sm";  // Scarlet Monastery
+            strategyName = "coa-sm";  // Scarlet Monastery
             break;
         case 230:
-            strategyName = "vanilla-brd";  // Blackrock Depths
+            strategyName = "coa-brd";  // Blackrock Depths
             break;
         case 249:
             strategyName = "onyxia";  // Onyxia's Lair
             break;
         case 389:
-            strategyName = "vanilla-rfc";  // Ragefire Chasm
+            strategyName = "coa-rfc";  // Ragefire Chasm
             break;
         case 409:
             strategyName = "moltencore";  // Molten Core

@@ -14,7 +14,7 @@ class VanillaDungeonRFKStrategy : public Strategy
 {
 public:
     VanillaDungeonRFKStrategy(PlayerbotAI* ai) : Strategy(ai) {}
-    std::string const getName() override { return "vanilla-rfk"; }
+    std::string const getName() override { return "coa-rfk"; }
     void InitTriggers(std::vector<TriggerNode*>& triggers) override;
 };
 
