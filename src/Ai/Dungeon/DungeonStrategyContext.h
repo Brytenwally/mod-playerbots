@@ -19,6 +19,7 @@
 #include "GDStrategy.h"
 #include "HoLStrategy.h"
 #include "HoSStrategy.h"
+#include "MaraStrategy.h"
 #include "MechStrategy.h"
 #include "MgTStrategy.h"
 #include "NexStrategy.h"
@@ -36,6 +37,7 @@
 #include "TOCStrategy.h"
 #include "UBStrategy.h"
 #include "UKStrategy.h"
+#include "UldaStrategy.h"
 #include "UPStrategy.h"
 #include "VHStrategy.h"
 #include "WCStrategy.h"
@@ -57,6 +59,8 @@ class DungeonStrategyContext : public NamedObjectContext<Strategy>
             creators["vanilla-brs"] = &DungeonStrategyContext::vanilla_brs;  // Blackrock Spire
             creators["vanilla-strat"] = &DungeonStrategyContext::vanilla_strat;  // Stratholme
             creators["vanilla-scholo"] = &DungeonStrategyContext::vanilla_scholo;  // Scholomance
+            creators["vanilla-mara"] = &DungeonStrategyContext::vanilla_mara;  // Maraudon
+            creators["vanilla-ulda"] = &DungeonStrategyContext::vanilla_ulda;  // Uldaman
 
             // Burning Crusade
             creators["tbc-ac"] = &DungeonStrategyContext::tbc_ac;           // Auchindoun: Auchenai Crypts
@@ -94,6 +98,8 @@ class DungeonStrategyContext : public NamedObjectContext<Strategy>
         static Strategy* vanilla_brs(PlayerbotAI* botAI) { return new VanillaDungeonBRSStrategy(botAI); }
         static Strategy* vanilla_strat(PlayerbotAI* botAI) { return new VanillaDungeonStratStrategy(botAI); }
         static Strategy* vanilla_scholo(PlayerbotAI* botAI) { return new VanillaDungeonScholoStrategy(botAI); }
+        static Strategy* vanilla_mara(PlayerbotAI* botAI) { return new VanillaDungeonMaraStrategy(botAI); }
+        static Strategy* vanilla_ulda(PlayerbotAI* botAI) { return new VanillaDungeonUldaStrategy(botAI); }
         static Strategy* tbc_ac(PlayerbotAI* botAI) { return new TbcDungeonAuchenaiCryptsStrategy(botAI); }
         static Strategy* tbc_seth(PlayerbotAI* botAI) { return new TbcDungeonSethekkHallsStrategy(botAI); }
         static Strategy* tbc_mech(PlayerbotAI* botAI) { return new TbcDungeonMechanarStrategy(botAI); }

@@ -10,6 +10,7 @@
 #include "BFDTriggerContext.h"
 #include "BRDTriggerContext.h"
 #include "BRSTriggerContext.h"
+#include "MaraTriggerContext.h"
 #include "RFCTriggerContext.h"
 #include "RFDTriggerContext.h"
 #include "RFKTriggerContext.h"
@@ -17,6 +18,7 @@
 #include "SMTriggerContext.h"
 #include "ScholoTriggerContext.h"
 #include "StratTriggerContext.h"
+#include "UldaTriggerContext.h"
 #include "WCTriggerContext.h"
 
 #endif

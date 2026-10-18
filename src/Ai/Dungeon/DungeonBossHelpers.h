@@ -32,7 +32,8 @@ namespace DungeonBoss
     // The unit's angle around `center`, measured from the center's facing, in (-pi, pi].
     float RelativeAngle(Unit const* center, Unit const* unit);
 
-    // A cone a boss casts in front of itself, at its tank. Without a spell name the boss casts it so often, or
+    // A cone a boss casts in front of itself. With a spell name the cone is there while the boss casts it or
+    // carries it as an aura (a channel such as Goblin Dragon Gun); without one the boss casts it so often, or
     // without a cast bar, that its front is never safe.
     struct FrontalCone
     {

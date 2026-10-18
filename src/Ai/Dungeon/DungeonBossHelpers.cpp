@@ -74,7 +74,10 @@ namespace DungeonBoss
             if (!boss || !boss->IsAlive() || boss->GetVictim() == bot)
                 continue;
 
-            if (candidate.spell && (!IsCastingNamed(boss, candidate.spell) || CastTarget(boss, candidate.spell) == bot))
+            if (candidate.spell && !IsCastingNamed(boss, candidate.spell) && !HasAuraNamed(boss, candidate.spell))
+                continue;
+
+            if (candidate.spell && CastTarget(boss, candidate.spell) == bot)
                 continue;
 
             if (InFront(boss, bot, candidate.reach, candidate.halfArc))
