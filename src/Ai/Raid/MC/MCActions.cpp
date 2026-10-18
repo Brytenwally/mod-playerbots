@@ -11,7 +11,7 @@
 #include <algorithm>
 
 static constexpr float LIVING_BOMB_DISTANCE = 20.0f;
-static constexpr float INFERNO_DISTANCE = 20.0f;
+static constexpr float INFERNO_DISTANCE = 23.0f;
 
 // dedicated tank positions; prevents assist tanks from positioning Core Ragers on steep walls on pull
 static const Position GOLEMAGG_TANK_POSITION{795.7308, -994.8848, -207.18661};

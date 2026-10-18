@@ -53,7 +53,7 @@ enum MoltenCoreSpells
     // Baron Geddon
     SPELL_INFERNO = 19695,                 // SpellDifficulty row 369: 19695/350084/350084/350084
     SPELL_INFERNO_DIFF_1_3 = 350084,
-    SPELL_INFERNO_COA = 2105740,           // CoA: 3 s cast, then a 10 s aura on Geddon; no SpellDifficulty row
+    SPELL_INFERNO_COA = 2105740,           // CoA: its pulses (2105741-44) reach 100 yd, the whole room: no escape
     SPELL_LIVING_BOMB = 20475,
     SPELL_LIVING_BOMB_COA_CAST = 2105701,  // CoA: 1 s dummy cast at the bomb's target
     SPELL_LIVING_BOMB_COA_D0 = 2105702,    // CoA: debuff applied when the dummy cast completes,
@@ -67,8 +67,9 @@ enum MoltenCoreSpells
     SPELL_MAGMA_SPLASH_DIFF_2_3 = 350099,
 };
 
-// Aura on Baron Geddon while Inferno is active
-constexpr uint32 INFERNO_AURAS[] = {SPELL_INFERNO, SPELL_INFERNO_DIFF_1_3, SPELL_INFERNO_COA};
+// Aura on Baron Geddon while the stock Inferno is active; its pulses (19698/350085) reach 20 yd.
+// CoA's Inferno is left out: running from it only stopped the heals during raid-wide damage.
+constexpr uint32 INFERNO_AURAS[] = {SPELL_INFERNO, SPELL_INFERNO_DIFF_1_3};
 
 // Debuff on the Living Bomb carrier
 constexpr uint32 LIVING_BOMB_AURAS[] = {SPELL_LIVING_BOMB, SPELL_LIVING_BOMB_COA_D0, SPELL_LIVING_BOMB_COA_D1,
@@ -80,10 +81,10 @@ constexpr uint32 MAGMA_SPLASH_AURAS[] = {SPELL_MAGMA_SPLASH, SPELL_MAGMA_SPLASH_
 constexpr uint32 MAGMA_SPLASH_BACK_OFF_STACKS = 20;
 constexpr float MAGMA_SPLASH_BACK_OFF_DISTANCE = 12.0f;
 
-// Shazzrah's Arcane Explosion radius (stock 19712: 18 yd, CoA 2105601: 20 yd)
+// Shazzrah's Arcane Explosion radius (stock 19712: 18 yd, CoA 2105601 and Mirrored 2105650: 20 yd, Spell.dbc)
 constexpr float ARCANE_EXPLOSION_DISTANCE = 26.0f;
 
-// Mirrored Arcane Explosion has no measured radius; the reflections are kept at Shazzrah's own distance
+// Mirrored Arcane Explosion (2105650) has Shazzrah's own 20 yd radius
 constexpr float REFLECTION_DISTANCE = ARCANE_EXPLOSION_DISTANCE;
 
 constexpr float SACRIFICIAL_CHAINS_SEARCH_DISTANCE = 60.0f;
@@ -109,10 +110,10 @@ inline uint32 GetAuraStacks(Unit const* unit, uint32 const (&spellIds)[N])
     return stacks;
 }
 
-// Inferno is up on Geddon, or (CoA) its cast is in progress.
+// The stock Inferno, which can be outrun, is up on Geddon.
 inline bool IsInfernoActive(Unit const* geddon)
 {
-    return HasAnyAura(geddon, INFERNO_AURAS) || geddon->FindCurrentSpellBySpellId(SPELL_INFERNO_COA);
+    return HasAnyAura(geddon, INFERNO_AURAS);
 }
 
 // CoA: Geddon is casting the Living Bomb dummy at this unit; the debuff lands

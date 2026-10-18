@@ -74,6 +74,15 @@ bool SmDoanDetonationTrigger::IsActive()
     return IsDetonating(doan) && bot->GetExactDist2d(doan) < DETONATION_SAFE_DISTANCE;
 }
 
+bool SmDoanRangedTrigger::IsActive()
+{
+    if (!botAI->IsRanged(bot))
+        return false;
+
+    Unit* doan = AI_VALUE2(Unit*, "find target", "arcanist doan");
+    return doan && doan->IsAlive() && !IsDetonating(doan) && bot->GetExactDist2d(doan) < DOAN_RANGED_DISTANCE;
+}
+
 bool SmHerodWhirlwindTrigger::IsActive()
 {
     if (botAI->IsTank(bot))

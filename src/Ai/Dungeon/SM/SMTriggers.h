@@ -15,12 +15,16 @@
 // health and damage change, and the Heroic/Mythic spells keep their names, so the spells are matched by name.
 namespace ScarletMonastery
 {
-    // Arcanist Doan: at half health he shields himself in Arcane Bubble and starts Detonation, a large arcane
-    // blast around him.
-    constexpr float DETONATION_SAFE_DISTANCE = 24.0f;
+    // Arcanist Doan: at half health he shields himself in Arcane Bubble (6 s) and casts Detonation, which hits
+    // everyone within 30 yd (Spell.dbc 9435).
+    constexpr float DETONATION_SAFE_DISTANCE = 33.0f;
 
-    // Herod's Whirlwind hits everyone next to him for its whole duration.
-    constexpr float WHIRLWIND_SAFE_DISTANCE = 12.0f;
+    // Doan's area Silence (8988, every 20-22 s) reaches 20 yd, his Arcanist's Explosion (2100692) 15 yd: casters
+    // and healers stay outside both.
+    constexpr float DOAN_RANGED_DISTANCE = 22.0f;
+
+    // Herod's Whirlwind (8989, 10 s) hits within 5 yd of him (15578).
+    constexpr float WHIRLWIND_SAFE_DISTANCE = 9.0f;
 
     bool HasAuraNamed(Unit const* unit, char const* name);
     bool IsCastingNamed(Unit const* unit, char const* name);
@@ -36,6 +40,13 @@ class SmDoanDetonationTrigger : public Trigger
 {
 public:
     SmDoanDetonationTrigger(PlayerbotAI* ai) : Trigger(ai, "sm doan detonation") {}
+    bool IsActive() override;
+};
+
+class SmDoanRangedTrigger : public Trigger
+{
+public:
+    SmDoanRangedTrigger(PlayerbotAI* ai) : Trigger(ai, "sm doan ranged") {}
     bool IsActive() override;
 };
 
