@@ -13,13 +13,6 @@
 #include "Playerbots.h"
 #include "RFKTriggers.h"
 
-class RfkMoveFromLightningNovaAction : public DungeonBossMovementAction
-{
-public:
-    RfkMoveFromLightningNovaAction(PlayerbotAI* ai) : DungeonBossMovementAction(ai, "rfk move from lightning nova") {}
-    bool Execute(Event event) override;
-};
-
 class RfkMoveFromFrontalConeAction : public DungeonBossMovementAction
 {
 public:

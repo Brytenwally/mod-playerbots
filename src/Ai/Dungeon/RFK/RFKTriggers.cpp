@@ -11,30 +11,7 @@
 
 using namespace DungeonBoss;
 
-namespace RazorfenKraul
-{
-    Unit* CharlgaCastingNova(PlayerbotAI* botAI, AiObjectContext* context)
-    {
-        Unit* charlga = AI_VALUE2(Unit*, "find target", "charlga razorflank");
-        return charlga && charlga->IsAlive() && IsCastingNamed(charlga, "Lightning Nova") ? charlga : nullptr;
-    }
-
-    bool LeavesNova(PlayerbotAI* botAI, Player* bot)
-    {
-        return !botAI->IsTank(bot) && botAI->IsRanged(bot);
-    }
-}
-
 using namespace RazorfenKraul;
-
-bool RfkCharlgaLightningNovaTrigger::IsActive()
-{
-    if (!LeavesNova(botAI, bot))
-        return false;
-
-    Unit* charlga = CharlgaCastingNova(botAI, context);
-    return charlga && Within(bot, charlga, LIGHTNING_NOVA_RADIUS);
-}
 
 bool RfkFrontalConeTrigger::IsActive()
 {

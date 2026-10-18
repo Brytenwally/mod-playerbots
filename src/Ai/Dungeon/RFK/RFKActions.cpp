@@ -12,16 +12,6 @@
 using namespace DungeonBoss;
 using namespace RazorfenKraul;
 
-bool RfkMoveFromLightningNovaAction::Execute(Event /*event*/)
-{
-    Unit* charlga = CharlgaCastingNova(botAI, context);
-    if (!charlga)
-        return false;
-
-    bot->CastStop();
-    return KeepAway(charlga, LIGHTNING_NOVA_RADIUS);
-}
-
 bool RfkMoveFromFrontalConeAction::Execute(Event /*event*/)
 {
     FrontalCone const* cone = nullptr;
