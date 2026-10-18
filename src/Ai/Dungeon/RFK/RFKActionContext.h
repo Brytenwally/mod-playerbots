@@ -16,12 +16,10 @@ class VanillaDungeonRFKActionContext : public NamedObjectContext<Action>
 public:
     VanillaDungeonRFKActionContext()
     {
-        creators["rfk move from lightning nova"] = &VanillaDungeonRFKActionContext::move_from_lightning_nova;
         creators["rfk move from frontal cone"] = &VanillaDungeonRFKActionContext::move_from_frontal_cone;
     }
 
 private:
-    static Action* move_from_lightning_nova(PlayerbotAI* ai) { return new RfkMoveFromLightningNovaAction(ai); }
     static Action* move_from_frontal_cone(PlayerbotAI* ai) { return new RfkMoveFromFrontalConeAction(ai); }
 };
 

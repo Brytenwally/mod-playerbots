@@ -6,8 +6,6 @@
 
 #include "RFKStrategy.h"
 
-#include "RFKMultipliers.h"
-
 void VanillaDungeonRFKStrategy::InitTriggers(std::vector<TriggerNode*>& triggers)
 {
     // Roogug, Aggem Thorncurse, Overlord Ramtusk, Agathelos the Raging, Blind Hunter, Earthcaller Halmgar: their CoA
@@ -16,17 +14,11 @@ void VanillaDungeonRFKStrategy::InitTriggers(std::vector<TriggerNode*>& triggers
     // (Thunder Clap, Rampage). The class actions, "avoid aoe" and "coa boss dodge" cover them. Jargba's Dominate
     // Mind is interrupted first; the charmed player is left alone.
 
-    // Charlga Razorflank: casters and healers leave Lightning Nova while it is cast; the rest interrupt it.
-    triggers.push_back(new TriggerNode("rfk charlga lightning nova",
-            { NextAction("rfk move from lightning nova", ACTION_RAID + 1) }));
+    // Charlga Razorflank: Lightning Nova (2102774, a 6 s cast, 40 yd) is interruptible, she is not immune to
+    // interrupts and it is on the dungeon interrupt priority list, so the group kicks it instead of running out.
 
     // Death Speaker Jargba: nobody but the tank stands in front of Shadow Bolt Volley. "coa boss dodge" only acts
     // on cones of up to 15 yd.
     triggers.push_back(new TriggerNode("rfk frontal cone",
             { NextAction("rfk move from frontal cone", ACTION_RAID + 1) }));
-}
-
-void VanillaDungeonRFKStrategy::InitMultipliers(std::vector<Multiplier*>& multipliers)
-{
-    multipliers.push_back(new CharlgaRazorflankMultiplier(botAI));
 }
