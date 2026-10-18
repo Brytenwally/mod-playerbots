@@ -9,8 +9,6 @@
 #include "AiObjectContext.h"
 #include "Playerbots.h"
 
-#include <cmath>
-
 using namespace DungeonBoss;
 
 namespace WailingCaverns
@@ -28,12 +26,7 @@ namespace WailingCaverns
 
     bool InOverrunPath(Unit const* skum, Unit const* bot)
     {
-        float const distance = skum->GetExactDist2d(bot);
-        float const angle = RelativeAngle(skum, bot);
-        float const ahead = distance * std::cos(angle);
-        float const aside = distance * std::sin(angle);
-        float const halfWidth = OverrunHalfWidth(skum, bot);
-        return ahead > -halfWidth && ahead < OVERRUN_LENGTH + halfWidth && std::fabs(aside) < halfWidth;
+        return InPath(skum, skum->GetOrientation(), OVERRUN_LENGTH, OverrunHalfWidth(skum, bot), bot);
     }
 }
 

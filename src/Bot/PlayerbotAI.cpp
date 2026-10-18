@@ -1919,10 +1919,10 @@ void PlayerbotAI::ApplyInstanceStrategies(uint32 mapId, bool tellMaster)
     {
         "aq20", "blacktemple", "bwl", "gruulslair", "hyjal", "icc", "karazhan", "magtheridon",
         "moltencore", "naxx", "onyxia", "rs", "ssc", "tbc-ac", "tbc-mech", "tbc-mgt", "tbc-seth", "tbc-ub",
-        "tempestkeep", "ulduar", "vanilla-bfd", "vanilla-brd", "vanilla-rfc", "vanilla-rfd", "vanilla-rfk",
-        "vanilla-sfk", "vanilla-sm", "vanilla-wc", "voa", "wotlk-an", "wotlk-cos", "wotlk-dtk", "wotlk-eoe",
-        "wotlk-fos", "wotlk-gd", "wotlk-hol", "wotlk-hos", "wotlk-nex", "wotlk-occ", "wotlk-ok", "wotlk-os",
-        "wotlk-pos", "wotlk-toc", "wotlk-uk", "wotlk-up", "wotlk-vh", "zulaman"
+        "tempestkeep", "ulduar", "vanilla-bfd", "vanilla-brd", "vanilla-brs", "vanilla-rfc", "vanilla-rfd",
+        "vanilla-rfk", "vanilla-sfk", "vanilla-sm", "vanilla-wc", "voa", "wotlk-an", "wotlk-cos", "wotlk-dtk",
+        "wotlk-eoe", "wotlk-fos", "wotlk-gd", "wotlk-hol", "wotlk-hos", "wotlk-nex", "wotlk-occ", "wotlk-ok",
+        "wotlk-os", "wotlk-pos", "wotlk-toc", "wotlk-uk", "wotlk-up", "wotlk-vh", "zulaman"
     };
 
     for (std::string const& strat : allInstanceStrategies)
@@ -1951,6 +1951,9 @@ void PlayerbotAI::ApplyInstanceStrategies(uint32 mapId, bool tellMaster)
             break;
         case 189:
             strategyName = "vanilla-sm";  // Scarlet Monastery
+            break;
+        case 229:
+            strategyName = "vanilla-brs";  // Blackrock Spire
             break;
         case 230:
             strategyName = "vanilla-brd";  // Blackrock Depths
