@@ -88,6 +88,24 @@ namespace DungeonBoss
         return radius + unit->GetCombatReach() + RANGE_MARGIN;
     }
 
+    Unit* CastTarget(Unit const* caster, char const* spell)
+    {
+        for (uint32 type : { CURRENT_GENERIC_SPELL, CURRENT_CHANNELED_SPELL })
+            if (Spell* cast = caster->GetCurrentSpell(type))
+                if (NameIs(cast->GetSpellInfo(), spell))
+                    return cast->m_targets.GetUnitTarget();
+        return nullptr;
+    }
+
+    bool InPath(Unit const* source, float angle, float length, float halfWidth, Unit const* unit)
+    {
+        float const dx = unit->GetPositionX() - source->GetPositionX();
+        float const dy = unit->GetPositionY() - source->GetPositionY();
+        float const along = dx * std::cos(angle) + dy * std::sin(angle);
+        float const aside = dy * std::cos(angle) - dx * std::sin(angle);
+        return along > -halfWidth && along < length + halfWidth && std::fabs(aside) < halfWidth;
+    }
+
     bool MovesIntoDanger(Action* action)
     {
         if (dynamic_cast<DungeonBossMovementAction*>(action) || dynamic_cast<AvoidAoeAction*>(action) ||
@@ -103,8 +121,23 @@ using namespace DungeonBoss;
 bool DungeonBossMovementAction::MoveAround(Unit* boss, float angle, float distance)
 {
     float const absolute = Position::NormalizeOrientation(boss->GetOrientation() + angle);
-    float x = boss->GetPositionX() + std::cos(absolute) * distance;
-    float y = boss->GetPositionY() + std::sin(absolute) * distance;
+    return MoveToSpot(boss->GetPositionX() + std::cos(absolute) * distance,
+                      boss->GetPositionY() + std::sin(absolute) * distance);
+}
+
+bool DungeonBossMovementAction::MoveOutOfPath(Unit* source, float angle, float halfWidth, float step)
+{
+    float const dx = bot->GetPositionX() - source->GetPositionX();
+    float const dy = bot->GetPositionY() - source->GetPositionY();
+    float const along = dx * std::cos(angle) + dy * std::sin(angle);
+    float const aside = dy * std::cos(angle) - dx * std::sin(angle);
+    float const out = aside >= 0.0f ? halfWidth + step : -(halfWidth + step);
+    return MoveToSpot(source->GetPositionX() + along * std::cos(angle) - out * std::sin(angle),
+                      source->GetPositionY() + along * std::sin(angle) + out * std::cos(angle));
+}
+
+bool DungeonBossMovementAction::MoveToSpot(float x, float y)
+{
     float z = bot->GetPositionZ();
     if (!bot->GetMap()->CheckCollisionAndGetValidCoords(bot, bot->GetPositionX(), bot->GetPositionY(),
                                                         bot->GetPositionZ(), x, y, z))

@@ -55,6 +55,12 @@ namespace DungeonBoss
     bool Within(Player* bot, Unit const* unit, float radius);
     float KeepAwayDistance(Unit const* unit, float radius);
 
+    // The unit the caster's current cast of that spell is aimed at, nullptr if it casts no such spell at a unit.
+    Unit* CastTarget(Unit const* caster, char const* spell);
+
+    // On the strip `halfWidth` wide that runs `length` yards from `source` in the direction `angle`.
+    bool InPath(Unit const* source, float angle, float length, float halfWidth, Unit const* unit);
+
     // Whether the action walks the bot somewhere other than out of danger: following, formation, reaching melee
     // or spell range. A strategy's own escape moves, "avoid aoe" and "coa boss dodge" are not counted.
     bool MovesIntoDanger(Action* action);
@@ -70,6 +76,11 @@ protected:
     bool MoveAround(Unit* boss, float angle, float distance);
     bool MoveOutOfCone(Unit* boss, DungeonBoss::FrontalCone const& cone);
     bool KeepAway(Unit* unit, float radius);
+    // Straight out to the nearer side of the strip of InPath, keeping the bot's place along it.
+    bool MoveOutOfPath(Unit* source, float angle, float halfWidth, float step);
+
+private:
+    bool MoveToSpot(float x, float y);
 };
 
 #endif

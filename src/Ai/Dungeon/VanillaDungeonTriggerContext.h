@@ -9,6 +9,7 @@
 
 #include "BFDTriggerContext.h"
 #include "BRDTriggerContext.h"
+#include "BRSTriggerContext.h"
 #include "RFCTriggerContext.h"
 #include "RFDTriggerContext.h"
 #include "RFKTriggerContext.h"
