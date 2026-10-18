@@ -37,6 +37,14 @@ namespace DungeonBoss
         return false;
     }
 
+    int32 AuraRemainingNamed(Unit const* unit, char const* name)
+    {
+        for (auto const& [spellId, application] : unit->GetAppliedAuras())
+            if (NameIs(application->GetBase()->GetSpellInfo(), name))
+                return application->GetBase()->GetDuration();
+        return -1;
+    }
+
     bool IsCastingNamed(Unit const* unit, char const* name)
     {
         for (uint32 type : { CURRENT_GENERIC_SPELL, CURRENT_CHANNELED_SPELL })
@@ -66,7 +74,7 @@ namespace DungeonBoss
             if (!boss || !boss->IsAlive() || boss->GetVictim() == bot)
                 continue;
 
-            if (candidate.spell && !IsCastingNamed(boss, candidate.spell))
+            if (candidate.spell && (!IsCastingNamed(boss, candidate.spell) || CastTarget(boss, candidate.spell) == bot))
                 continue;
 
             if (InFront(boss, bot, candidate.reach, candidate.halfArc))

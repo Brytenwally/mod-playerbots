@@ -25,6 +25,8 @@ namespace DungeonBoss
     constexpr float DegreesToRadians(float degrees) { return degrees * float(M_PI) / 180.0f; }
 
     bool HasAuraNamed(Unit const* unit, char const* name);
+    // Milliseconds left on the unit's aura of that name, -1 without one.
+    int32 AuraRemainingNamed(Unit const* unit, char const* name);
     bool IsCastingNamed(Unit const* unit, char const* name);
 
     // The unit's angle around `center`, measured from the center's facing, in (-pi, pi].
@@ -47,7 +49,8 @@ namespace DungeonBoss
     // In front of the unit, within `reach` of its edge and `halfArc` (plus the margin) of its facing.
     bool InFront(Unit const* unit, Player* bot, float reach, float halfArc);
 
-    // The boss whose frontal cone the bot stands in, nullptr if none. The cone's own target is not counted.
+    // The boss whose frontal cone the bot stands in, nullptr if none. The cone's own target, the boss's victim or the
+    // unit the named cast is aimed at, is not counted.
     Unit* ConeOver(PlayerbotAI* botAI, AiObjectContext* context, Player* bot,
                    std::span<FrontalCone const> cones, FrontalCone const*& cone);
 

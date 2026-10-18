@@ -15,6 +15,8 @@
 #include "RFKTriggerContext.h"
 #include "SFKTriggerContext.h"
 #include "SMTriggerContext.h"
+#include "ScholoTriggerContext.h"
+#include "StratTriggerContext.h"
 #include "WCTriggerContext.h"
 
 #endif

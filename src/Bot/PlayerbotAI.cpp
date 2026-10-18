@@ -1920,9 +1920,10 @@ void PlayerbotAI::ApplyInstanceStrategies(uint32 mapId, bool tellMaster)
         "aq20", "blacktemple", "bwl", "gruulslair", "hyjal", "icc", "karazhan", "magtheridon",
         "moltencore", "naxx", "onyxia", "rs", "ssc", "tbc-ac", "tbc-mech", "tbc-mgt", "tbc-seth", "tbc-ub",
         "tempestkeep", "ulduar", "vanilla-bfd", "vanilla-brd", "vanilla-brs", "vanilla-rfc", "vanilla-rfd",
-        "vanilla-rfk", "vanilla-sfk", "vanilla-sm", "vanilla-wc", "voa", "wotlk-an", "wotlk-cos", "wotlk-dtk",
-        "wotlk-eoe", "wotlk-fos", "wotlk-gd", "wotlk-hol", "wotlk-hos", "wotlk-nex", "wotlk-occ", "wotlk-ok",
-        "wotlk-os", "wotlk-pos", "wotlk-toc", "wotlk-uk", "wotlk-up", "wotlk-vh", "zulaman"
+        "vanilla-rfk", "vanilla-scholo", "vanilla-sfk", "vanilla-sm", "vanilla-strat", "vanilla-wc", "voa",
+        "wotlk-an", "wotlk-cos", "wotlk-dtk", "wotlk-eoe", "wotlk-fos", "wotlk-gd", "wotlk-hol", "wotlk-hos",
+        "wotlk-nex", "wotlk-occ", "wotlk-ok", "wotlk-os", "wotlk-pos", "wotlk-toc", "wotlk-uk", "wotlk-up", "wotlk-vh",
+        "zulaman"
     };
 
     for (std::string const& strat : allInstanceStrategies)
@@ -1960,6 +1961,12 @@ void PlayerbotAI::ApplyInstanceStrategies(uint32 mapId, bool tellMaster)
             break;
         case 249:
             strategyName = "onyxia";  // Onyxia's Lair
+            break;
+        case 289:
+            strategyName = "vanilla-scholo";  // Scholomance
+            break;
+        case 329:
+            strategyName = "vanilla-strat";  // Stratholme
             break;
         case 389:
             strategyName = "vanilla-rfc";  // Ragefire Chasm
