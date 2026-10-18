@@ -7,30 +7,40 @@
 #include "BFDTriggers.h"
 
 #include "AiObjectContext.h"
+#include "Helpers.h"
 #include "Playerbots.h"
+
+#include <cmath>
 
 using namespace DungeonBoss;
 
 namespace BlackfathomDeeps
 {
+    Unit* FindGhamoora(PlayerbotAI* botAI, AiObjectContext* context)
+    {
+        if (Unit* ghamoora = AI_VALUE2(Unit*, "find target", "ghamoo-ra"))
+            return ghamoora;
+
+        std::wstring const key = CoaNameKey("ghamoo-ra");
+        for (ObjectGuid const& guid : AI_VALUE(GuidVector, "possible targets no los"))
+            if (Unit* unit = botAI->GetUnit(guid))
+                if (unit->IsAlive() && CoaNameIs(unit->GetName(), key))
+                    return unit;
+        return nullptr;
+    }
+
     bool IsTorrenting(Unit const* ghamoora)
     {
         return ghamoora && ghamoora->IsAlive() &&
                (HasAuraNamed(ghamoora, "Torrent") || IsCastingNamed(ghamoora, "Torrent"));
     }
 
-    bool InTorrentDanger(Unit const* ghamoora, Player* bot)
+    bool OffHisBack(Unit const* ghamoora, Player* bot)
     {
-        float const distance = bot->GetExactDist2d(ghamoora);
-        if (distance > TORRENT_REACH + ghamoora->GetCombatReach())
+        if (bot->GetExactDist2d(ghamoora) > TORRENT_REACH + ghamoora->GetCombatReach())
             return false;
 
-        // Inside the boss's own boundary a cone hits at any angle.
-        if (distance < ghamoora->GetBoundaryRadius() + 1.0f)
-            return true;
-
-        float const angle = RelativeAngle(ghamoora, bot);
-        return angle > -TORRENT_AHEAD_WINDOW && angle < TORRENT_BEHIND_WINDOW;
+        return std::fabs(RelativeAngle(ghamoora, bot)) < float(M_PI) - TORRENT_BACK_TOLERANCE;
     }
 }
 
@@ -38,8 +48,8 @@ using namespace BlackfathomDeeps;
 
 bool BfdGhamooraTorrentTrigger::IsActive()
 {
-    Unit* ghamoora = AI_VALUE2(Unit*, "find target", "ghamoo-ra");
-    return IsTorrenting(ghamoora) && InTorrentDanger(ghamoora, bot);
+    Unit* ghamoora = FindGhamoora(botAI, context);
+    return IsTorrenting(ghamoora) && OffHisBack(ghamoora, bot);
 }
 
 bool BfdFrontalConeTrigger::IsActive()

@@ -16,19 +16,22 @@ using namespace DungeonBoss;
 
 bool BfdMoveFromTorrentAction::Execute(Event /*event*/)
 {
-    Unit* ghamoora = AI_VALUE2(Unit*, "find target", "ghamoo-ra");
-    if (!IsTorrenting(ghamoora) || !InTorrentDanger(ghamoora, bot))
+    Unit* ghamoora = FindGhamoora(botAI, context);
+    if (!IsTorrenting(ghamoora) || !OffHisBack(ghamoora, bot))
         return false;
 
+    // Round the nearer side towards his back; out of the beam itself by the side it has already swept.
     float const angle = RelativeAngle(ghamoora, bot);
-    float const distance = std::max(bot->GetExactDist2d(ghamoora), ghamoora->GetCombatReach() + 2.0f);
+    bool const clockwise = angle < -TORRENT_HALF_ARC;
+    float const target = clockwise ? std::max(angle - TORRENT_STEP, -float(M_PI))
+                                   : std::min(angle + TORRENT_STEP, float(M_PI));
 
-    // In the beam, or just behind it: out on the side it has passed. Ahead of it: further ahead, so that the
-    // way out never crosses it.
-    if (angle > -TORRENT_HALF_ARC)
-        return MoveAround(ghamoora, TORRENT_BEHIND_ANGLE, distance);
-
-    return MoveAround(ghamoora, angle - TORRENT_AHEAD_STEP, distance);
+    // Melee stay in reach of his back to keep hitting him; he does not fight back while he turns.
+    float const closest = ghamoora->GetCombatReach() + 1.0f;
+    float const distance = botAI->IsRanged(bot)
+        ? std::clamp(bot->GetExactDist2d(ghamoora), closest + 2.0f, TORRENT_RANGED_DISTANCE)
+        : closest;
+    return MoveAround(ghamoora, target, distance);
 }
 
 bool BfdMoveFromFrontalConeAction::Execute(Event /*event*/)

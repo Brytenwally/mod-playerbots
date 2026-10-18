@@ -16,10 +16,11 @@ void VanillaDungeonBFDStrategy::InitTriggers(std::vector<TriggerNode*>& triggers
     // Ghamoo-ra's Thunder Clap and Trample and Lady Sarevess's Frost Nova reach 10 yd around the boss: the
     // "coa boss dodge" strategy keeps casters out of instant point blank spells already.
 
-    // Ghamoo-ra: Torrent turns once around him; everyone, the tank included, keeps out of the beam. He does not
-    // attack while it turns.
+    // Ghamoo-ra: while Torrent is cast and while it turns once around him, everyone, the tank included, keeps to
+    // his back. He does not attack while it turns. Level with "avoid aoe": a bot caught is knocked back again
+    // every 0.25 s.
     triggers.push_back(new TriggerNode("bfd ghamoo-ra torrent",
-            { NextAction("bfd move from torrent", ACTION_RAID + 2) }));
+            { NextAction("bfd move from torrent", ACTION_EMERGENCY) }));
 
     // Lady Sarevess (Forked Lightning) and Gelihast (Cone of Cold) cast a cone at the tank: the others stand
     // to the side or behind. "coa boss dodge" only acts on cones of up to 15 yd while they are cast, which

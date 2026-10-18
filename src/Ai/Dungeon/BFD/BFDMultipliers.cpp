@@ -11,20 +11,18 @@
 #include "BFDTriggers.h"
 #include "MovementActions.h"
 #include "Playerbots.h"
-#include "ReachTargetActions.h"
 
 using namespace BlackfathomDeeps;
 
 float GhamooraMultiplier::GetValue(Action* action)
 {
     if (!dynamic_cast<MovementAction*>(action) || dynamic_cast<DungeonBossMovementAction*>(action) ||
-        dynamic_cast<ReachTargetAction*>(action) || dynamic_cast<AvoidAoeAction*>(action) ||
-        action->getName() == "coa boss dodge")
+        dynamic_cast<AvoidAoeAction*>(action))
         return 1.0f;
 
-    // While the beam turns, following, formation and getting behind the boss would walk a bot across it. Moving
-    // straight in to the boss keeps the bot's angle and stays allowed.
-    Unit* ghamoora = AI_VALUE2(Unit*, "find target", "ghamoo-ra");
+    // While the beam turns, every other move (reaching melee or spell range, following, formation, getting behind,
+    // "coa boss dodge") would take a bot off his back.
+    Unit* ghamoora = FindGhamoora(botAI, context);
     if (!IsTorrenting(ghamoora) || bot->GetExactDist2d(ghamoora) > TORRENT_REACH + ghamoora->GetCombatReach())
         return 1.0f;
 
