@@ -61,6 +61,7 @@ void AiObjectContext::BuildSharedActionContexts(SharedNamedObjectContextList<Act
     actionContexts.Add(new TbcDungeonMechanarActionContext());
     actionContexts.Add(new TbcDungeonUnderbogActionContext());
     actionContexts.Add(new TbcDungeonMagistersTerraceActionContext());
+    actionContexts.Add(new VanillaDungeonBFDActionContext());
     actionContexts.Add(new VanillaDungeonRFCActionContext());
     actionContexts.Add(new VanillaDungeonSFKActionContext());
     actionContexts.Add(new VanillaDungeonSMActionContext());
