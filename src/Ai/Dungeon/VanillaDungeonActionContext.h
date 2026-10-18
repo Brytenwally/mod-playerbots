@@ -15,6 +15,8 @@
 #include "RFKActionContext.h"
 #include "SFKActionContext.h"
 #include "SMActionContext.h"
+#include "ScholoActionContext.h"
+#include "StratActionContext.h"
 #include "WCActionContext.h"
 
 #endif

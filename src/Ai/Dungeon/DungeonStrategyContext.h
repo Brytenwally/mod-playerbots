@@ -30,6 +30,8 @@
 #include "SethStrategy.h"
 #include "SFKStrategy.h"
 #include "SMStrategy.h"
+#include "ScholoStrategy.h"
+#include "StratStrategy.h"
 #include "Strategy.h"
 #include "TOCStrategy.h"
 #include "UBStrategy.h"
@@ -53,6 +55,8 @@ class DungeonStrategyContext : public NamedObjectContext<Strategy>
             creators["vanilla-rfd"] = &DungeonStrategyContext::vanilla_rfd;  // Razorfen Downs
             creators["vanilla-brd"] = &DungeonStrategyContext::vanilla_brd;  // Blackrock Depths
             creators["vanilla-brs"] = &DungeonStrategyContext::vanilla_brs;  // Blackrock Spire
+            creators["vanilla-strat"] = &DungeonStrategyContext::vanilla_strat;  // Stratholme
+            creators["vanilla-scholo"] = &DungeonStrategyContext::vanilla_scholo;  // Scholomance
 
             // Burning Crusade
             creators["tbc-ac"] = &DungeonStrategyContext::tbc_ac;           // Auchindoun: Auchenai Crypts
@@ -88,6 +92,8 @@ class DungeonStrategyContext : public NamedObjectContext<Strategy>
         static Strategy* vanilla_rfd(PlayerbotAI* botAI) { return new VanillaDungeonRFDStrategy(botAI); }
         static Strategy* vanilla_brd(PlayerbotAI* botAI) { return new VanillaDungeonBRDStrategy(botAI); }
         static Strategy* vanilla_brs(PlayerbotAI* botAI) { return new VanillaDungeonBRSStrategy(botAI); }
+        static Strategy* vanilla_strat(PlayerbotAI* botAI) { return new VanillaDungeonStratStrategy(botAI); }
+        static Strategy* vanilla_scholo(PlayerbotAI* botAI) { return new VanillaDungeonScholoStrategy(botAI); }
         static Strategy* tbc_ac(PlayerbotAI* botAI) { return new TbcDungeonAuchenaiCryptsStrategy(botAI); }
         static Strategy* tbc_seth(PlayerbotAI* botAI) { return new TbcDungeonSethekkHallsStrategy(botAI); }
         static Strategy* tbc_mech(PlayerbotAI* botAI) { return new TbcDungeonMechanarStrategy(botAI); }
