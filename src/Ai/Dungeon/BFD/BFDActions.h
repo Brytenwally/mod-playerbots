@@ -9,31 +9,21 @@
 
 #include "Action.h"
 #include "BFDTriggers.h"
-#include "MovementActions.h"
+#include "DungeonBossHelpers.h"
 #include "PlayerbotAI.h"
 #include "Playerbots.h"
 
-class BfdMoveAroundBossAction : public MovementAction
+class BfdMoveFromTorrentAction : public DungeonBossMovementAction
 {
 public:
-    BfdMoveAroundBossAction(PlayerbotAI* ai, std::string const name) : MovementAction(ai, name) {}
-
-protected:
-    // To `angle` from the boss's facing, `distance` yards from it.
-    bool MoveAround(Unit* boss, float angle, float distance);
-};
-
-class BfdMoveFromTorrentAction : public BfdMoveAroundBossAction
-{
-public:
-    BfdMoveFromTorrentAction(PlayerbotAI* ai) : BfdMoveAroundBossAction(ai, "bfd move from torrent") {}
+    BfdMoveFromTorrentAction(PlayerbotAI* ai) : DungeonBossMovementAction(ai, "bfd move from torrent") {}
     bool Execute(Event event) override;
 };
 
-class BfdMoveFromFrontalConeAction : public BfdMoveAroundBossAction
+class BfdMoveFromFrontalConeAction : public DungeonBossMovementAction
 {
 public:
-    BfdMoveFromFrontalConeAction(PlayerbotAI* ai) : BfdMoveAroundBossAction(ai, "bfd move from frontal cone") {}
+    BfdMoveFromFrontalConeAction(PlayerbotAI* ai) : DungeonBossMovementAction(ai, "bfd move from frontal cone") {}
     bool Execute(Event event) override;
 };
 

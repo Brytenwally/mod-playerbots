@@ -1,0 +1,30 @@
+/*
+ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
+ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
+ * or (at your option) any later version.
+ */
+
+#include "RFKActions.h"
+
+#include "AiObjectContext.h"
+#include "Playerbots.h"
+
+using namespace DungeonBoss;
+using namespace RazorfenKraul;
+
+bool RfkMoveFromLightningNovaAction::Execute(Event /*event*/)
+{
+    Unit* charlga = CharlgaCastingNova(botAI, context);
+    if (!charlga)
+        return false;
+
+    bot->CastStop();
+    return KeepAway(charlga, LIGHTNING_NOVA_RADIUS);
+}
+
+bool RfkMoveFromFrontalConeAction::Execute(Event /*event*/)
+{
+    FrontalCone const* cone = nullptr;
+    Unit* boss = ConeOver(botAI, context, bot, FRONTAL_CONES, cone);
+    return boss && MoveOutOfCone(boss, *cone);
+}

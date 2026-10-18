@@ -9,7 +9,10 @@
 
 #include "BFDActionContext.h"
 #include "RFCActionContext.h"
+#include "RFDActionContext.h"
+#include "RFKActionContext.h"
 #include "SFKActionContext.h"
 #include "SMActionContext.h"
+#include "WCActionContext.h"
 
 #endif

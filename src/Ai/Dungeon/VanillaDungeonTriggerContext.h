@@ -9,7 +9,10 @@
 
 #include "BFDTriggerContext.h"
 #include "RFCTriggerContext.h"
+#include "RFDTriggerContext.h"
+#include "RFKTriggerContext.h"
 #include "SFKTriggerContext.h"
 #include "SMTriggerContext.h"
+#include "WCTriggerContext.h"
 
 #endif

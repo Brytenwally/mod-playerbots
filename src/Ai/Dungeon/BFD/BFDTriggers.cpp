@@ -8,45 +8,11 @@
 
 #include "AiObjectContext.h"
 #include "Playerbots.h"
-#include "Spell.h"
-#include "SpellAuras.h"
-#include "SpellInfo.h"
 
-#include <cstring>
+using namespace DungeonBoss;
 
 namespace BlackfathomDeeps
 {
-    namespace
-    {
-        bool NameIs(SpellInfo const* info, char const* name)
-        {
-            return info && info->SpellName[LOCALE_enUS] && std::strcmp(info->SpellName[LOCALE_enUS], name) == 0;
-        }
-    }
-
-    bool HasAuraNamed(Unit const* unit, char const* name)
-    {
-        for (auto const& [spellId, application] : unit->GetAppliedAuras())
-            if (NameIs(application->GetBase()->GetSpellInfo(), name))
-                return true;
-        return false;
-    }
-
-    bool IsCastingNamed(Unit const* unit, char const* name)
-    {
-        for (uint32 type : { CURRENT_GENERIC_SPELL, CURRENT_CHANNELED_SPELL })
-            if (Spell* spell = unit->GetCurrentSpell(type))
-                if (NameIs(spell->GetSpellInfo(), name))
-                    return true;
-        return false;
-    }
-
-    float RelativeAngle(Unit const* unit, Unit const* bot)
-    {
-        float const angle = Position::NormalizeOrientation(unit->GetAngle(bot) - unit->GetOrientation());
-        return angle > float(M_PI) ? angle - 2.0f * float(M_PI) : angle;
-    }
-
     bool IsTorrenting(Unit const* ghamoora)
     {
         return ghamoora && ghamoora->IsAlive() &&
@@ -66,26 +32,6 @@ namespace BlackfathomDeeps
         float const angle = RelativeAngle(ghamoora, bot);
         return angle > -TORRENT_AHEAD_WINDOW && angle < TORRENT_BEHIND_WINDOW;
     }
-
-    Unit* ConeOver(PlayerbotAI* botAI, AiObjectContext* context, Player* bot, FrontalCone const*& cone)
-    {
-        for (FrontalCone const& candidate : FRONTAL_CONES)
-        {
-            Unit* boss = AI_VALUE2(Unit*, "find target", candidate.boss);
-            if (!boss || !boss->IsAlive() || boss->GetVictim() == bot)
-                continue;
-
-            if (bot->GetExactDist2d(boss) > candidate.reach + boss->GetCombatReach() + 2.0f)
-                continue;
-
-            if (std::fabs(RelativeAngle(boss, bot)) < candidate.halfArc + CONE_MARGIN)
-            {
-                cone = &candidate;
-                return boss;
-            }
-        }
-        return nullptr;
-    }
 }
 
 using namespace BlackfathomDeeps;
@@ -102,5 +48,5 @@ bool BfdFrontalConeTrigger::IsActive()
         return false;
 
     FrontalCone const* cone = nullptr;
-    return ConeOver(botAI, context, bot, cone) != nullptr;
+    return ConeOver(botAI, context, bot, FRONTAL_CONES, cone) != nullptr;
 }
