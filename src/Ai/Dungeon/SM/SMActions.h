@@ -21,6 +21,13 @@ public:
     bool Execute(Event event) override;
 };
 
+class SmDoanRangedAction : public MovementAction
+{
+public:
+    SmDoanRangedAction(PlayerbotAI* ai) : MovementAction(ai, "sm doan ranged keep away") {}
+    bool Execute(Event event) override;
+};
+
 class SmMoveFromHerodAction : public MovementAction
 {
 public:

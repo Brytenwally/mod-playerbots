@@ -17,12 +17,14 @@ public:
     VanillaDungeonSMActionContext()
     {
         creators["sm move from doan"] = &VanillaDungeonSMActionContext::move_from_doan;
+        creators["sm doan ranged keep away"] = &VanillaDungeonSMActionContext::doan_ranged_keep_away;
         creators["sm move from herod"] = &VanillaDungeonSMActionContext::move_from_herod;
         creators["sm attack whitemane"] = &VanillaDungeonSMActionContext::attack_whitemane;
     }
 
 private:
     static Action* move_from_doan(PlayerbotAI* ai) { return new SmMoveFromDoanAction(ai); }
+    static Action* doan_ranged_keep_away(PlayerbotAI* ai) { return new SmDoanRangedAction(ai); }
     static Action* move_from_herod(PlayerbotAI* ai) { return new SmMoveFromHerodAction(ai); }
     static Action* attack_whitemane(PlayerbotAI* ai) { return new SmAttackWhitemaneAction(ai); }
 };

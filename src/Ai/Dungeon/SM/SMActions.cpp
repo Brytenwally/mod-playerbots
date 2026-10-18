@@ -25,6 +25,19 @@ bool SmMoveFromDoanAction::Execute(Event /*event*/)
     return MoveAway(doan, DETONATION_SAFE_DISTANCE - distance);
 }
 
+bool SmDoanRangedAction::Execute(Event /*event*/)
+{
+    Unit* doan = AI_VALUE2(Unit*, "find target", "arcanist doan");
+    if (!doan)
+        return false;
+
+    float const distance = bot->GetExactDist2d(doan);
+    if (distance >= DOAN_RANGED_DISTANCE)
+        return false;
+
+    return MoveAway(doan, DOAN_RANGED_DISTANCE - distance);
+}
+
 bool SmMoveFromHerodAction::Execute(Event /*event*/)
 {
     Unit* herod = AI_VALUE2(Unit*, "find target", "herod");
