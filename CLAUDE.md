@@ -14,8 +14,13 @@ module runs inside the CoA AzerothCore core (`Brytenwally/azerothcore-wotlk-coa`
 **Branches**
 - `coa-bot-strategies`: dungeon and raid strategies. The owner's build (`Brytenwally/coa-build`) uses this branch.
 - `coa-dungeon-strategies`: the dungeon strategies only, for upstream.
-- `wildcard-freepick`: Wildcard, Freepick and Mystic Enchant support for bots, started from `Zyth45:coa` (3b5a29b).
+- `wildcard-freepick`: bot support for **Wildcard heroes only**, started from `Zyth45:coa` (3b5a29b). Freepick and
+  Mystic Enchants are out of scope for now.
 - Keep this CLAUDE.md out of any upstream PR.
+
+**Never modify the core.** Playerbots adapts to the CoA core as it is. That means no core patches, no new core exports
+and no core config changes for bot work. Use only what the core already exposes. If something the bots need has no
+public core API, say so and find a playerbots-side way (for example the data the core already reads) instead.
 
 **Building**
 - Compile-check inside a core checkout, with this repo at `modules/mod-playerbots`.
@@ -26,19 +31,18 @@ module runs inside the CoA AzerothCore core (`Brytenwally/azerothcore-wotlk-coa`
 
 **Naming:** keep upstream naming (`vanilla-<dungeon>` strategies) to avoid merge conflicts.
 
-## Wildcard / Freepick / Mystic Enchant map
+## Wildcard map
 
 This map was taken against core `7e6a5b5a` (Brytenwally/azerothcore-wotlk-coa `main`, 2026-10-20) and this branch at
 3b5a29b.
 
 **Do not re-map from scratch.** Check whether it is still current:
-1. Run `git diff --stat 7e6a5b5a <new> -- src/server/coa/AscensionWildcard* src/server/coa/AscensionFreepick* src/server/coa/AscensionMysticEnchant* src/server/coa/AscensionBuildCreator.cpp src/server/coa/AscensionCompatOpcodes* src/server/game/Entities/Creature/Trainer.* modules/mod-coa-challenges`.
+1. Run `git diff --stat 7e6a5b5a <new> -- src/server/coa/AscensionWildcard* src/server/coa/AscensionCompatOpcodes* src/server/game/Entities/Creature/Trainer.* modules/mod-coa-challenges`.
 2. Re-map only the parts that changed in a meaningful way.
 3. Update the commit above.
 
 File shorthands: `WC` = `src/server/coa/AscensionWildcard.cpp`, `WH` = `AscensionWildcard.h`, `FP` =
-`AscensionFreepick.cpp`, `ME` = `AscensionMysticEnchant.cpp`, `MR` = `AscensionMysticEnchantRules.cpp`, `MRH` =
-`AscensionMysticEnchantRules.h`. All are in `src/server/coa/` of the core.
+`AscensionFreepick.cpp`. All are in `src/server/coa/` of the core.
 
 ### 1. Hero modes in one view
 
@@ -119,67 +123,18 @@ File shorthands: `WC` = `src/server/coa/AscensionWildcard.cpp`, `WH` = `Ascensio
   spending.
 - They are removed only by a scroll unlearn or by prestige.
 
-### 4. Freepick spells and talents (deterministic)
+### 4. Out of scope for now: Freepick and Mystic Enchants
 
-- **Rules.** `AscensionFreepickRules.cpp` holds the catalog plus `BuildRuleOk` (`:377`).
-  - It checks level, expansion, class, realm visibility, connected and required nodes, exclusive groups, and AE/TE
-    thresholds.
-  - `UnitRules` (`FP:140`): not in combat, battleground or arena; alive.
-  - `AutoLearn` (`:548`) grants the free rows; `CheckApply` (`:645`) prices removals in gold or Marks (375250).
-- **Entry points.**
-  - `AscensionFreepick::ApplyGuide(player, {GuideSpell{spell, level}…}, primaryStat)` (`FP:315`).
-  - `ApplyUpload(player, entries)` (`FP:306`).
-  - `SwitchSpecialization(player, index, err)` (`FP:338`).
-  - `Synchronize` (`FP:419`, at login).
-  - `SyncSpells` (`FP:217`) does the `learnSpell` / `removeSpell`.
-- **Template.** Hero Architect's `AutoLearn` (`AscensionBuildCreator.cpp:417-447`) applies a Freepick guide plus a
-  Mystic Enchant guide. Copy this pattern for bots.
+- **Freepick** heroes are class 10 without the 0x40 bit (`AscensionFreepick::IsFreepickHero`, `FP:250-253`). Bots
+  must not treat them as Wildcard. Their deterministic build API (`AscensionFreepick::ApplyGuide`, `FP:315`) is not
+  used on this branch.
+- **Mystic Enchants** (random enchants) are switched off for Wildcard by the core itself. Wildcard realms have no
+  altars (`FP:477-478`), and the enchant rules reject Wildcard characters. Wildcard bots therefore get none, and this
+  branch does not touch them.
 
-### 5. Mystic Enchants (random enchants)
+### 5. Pitfalls for bots
 
-- **Slots, not items.** There are 17 character slots (`MRH:15`; 1-15 under class fusion) and up to 100 presets.
-  - An applied enchant is a passive aura on the player, plus an optional taught spell.
-  - There is no item enchantment and no equip hook.
-- **Catalog.** `MysticEnchant.dbc`, loaded by `LoadCatalog` (`MR:283-302`).
-  - Fields: Id, Spell, Weight, Quality, RebornQuality, RequiredLevel, Item (the scroll), Worldforged, Realms[5],
-    ClassMask, RequiredAE/TE.
-  - An enchant is identified by its **aura spell id** everywhere.
-  - Hero uses `Quality`.
-- **Per-character state.** `State` (`ME:94-104`): Progress/Level (the altar level), ActivePreset, Presets
-  (`array<uint32,17>` of spell ids), Known, Auras.
-- **DB tables.** `coa_mystic_enchant`, `coa_mystic_enchant_known` and `coa_mystic_enchant_slot`.
-  - They are written immediately and loaded at `OnPlayerLogin` (`ME:760-768`).
-  - **If `OnPlayerLogin` didn't run, every call is a no-op.**
-- **Learning.**
-  - Only `Learn()` (`ME:339-349`, internal) adds to Known.
-  - It is reached only by extracting a scroll (0x0607) or a slotted enchant (0x0608).
-  - An extract needs an altar GameObject within 10 yd (`ME:87-90`) and Mystic Extract 98463, about one per enchant.
-  - Scroll sources:
-    - Unidentified Mystic Scroll 97866 drops: 4% from non-boss creatures above level 10; bosses drop level/10.
-    - The reveal roll `RollReveal` (`MR:971-1010`) favours enchants that affect a spell the Hero knows.
-    - Reforge (0x0603).
-    - Vendors 9781002-9781011, for Freepick heroes only.
-- **Applying.** The final effect is `SyncAuras` (`ME:214-238`): `AddAura` + `SetStackAmount` + `learnSpell(Taught)`.
-  - Scroll apply (0x0610) consumes the scrolls and needs no altar.
-  - Collection apply (0x060F) needs an altar and Runes or gold.
-  - **Public API: `AscensionMysticEnchant::ApplyGuide(player, std::vector<GuideEnchant{Spell, Stacks, Level}>)`**
-    (`AscensionMysticEnchant.h:13`, `ME:1014-1033`; `GuideEnchant` at `MRH:393`).
-    - No altar, no cost, no packet; all caps enforced.
-    - **The enchants must already be in Known.**
-- **Caps** (`QualityCap`, `MR:361-410`):
-  - uncommon 17, rare 17, epic 3, legendary 1, artifact 1;
-  - with fusion: 6 uncommon / 5 rare / 4 epic;
-  - rare worldforged ≤ 3;
-  - unlock levels come from `CONFIG_*_UNLOCK_LEVEL_n`.
-- **Wildcard gets no Mystic Enchants. This is deliberate.**
-  - `MysticAltars = (Classless || Reborn) && !PlaysWildcard(realm)` (`FP:477-478`).
-  - The rules reject `Character::Wildcard()` (realm `CoA.GameModeMask` & 0x40) at `MR:204, 445, 595, 677, 831, 884`.
-  - Enabling them for Wildcard means changing those core gates. That is a design decision for the owner.
-- **Classes 12-32** get BAD_CLASS from most enchant operations.
-
-### 6. Pitfalls for bots
-
-1. **Do not inject client packets.** Wildcard and Mystic opcodes go through `AscensionCompatOpcodes::Claim` →
+1. **Do not inject client packets.** Wildcard opcodes go through `AscensionCompatOpcodes::Claim` →
    `QueueRequest`, which queues **per account**.
    - Wildcard drains only on non-bot sessions (`WC:2287-2314`), so a bot's packet never runs, or runs on the human's
      character.
@@ -191,9 +146,9 @@ File shorthands: `WC` = `src/server/coa/AscensionWildcard.cpp`, `WH` = `Ascensio
 4. **The Wildcard bit comes from the realm or a `coa_character_gamemode` row.** Otherwise a Hero is Freepick, or a
    Warrior if `MapClass10ToWarrior=1`.
 5. **The reroll economy is per spec.** `CheckUnlearn` refuses while essence is unspent: roll first, reroll after.
-6. **The stat path upload and Freepick changes refuse during combat**, death, battlegrounds and arenas.
+6. **The stat path upload refuses during combat.**
 
-### 7. Core API for bots (the integration surface)
+### 6. Core API for bots (the integration surface)
 
 **Wildcard** (`AscensionWildcard::`):
 
@@ -207,31 +162,10 @@ File shorthands: `WC` = `src/server/coa/AscensionWildcard.cpp`, `WH` = `Ascensio
 | `ApplyBuildUpload(player, KnownEntries(player) + {pathEntry, 1})` | Chooses the stat path. |
 | `PrestigeSpecialization` | Prestige. |
 
-**Freepick** (`AscensionFreepick::`):
-
-| Call | What it does |
-|---|---|
-| `IsFreepickHero`, `HasFreepickBuild`, `RealmIsClassless`, `RealmOffersMysticAltars` | Mode and realm checks. |
-| `ApplyGuide(player, spells, primaryStat)` | Applies a build. |
-| `ApplyUpload` | Applies a full known-entries upload. |
-| `SwitchSpecialization` | Switches specialization. |
-| `InvestedEssence` | Essence invested. |
-
-**Mystic Enchants** (`AscensionMysticEnchant::`):
-
-| Call | What it does |
-|---|---|
-| `ApplyGuide(player, guide)` | Slots known enchants. |
-
-**Learning an enchant without the altar flow has no public API.** It needs a new core export such as
-`LearnForBot(player, spell)` exposing `Learn()` (`ME:339`), shipped as a core change. Alternatively, insert into
-`coa_mystic_enchant_known` before the bot logs in.
-
-### 8. This fork today (nothing handles Hero, Wildcard, Freepick or Mystic Enchants)
+### 7. This fork today (nothing handles Hero or Wildcard)
 
 - **Creation.**
   - Class 10 is never created (`RandomPlayerbotFactory.cpp:883-899`; `CoaClassesOnly` keeps 12-32).
-  - The Mystic tables are only purged (`RandomPlayerbotFactory.cpp:677-679`).
 - **Spec and talents for CoA classes.**
   - `EnsureCoaSpecialization` (`src/Ai/Class/Coa/CoaSpecialization.cpp:304-383`, random bots only).
   - `ApplyCoaTalents` (`:495-578`, random bots) and `SpendCoaTalentPoints` / `SpendAltBotTalentPoints` (`:580-649`,
@@ -257,24 +191,22 @@ File shorthands: `WC` = `src/server/coa/AscensionWildcard.cpp`, `WH` = `Ascensio
   - `AutoMaintenanceOnLevelupAction::Execute` (`:17-46`)
   - alt `init=` (`PlayerbotMgr.cpp:854-900`)
 
-### 9. Plan sketch (not started)
+### 8. Plan sketch (not started; playerbots changes only)
 
-1. **Hero bot creation.** Add a config share for class 10 bots, gated on `RealmIsClassless()`.
-   - On a Wildcard realm the bit comes from the realm; otherwise write a `coa_character_gamemode` row through
-     mod-coa-challenges.
-   - Give the starting kit explicitly.
-2. **Wildcard.** In `Randomize`, `AutoMaintenanceOnLevelupAction` and login repair, call `ClaimLevelingScrolls` +
+1. **Wildcard bot creation.** Add a config share for class 10 bots, used only when the realm plays Wildcard
+   (`AscensionWildcard::PlaysWildcard` on `CoAChallenges.GameModes.Realm`, or a bot's own `IsWildcardHero`). There
+   the 0x40 bit comes from the realm. Give the starting kit from playerbots, since a factory-made bot has no
+   `AT_LOGIN_FIRST`.
+2. **Draft.** In `Randomize`, `AutoMaintenanceOnLevelupAction` and login repair, call `ClaimLevelingScrolls` +
    `DraftBuild` (with a role-biased `StarterPick`).
    - Reroll off-role entries with `UnlearnForReroll`.
-   - Pick the stat path.
-3. **Freepick.** Use `ApplyGuide` with bot-side guides per role (like `CoaLevelBuildData`).
-4. **Role.** Add a Hero path in `GetCoaRole` / `GetCoaStyle` / `GetCoaPrimaryStats`, derived from the `KIND_*` counts
+   - Pick the stat path with `ApplyBuildUpload`.
+   - `ClearSpells` and `DropCoaRanksAbove` must leave a Wildcard hero's rolled spells alone.
+3. **Role.** Add a Hero path in `GetCoaRole` / `GetCoaStyle` / `GetCoaPrimaryStats`, derived from the `KIND_*` counts
    of known spells and from `PrimaryStat`. This feeds strategies, stat weights and armor proficiency.
-5. **Combat.** Give Heroes `CoaAiObjectContext`.
+4. **Combat.** Give Wildcard heroes `CoaAiObjectContext`.
    - Build `ClassAbilities` from the bot's spellbook (cached `Classify`).
    - Skip the authored `CoaSpecRotations`.
-6. **Mystic Enchants.** Only for Freepick or Reborn on altar realms.
-   - Make enchants known (needs a core export), then call `ApplyGuide` next to `ApplyEnchantAndGemsNew` and in
-     `CoaUpdateGear`.
-   - Wildcard stays excluded unless the owner changes the core gates.
-7. **Alts.** A player's own Wildcard or Freepick alt keeps its draft. Add only, never remove.
+5. **Ranks.** Teach higher ranks of rolled abilities as the bot levels, from the same rows the core's trainer offers
+   (`RankTrainerRows`), with `learnSpell`.
+6. **Alts.** A player's own Wildcard alt keeps its draft. Add only, never remove.
