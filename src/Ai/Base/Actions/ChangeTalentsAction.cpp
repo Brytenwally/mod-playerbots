@@ -13,6 +13,7 @@
 #include "ChatHelper.h"
 #include "CoaSpecLookup.h"
 #include "CoaSpecialization.h"
+#include "CoaTalentCompat.h"
 #include "Event.h"
 #include "Log.h"
 #include "PlayerbotAIConfig.h"
@@ -24,7 +25,7 @@
 
 void ChangeTalentsAction::ListCoaTalents()
 {
-    std::vector<AscensionCoATalentState::KnownEntry> const known = GetAscensionKnownTalentEntries(bot);
+    std::vector<AscensionCoATalentState::KnownEntry> const known = CoaKnownTalentEntries(bot);
     uint32 count = 0;
     for (AscensionCoATalentState::KnownEntry const& item : known)
     {
@@ -37,7 +38,7 @@ void ChangeTalentsAction::ListCoaTalents()
             }
         // Talents and the abilities bought with points (Black Prayer, Crystalline Reflection): "talents learn" takes
         // both, and listing only the talents hid what had just been learned. The free automatic ranks stay out.
-        if (!entry || !(entry->Talent || entry->AECost || entry->TECost) || !item.Rank || !entry->SpellCount)
+        if (!entry || !(CoaEntryIsTalent(*entry) || entry->AECost || entry->TECost) || !item.Rank || !entry->SpellCount)
             continue;
 
         uint32 const rank = std::min<uint32>(item.Rank, entry->SpellCount);
@@ -47,7 +48,7 @@ void ChangeTalentsAction::ListCoaTalents()
 
         std::ostringstream line;
         line << "Talent: " << chat->FormatSpell(info) << " rank " << rank << "/" << uint32(entry->SpellCount);
-        if (!entry->Talent)
+        if (!CoaEntryIsTalent(*entry))
             line << " ability";
         if (CoaSpecStrategy const* tree = GetCoaSpecStrategy(entry->ClassId, entry->SpecId))
             line << " (tree " << tree->specName << ")";
@@ -128,7 +129,7 @@ bool ChangeTalentsAction::Execute(Event event)
                      << uint32(entry.SpellCount) << " cost " << uint32(entry.SpecId ? entry.TECost : entry.AECost) << " "
                      << (entry.SpecId ? "spec" : "class") << " level " << uint32(entry.RequiredLevel);
                 // Prerequisites as the core reads them: the required entry held at any rank.
-                for (uint32 const required : entry.RequiredEntryIds)
+                for (uint32 const required : CoaRequiredEntries(entry))
                     if (AscensionCompatData::CoATalentEntry const* before = required ? FindCoaEntry(required) : nullptr)
                         if (before->SpellIds[0])
                             line << " requires " << before->SpellIds[0] << " rank 1";

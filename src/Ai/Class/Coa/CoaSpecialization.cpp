@@ -36,6 +36,7 @@
 #include "AscensionSpecialization.h"
 #include "AscensionCoATalentData.h"
 #include "AscensionCoATalentState.h"
+#include "CoaTalentCompat.h"
 #include "AscensionSpellProgressionData.h"
 #include "AscensionCustomClassData.h"
 #include "AscensionLiveBaselineData.h"
@@ -403,7 +404,7 @@ CoaPoints PointsOf(Player* bot)
     CoaPoints points;
     AscensionCompatData::GetCoATalentBudget(bot->getClass(), bot->GetLevel(), points.classBudget, points.specBudget);
     AscensionCoATalentState::SpentPoints const spent =
-        AscensionCoATalentState::Spent(GetAscensionKnownTalentEntries(bot));
+        AscensionCoATalentState::Spent(CoaKnownTalentEntries(bot));
     points.classSpent = spent.AE;
     points.specSpent = spent.TE;
     return points;
@@ -419,7 +420,7 @@ std::string RefusalFor(Player* bot, AscensionCompatData::CoATalentEntry const& e
         return "already at its highest rank";
     if (bot->GetLevel() < entry.RequiredLevel)
         return "requires level " + std::to_string(uint32(entry.RequiredLevel));
-    for (uint32 const required : entry.RequiredEntryIds)
+    for (uint32 const required : CoaRequiredEntries(entry))
         if (required && !GetAscensionTalentRank(bot, required))
         {
             AscensionCompatData::CoATalentEntry const* before = FindCoaEntry(required);
