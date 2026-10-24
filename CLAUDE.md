@@ -144,6 +144,23 @@ Work needed (not built yet):
   table + slot setting + `RefreshEquipped`); gear for the build's primary stat.
 - Random bots: spread the Legendary classes the way classes are spread; stop skipping class 10 on a Freepick realm.
 
+### How the owner's builds look
+
+The owner sends builds known to work on Area 52, as screenshots of the Ascension build planner. Read them like this:
+
+- **Level view**: per character level, the picks taken at it: spell name, `Rank n/m` for talents, and coloured
+  diamonds under the name = the pick's **quality and quality cost** (orange Legendary, purple Epic, blue Rare, green
+  Uncommon; the number of diamonds is `QualityCost`). The diamonds are not Mystic Enchants.
+- **Summary view**: picks grouped by source tree (`<Class> - <Spec>`) with ranks; required level, required/remaining
+  AE and TE; quality pick usage against the limits (Legendary 6, Epic 11, Rare 12, Uncommon 10, the same as
+  `QualityLimits`); and the **Mystic Enchants** panel: enchant name + `stacks/max`, name colour = quality, 17 slots.
+- Picks resolve by name: catalog entry's first spell name in Spell.dbc, matched against `CharacterAdvancement.dbc`
+  rows of type Ability/Talent/TalentAbility (a proof-of-concept build matched all 66 picks). Enchant names map to
+  several spell ids; `MysticEnchant.dbc` decides which is the enchant.
+- Not on the screenshots, so ask per build: the primary stat, the role, and the basic rotation.
+- Turn a build into an `Area52Build::Entry`-shaped record: spells with their pick level, enchants with stacks (and
+  level when given), primary stat, role.
+
 ### Still to come from the owner
 
 - Freepick `MysticEnchant.dbc` and `CharacterAdvancementClassTypes.dbc`.
