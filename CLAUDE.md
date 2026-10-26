@@ -11,8 +11,7 @@ updates applied. The Windows build is `Brytenwally/Freepick-build`.
 - A Hero's role and rotation come from its picks together with its **Mystic Enchants**, above all its
   **Legendary Mystic Enchant**.
 - **Each Legendary Mystic Enchant is treated as a class.** The owner will provide, per Legendary, a build and a basic
-  rotation, together with the Freepick DBCs (`MysticEnchant.dbc` received,
-  `CharacterAdvancementClassTypes.dbc`). Until then, do not guess builds or rotations.
+  rotation. Until then, do not guess builds or rotations.
 
 ## Working rules
 
@@ -57,8 +56,11 @@ Taken against core `037025155` (azerothcore-wotlk-coa `main`, 2026-10-24) and th
 - **Catalog**: client `CharacterAdvancement.dbc` (+ `CharacterAdvancementClassTypes.dbc`,
   `CharacterAdvancementEssence.dbc`), loaded by the public `AscensionFreePick::LoadCatalog(Catalog&)`
   (`AscensionFreePickRules.cpp`). Rows kept: types `Ability`, `Talent`, `TalentAbility`, plus the primary stat paths.
-  Freepick's file: 7,820 rows (2,991 Ability, 4,384 Talent, 438 TalentAbility) from 43 source class types; qualities
-  104 Legendary, 407 Epic, 308 Rare, 113 Uncommon.
+  Freepick's current file (2026-10-26): 10,255 rows; a Hero picks from class types 2-13 only (vanilla classes,
+  General, Hero): 5,306 rows (2,486 Ability, 2,529 Talent, 291 TalentAbility). Class types, tabs (one spec list
+  shared by all classes), categories (spell tags, field 160) and the field layout:
+  `docs/area52/advancement-reference.md`.
+  Entry ids change between client versions: match picks by spell id.
 - `AscensionFreePick::Entry`: `Id`, `Spells` (one per rank, up to 9), `Required[3]` (prerequisite entries),
   `Masteries[3]`, `Connected`, `Investment[6]`, `Level`, `AE`, `TE`, `Quality` (1 Uncommon to 4 Legendary),
   `QualityCost`, `Class`/`Tab` (source tree), `Group`, `Flags` (`0x1000` mastery), `Points`, `RequiredPoints`.
@@ -168,6 +170,6 @@ The owner sends builds known to work on Area 52, as screenshots of the Ascension
 
 ### Still to come from the owner
 
-- Freepick `CharacterAdvancementClassTypes.dbc` (names the source trees in the requirement and `Class`/`Tab` ids).
-  `MysticEnchant.dbc` arrived 2026-10-26.
+- DBCs: `MysticEnchant.dbc`, `CharacterAdvancement.dbc`, `CharacterAdvancementClassTypes.dbc` and
+  `CharacterAdvancementCategories.dbc` arrived 2026-10-26 (summarised in `docs/area52/`).
 - Per Legendary: the build and the basic rotation.
