@@ -11,8 +11,8 @@ updates applied. The Windows build is `Brytenwally/Freepick-build`.
 - A Hero's role and rotation come from its picks together with its **Mystic Enchants**, above all its
   **Legendary Mystic Enchant**.
 - **Each Legendary Mystic Enchant is treated as a class.** The owner will provide, per Legendary, a build and a basic
-  rotation, together with the Freepick DBCs (`MysticEnchant.dbc` received, `CharacterAdvancementClassTypes.dbc`). Until then,
-  do not guess builds or rotations.
+  rotation, together with the Freepick DBCs (`MysticEnchant.dbc` received,
+  `CharacterAdvancementClassTypes.dbc`). Until then, do not guess builds or rotations.
 
 ## Working rules
 
