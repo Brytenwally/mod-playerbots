@@ -1,0 +1,104 @@
+level	name	rank	spell	type	class	tab	ae	te	quality
+1	Sinister Strike	1/1	1752	Ability	Rogue	Combat	2	0	Normal
+1	Stance Mastery	1/1	954704	Ability	Warrior	Arms	1	0	Rare
+1	Battle Stance	1/1	2457	Ability	Warrior	Arms	1	0	Rare
+1	Victory Rush	1/1	34428	Ability	Warrior	Fury	2	0	Normal
+4	Blessing Mastery	1/1	954711	Ability	Paladin	Holy	1	0	Uncommon
+4	Blessing of Might	1/1	19740	Ability	Paladin	Retribution	1	0	Uncommon
+10	Bloodrage	1/1	2687	Ability	Warrior	Protection	2	0	Rare
+10	Remorseless Attacks	1/2	14144	Talent	Rogue	Assassination	0	1	Normal
+11	Remorseless Attacks	2/2	14148	Talent	Rogue	Assassination	0	1	Normal
+12	Heroic Strike	1/1	78	Ability	Warrior	Arms	2	0	Normal
+12	Armored to the Teeth	1/3	61216	Talent	Warrior	Fury	0	1	Normal
+13	Armored to the Teeth	2/3	61221	Talent	Warrior	Fury	0	1	Normal
+14	Devastate	1/1	20243	TalentAbility	Warrior	Protection	2	0	Normal
+14	Armored to the Teeth	3/3	61222	Talent	Warrior	Fury	0	1	Normal
+15	Relentless Strikes	1/3	14179	Talent	Rogue	Subtlety	0	1	Normal
+16	Relentless Strikes	2/3	58422	Talent	Rogue	Subtlety	0	1	Normal
+16	Kick	1/1	1766	Ability	Rogue	Combat	2	0	Epic
+17	Relentless Strikes	3/3	58423	Talent	Rogue	Subtlety	0	1	Normal
+18	Shield Bash	1/1	72	Ability	Warrior	Protection	2	0	Epic
+20	Blessing of Kings	1/1	20217	Ability	Paladin	Protection	1	0	Uncommon
+20	Anger Management	1/3	12296	Talent	Warrior	Arms	0	1	Normal
+20	Anger Management	2/3	812296	Talent	Warrior	Arms	0	1	Normal
+20	Anger Management	3/3	812297	Talent	Warrior	Arms	0	1	Normal
+21	Impale	1/2	16493	Talent	Warrior	Arms	0	1	Normal
+22	Impale	2/2	16494	Talent	Warrior	Arms	0	1	Normal
+23	Deep Wounds	1/3	12834	Talent	Warrior	Arms	0	1	Normal
+24	Deep Wounds	2/3	12849	Talent	Warrior	Arms	0	1	Normal
+25	Deep Wounds	3/3	12867	Talent	Warrior	Arms	0	1	Normal
+25	Tame Beast Abilities	1/1	965200	Ability	Hunter	Beast Mastery	4	0	Epic
+26	Two-Handed Weapon Specialization	1/3	12163	Talent	Warrior	Arms	0	1	Normal
+27	Two-Handed Weapon Specialization	2/3	12711	Talent	Warrior	Arms	0	1	Normal
+28	Two-Handed Weapon Specialization	3/3	12712	Talent	Warrior	Arms	0	1	Normal
+29	Enrage	1/5	12317	Talent	Warrior	Fury	0	1	Normal
+30	Enrage	2/5	13045	Talent	Warrior	Fury	0	1	Normal
+30	Windfury Weapon	1/1	8232	Ability	Shaman	Enhancement	1	0	Rare
+30	Weapon Enhancement Mastery	1/1	92158	Ability	Shaman	Enhancement	1	0	Rare
+30	Intercept	1/1	20252	Ability	Warrior	Fury	3	0	Epic
+30	Sweeping Strikes	1/1	12328	TalentAbility	Warrior	Arms	2	0	Epic
+31	Enrage	3/5	13046	Talent	Warrior	Fury	0	1	Normal
+32	Enrage	4/5	13047	Talent	Warrior	Fury	0	1	Normal
+32	Windfury Totem	1/1	8512	Ability	Shaman	Enhancement	1	0	Uncommon
+32	Air Totem Mastery	1/1	92160	Ability	Shaman	Elemental	1	0	Uncommon
+33	Enrage	5/5	13048	Talent	Warrior	Fury	0	1	Normal
+34	Death Wish	1/1	12292	TalentAbility	Warrior	Fury	2	0	Epic
+34	Dance of Death	1/3	954192	Talent	Warrior	Fury	0	1	Normal
+35	Dance of Death	2/3	954193	Talent	Warrior	Fury	0	1	Normal
+36	Dance of Death	3/3	954194	Talent	Warrior	Fury	0	1	Normal
+36	Colossus Smash	1/1	86361	Ability	Warrior	Arms	2	0	Rare
+37	Poleaxe Specialization	1/5	12700	Talent	Warrior	Arms	0	1	Normal
+38	Poleaxe Specialization	2/5	12781	Talent	Warrior	Arms	0	1	Normal
+39	Two-Handed Weapon Specialization	1/3	20111	Talent	Paladin	Retribution	0	1	Normal
+40	Two-Handed Weapon Specialization	2/3	20112	Talent	Paladin	Retribution	0	1	Normal
+40	Siegebreaker	1/1	954876	Ability	Warrior	Fury	2	0	Epic
+41	Heroic Leap	1/1	86358	Ability	Warrior	Arms	3	0	Legendary
+41	Two-Handed Weapon Specialization	3/3	20113	Talent	Paladin	Retribution	0	1	Normal
+42	Hunter vs. Wild	1/3	56339	Talent	Hunter	Survival	0	1	Normal
+43	Shield Slam	1/1	23922	Ability	Warrior	Protection	2	0	Normal
+43	Hunter vs. Wild	2/3	56340	Talent	Hunter	Survival	0	1	Normal
+44	Hunter vs. Wild	3/3	56341	Talent	Hunter	Survival	0	1	Normal
+45	Trueshot Aura	1/1	19506	TalentAbility	Hunter	Marksmanship	2	0	Rare
+45	Elemental Weapons	1/3	16266	Talent	Shaman	Enhancement	0	1	Normal
+46	Elemental Weapons	2/3	29079	Talent	Shaman	Enhancement	0	1	Normal
+47	Hunter Aspect Mastery	1/1	92156	Ability	Hunter	Beast Mastery	1	0	Rare
+47	Aspect of the Beast	1/1	13161	Ability	Hunter	Beast Mastery	1	0	Rare
+47	Elemental Weapons	3/3	29080	Talent	Shaman	Enhancement	0	1	Normal
+48	Blade Twisting	1/2	31124	Talent	Rogue	Combat	0	1	Normal
+49	Blade Twisting	2/2	31126	Talent	Rogue	Combat	0	1	Normal
+50	Rampage	1/1	29801	TalentAbility	Warrior	Fury	2	0	Rare
+50	Honor Among Thieves	1/3	51698	Talent	Rogue	Subtlety	0	1	Normal
+51	Pain Suppression	1/1	33206	TalentAbility	Priest	Discipline	2	0	Legendary
+51	Honor Among Thieves	2/3	51700	Talent	Rogue	Subtlety	0	1	Normal
+52	Honor Among Thieves	3/3	51701	Talent	Rogue	Subtlety	0	1	Normal
+53	Shredding Blows	1/3	12319	Talent	Warrior	Fury	0	1	Normal
+54	Shredding Blows	2/3	12971	Talent	Warrior	Fury	0	1	Normal
+55	Shredding Blows	3/3	12972	Talent	Warrior	Fury	0	1	Normal
+55	Water Walking	1/1	546	Ability	Shaman	Enhancement	1	0	Normal
+55	Far Sight	1/1	6196	Ability	Shaman	Enhancement	1	0	Normal
+56	Poleaxe Specialization	3/5	12783	Talent	Warrior	Arms	0	1	Normal
+57	Poleaxe Specialization	4/5	12784	Talent	Warrior	Arms	0	1	Normal
+58	Poleaxe Specialization	5/5	12785	Talent	Warrior	Arms	0	1	Normal
+59	Deadliness	1/3	30902	Talent	Rogue	Subtlety	0	1	Normal
+60	Bladestorm	1/1	46924	TalentAbility	Warrior	Arms	2	0	Legendary
+60	Shattering Throw	1/1	64382	Ability	Warrior	Arms	2	0	Epic
+60	Hunger For Blood	1/1	51662	TalentAbility	Rogue	Assassination	2	0	Epic
+60	Deadliness	2/3	30903	Talent	Rogue	Subtlety	0	1	Normal
+61	Deadliness	3/3	30904	Talent	Rogue	Subtlety	0	1	Normal
+62	Unending Fury	1/3	56927	Talent	Warrior	Fury	0	1	Normal
+63	Unending Fury	2/3	56929	Talent	Warrior	Fury	0	1	Normal
+64	Unending Fury	3/3	56930	Talent	Warrior	Fury	0	1	Normal
+64	Wrath of Air Totem	1/1	3738	Ability	Shaman	Enhancement	1	0	Uncommon
+65	Gag Order	1/3	12311	Talent	Warrior	Protection	0	1	Normal
+66	Shout Mastery	1/1	954709	Ability	Warrior	Fury	1	0	Uncommon
+66	Demoralizing Shout	1/1	1160	Ability	Warrior	Fury	1	0	Uncommon
+66	Gag Order	2/3	12958	Talent	Warrior	Protection	0	1	Normal
+66	Water Breathing	1/1	131	Ability	Shaman	Enhancement	1	0	Normal
+66	Execute	1/1	5308	Ability	Warrior	Fury	2	0	Normal
+67	Gag Order	3/3	812961	Talent	Warrior	Protection	0	1	Normal
+68	Commanding Shout	1/1	469	Ability	Warrior	Fury	1	0	Uncommon
+68	Seal Fate	1/3	14186	Talent	Rogue	Assassination	0	1	Normal
+69	Seal Fate	2/3	14190	Talent	Rogue	Assassination	0	1	Normal
+70	Misdirection	1/1	34477	Ability	Hunter	Survival	2	0	Uncommon
+70	Seal Fate	3/3	14193	Talent	Rogue	Assassination	0	1	Normal
+70	Bloodlust	1/1	2825	Ability	Shaman	Enhancement	2	0	Legendary

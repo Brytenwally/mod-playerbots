@@ -13,7 +13,9 @@
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Helpers.h"
+#include "LastSpellCastValue.h"
 #include "ObjectMgr.h"
+#include "ServerFacade.h"
 #include "Playerbots.h"
 #include "PlayerbotAIConfig.h"
 #include "CoaSpecialization.h"
@@ -26,6 +28,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <algorithm>
+#include <functional>
 #include <limits>
 #include <utility>
 
@@ -813,4 +816,359 @@ bool CoaPartyLowManaTrigger::IsActive()
         if (low(ref->GetSource()) && ++count >= wanted)
             return true;
     return false;
+}
+
+// CoaAiObjectContext.cpp: the interrupt coordination.
+Spell* CoaInterruptibleSpell(Unit* unit);
+bool CoaMayKick(Player* bot, Unit* caster, Spell* cast);
+void CoaNoteKick(PlayerbotAI* botAI, Player* bot, Unit* caster, uint32 enemySpellId, SpellInfo const* kick);
+
+static constexpr float CoaGroupReach = 40.0f;
+
+// The bot and the living members of its group on its map within reach.
+static std::vector<Player*> CoaGroupInReach(Player* bot)
+{
+    Group* group = bot->GetGroup();
+    if (!group)
+        return {bot};
+
+    std::vector<Player*> members;
+    for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
+    {
+        Player* member = ref->GetSource();
+        if (member && member->IsAlive() && member->IsInWorld() && member->GetMapId() == bot->GetMapId() &&
+            (member == bot || bot->GetDistance(member) <= CoaGroupReach))
+            members.push_back(member);
+    }
+    return members;
+}
+
+static Player* CoaMainTank(Player* bot)
+{
+    Player* tank = nullptr;
+    for (Player* member : CoaGroupInReach(bot))
+    {
+        if (PlayerbotAI::IsMainTank(member))
+            return member;
+        if (!tank && PlayerbotAI::IsTank(member))
+            tank = member;
+    }
+    return tank;
+}
+
+static uint32 CoaOwnStacks(PlayerbotAI* botAI, Unit* unit, std::string const& aura)
+{
+    Aura* own = botAI->GetAura(aura, unit, true);
+    return own ? std::max<uint32>(own->GetStackAmount(), 1) : 0;
+}
+
+// "<name>,<number>": the name and the number after the last comma; 0 when there is none.
+static std::pair<std::string, int> CoaNameAndNumber(std::string const& qualifier)
+{
+    size_t const comma = qualifier.rfind(',');
+    if (comma == std::string::npos)
+        return {qualifier, 0};
+    return {qualifier.substr(0, comma), std::atoi(qualifier.c_str() + comma + 1)};
+}
+
+bool CoaNoneTrigger::IsActive()
+{
+    if (qualifier.empty())
+        return false;
+
+    for (std::string const& part : split(qualifier, '&'))
+        if (Trigger* trigger = context->GetTrigger(part))
+            if (trigger->IsActive())
+                return false;
+    return true;
+}
+
+bool CoaPartyHurtTrigger::IsActive()
+{
+    auto const [members, percent] = CoaNameAndNumber(qualifier);
+    int const wanted = std::atoi(members.c_str());
+    if (wanted <= 0 || percent <= 0)
+        return false;
+
+    int count = 0;
+    for (Player* member : CoaGroupInReach(bot))
+        if (member->GetHealthPct() < percent && ++count >= wanted)
+            return true;
+    return false;
+}
+
+bool CoaPartyAuraCountTrigger::IsActive()
+{
+    auto const [aura, wanted] = CoaNameAndNumber(qualifier);
+    if (aura.empty() || wanted <= 0)
+        return false;
+
+    int count = 0;
+    for (Player* member : CoaGroupInReach(bot))
+        if (CoaOwnStacks(botAI, member, aura) && ++count >= wanted)
+            return true;
+    return false;
+}
+
+bool CoaPartyAuraSpreadTrigger::IsActive()
+{
+    auto const [aura, wanted] = CoaNameAndNumber(qualifier);
+    if (aura.empty() || wanted <= 0)
+        return false;
+
+    int carrying = 0;
+    bool lacking = false;
+    for (Player* member : CoaGroupInReach(bot))
+    {
+        if (CoaOwnStacks(botAI, member, aura))
+            ++carrying;
+        else
+            lacking = true;
+    }
+    return lacking && carrying < wanted;
+}
+
+bool CoaTankAuraBelowTrigger::IsActive()
+{
+    auto const [aura, stacks] = CoaNameAndNumber(qualifier);
+    Player* tank = CoaMainTank(bot);
+    return tank && !aura.empty() && stacks > 0 && CoaOwnStacks(botAI, tank, aura) < uint32(stacks);
+}
+
+bool CoaTankHealthTrigger::IsActive()
+{
+    auto const [low, high] = CoaNameAndNumber(qualifier);
+    Player* tank = CoaMainTank(bot);
+    if (!tank)
+        return false;
+
+    float const health = tank->GetHealthPct();
+    return health >= std::atoi(low.c_str()) && health <= high;
+}
+
+bool CoaTargetStacksBelowMaxTrigger::IsActive()
+{
+    Unit* target = AI_VALUE(Unit*, "current target");
+    if (!target || !target->IsAlive() || qualifier.empty())
+        return false;
+
+    Aura* aura = botAI->GetAura(qualifier, target);
+    return !aura || aura->GetStackAmount() < aura->GetSpellInfo()->StackAmount;
+}
+
+bool CoaTargetAuraExpiringTrigger::IsActive()
+{
+    auto const [name, seconds] = CoaNameAndNumber(qualifier);
+    Unit* target = AI_VALUE(Unit*, "current target");
+    if (!target || !target->IsAlive() || name.empty() || seconds <= 0)
+        return false;
+
+    Aura* aura = botAI->GetAura(name, target);
+    return aura && aura->GetDuration() > 0 && aura->GetDuration() < seconds * IN_MILLISECONDS;
+}
+
+bool CoaLastCastNotTrigger::IsActive()
+{
+    LastSpellCast& last = AI_VALUE(LastSpellCast&, "last spell cast");
+    SpellInfo const* info = last.id ? sSpellMgr->GetSpellInfo(last.id) : nullptr;
+    return !info || qualifier != info->SpellName[0];
+}
+
+bool CoaNoImbueTrigger::IsActive()
+{
+    Item* weapon = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    return weapon && !weapon->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT);
+}
+
+namespace
+{
+constexpr float KickPackRadius = 10.0f;
+constexpr int32 KickLandsMs = 200;
+
+struct CoaKickRule
+{
+    std::string spell;
+    bool alone = false;
+    int32 delayMs = 0;
+};
+
+CoaKickRule ParseKickRule(std::string const& qualifier)
+{
+    std::vector<std::string> const parts = split(qualifier, ',');
+    CoaKickRule rule;
+    if (parts.empty())
+        return rule;
+
+    rule.spell = parts[0];
+    if (parts.size() > 1)
+    {
+        if (parts[1] == "alone")
+            rule.alone = true;
+        else
+            rule.delayMs = std::atoi(parts[1].c_str());
+    }
+    return rule;
+}
+
+// Whether another living enemy stands close enough to the caster for a knockback to scatter the pack.
+bool PackAround(Player* bot, Unit* caster)
+{
+    std::list<Unit*> nearby;
+    Acore::AnyUnitInObjectRangeCheck check(caster, KickPackRadius);
+    Acore::UnitListSearcher<Acore::AnyUnitInObjectRangeCheck> search(caster, nearby, check);
+    Cell::VisitObjects(caster, search, KickPackRadius);
+    for (Unit* unit : nearby)
+        if (unit != caster && unit->IsAlive() && !unit->IsPlayer() && bot->IsValidAttackTarget(unit))
+            return true;
+    return false;
+}
+
+int32 CastRunningMs(Spell* cast)
+{
+    int32 const total = cast->getState() == SPELL_STATE_CASTING ? cast->GetSpellInfo()->GetDuration()
+                                                                  : cast->GetCastTime();
+    return total - std::max(cast->GetCastTimeRemaining(), 0);
+}
+
+// The enemy whose cast this rule interrupts now: the current target first, then the attackers.
+Unit* FindKickTarget(PlayerbotAI* botAI, Player* bot, CoaKickRule const& rule, Spell*& cast, uint32& kickId)
+{
+    kickId = rule.spell.empty() ? 0 : botAI->GetAiObjectContext()->GetValue<uint32>("spell id", rule.spell)->Get();
+    SpellInfo const* kick = kickId ? sSpellMgr->GetSpellInfo(kickId) : nullptr;
+    if (!kick || bot->HasSpellCooldown(kickId))
+        return nullptr;
+
+    AiObjectContext* context = botAI->GetAiObjectContext();
+    std::vector<Unit*> candidates;
+    if (Unit* target = context->GetValue<Unit*>("current target")->Get())
+        candidates.push_back(target);
+    for (ObjectGuid const guid : context->GetValue<GuidVector>("attackers")->Get())
+        if (Unit* attacker = botAI->GetUnit(guid))
+            candidates.push_back(attacker);
+
+    float const range = kick->GetMaxRange(false);
+    for (Unit* unit : candidates)
+    {
+        if (!unit->IsAlive() || !bot->IsValidAttackTarget(unit))
+            continue;
+        Spell* running = CoaInterruptibleSpell(unit);
+        if (!running || std::max(running->GetCastTimeRemaining(), 0) < KickLandsMs)
+            continue;
+        bool const inReach = range <= NOMINAL_MELEE_RANGE ? bot->IsWithinMeleeRange(unit)
+                                                          : bot->IsWithinDistInMap(unit, range);
+        if (!inReach || (rule.delayMs && CastRunningMs(running) < rule.delayMs) ||
+            (rule.alone && PackAround(bot, unit)))
+            continue;
+        if (!rule.delayMs && !CoaMayKick(bot, unit, running))
+            continue;
+
+        cast = running;
+        return unit;
+    }
+    return nullptr;
+}
+
+// Group members within reach for a cast on an ally, best first by the given order.
+template <typename Before>
+Player* PickMember(Player* bot, Before before, std::function<bool(Player*)> const& eligible)
+{
+    Player* best = nullptr;
+    for (Player* member : CoaGroupInReach(bot))
+        if (eligible(member) && (!best || before(member, best)))
+            best = member;
+    return best;
+}
+}  // namespace
+
+bool CoaEnemyCastingTrigger::IsActive()
+{
+    Spell* cast = nullptr;
+    uint32 kickId = 0;
+    return FindKickTarget(botAI, bot, ParseKickRule(qualifier), cast, kickId) != nullptr;
+}
+
+bool CoaKickAction::isPossible()
+{
+    Spell* cast = nullptr;
+    uint32 kickId = 0;
+    return FindKickTarget(botAI, bot, ParseKickRule(qualifier), cast, kickId) != nullptr;
+}
+
+bool CoaKickAction::Execute(Event /*event*/)
+{
+    Spell* cast = nullptr;
+    uint32 kickId = 0;
+    Unit* caster = FindKickTarget(botAI, bot, ParseKickRule(qualifier), cast, kickId);
+    if (!caster)
+        return false;
+
+    uint32 const enemySpellId = cast->GetSpellInfo()->Id;
+    if (!bot->HasInArc(CAST_ANGLE_IN_FRONT, caster))
+        ServerFacade::instance().SetFacingTo(bot, caster);
+    if (!botAI->CastSpell(kickId, caster))
+        return false;
+
+    CoaNoteKick(botAI, bot, caster, enemySpellId, sSpellMgr->GetSpellInfo(kickId));
+    return true;
+}
+
+bool CoaCastOnTankAction::isPossible()
+{
+    Player* tank = CoaMainTank(bot);
+    return tank && !qualifier.empty() && botAI->CanCastSpell(qualifier, tank);
+}
+
+bool CoaCastOnTankAction::Execute(Event /*event*/)
+{
+    Player* tank = CoaMainTank(bot);
+    return tank && botAI->CastSpell(qualifier, tank);
+}
+
+static Player* CoaSpreadTarget(PlayerbotAI* botAI, Player* bot, std::string const& qualifier)
+{
+    std::vector<std::string> const parts = split(qualifier, ',');
+    if (parts.empty())
+        return nullptr;
+
+    std::string const& spell = parts[0];
+    bool const othersOnly = parts.size() > 1 && parts[1] == "others";
+    auto const rank = [](Player* member)
+    { return PlayerbotAI::IsTank(member) ? 0 : PlayerbotAI::IsHeal(member) ? 1 : 2; };
+    return PickMember(
+        bot,
+        [&](Player* a, Player* b)
+        { return rank(a) != rank(b) ? rank(a) < rank(b) : a->GetHealthPct() < b->GetHealthPct(); },
+        [&](Player* member)
+        {
+            return (!othersOnly || member != bot) && !CoaOwnStacks(botAI, member, spell) &&
+                botAI->CanCastSpell(spell, member);
+        });
+}
+
+bool CoaSpreadAction::isPossible() { return !qualifier.empty() && CoaSpreadTarget(botAI, bot, qualifier); }
+
+bool CoaSpreadAction::Execute(Event /*event*/)
+{
+    Player* target = CoaSpreadTarget(botAI, bot, qualifier);
+    return target && botAI->CastSpell(split(qualifier, ',')[0], target);
+}
+
+static Player* CoaAuraTarget(PlayerbotAI* botAI, Player* bot, std::string const& qualifier)
+{
+    std::vector<std::string> const parts = split(qualifier, ',');
+    if (parts.size() != 2)
+        return nullptr;
+
+    return PickMember(
+        bot, [](Player* a, Player* b) { return a->GetHealthPct() < b->GetHealthPct(); },
+        [&](Player* member)
+        { return CoaOwnStacks(botAI, member, parts[1]) && botAI->CanCastSpell(parts[0], member); });
+}
+
+bool CoaCastOnAuraAction::isPossible() { return CoaAuraTarget(botAI, bot, qualifier) != nullptr; }
+
+bool CoaCastOnAuraAction::Execute(Event /*event*/)
+{
+    Player* target = CoaAuraTarget(botAI, bot, qualifier);
+    return target && botAI->CastSpell(split(qualifier, ',')[0], target);
 }

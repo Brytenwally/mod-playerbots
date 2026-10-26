@@ -4781,6 +4781,22 @@ private:
 
 }  // namespace
 
+// CoaGenericContext.cpp: the "coa kick" rotation lines of the Area 52 Legendary classes share the claims of the
+// interrupt coordination, so a bot kicking through a rotation line and one kicking through "coa interrupt" do not
+// spend two kicks on one cast.
+Spell* CoaInterruptibleSpell(Unit* unit) { return InterruptibleSpell(unit); }
+
+bool CoaMayKick(Player* bot, Unit* caster, Spell* cast) { return !bot->GetGroup() || MayKick(bot, caster, cast); }
+
+void CoaNoteKick(PlayerbotAI* botAI, Player* bot, Unit* caster, uint32 enemySpellId, SpellInfo const* kick)
+{
+    if (!bot->GetGroup())
+        return;
+    if (CoaAiObjectContext* context = dynamic_cast<CoaAiObjectContext*>(botAI->GetAiObjectContext()))
+        context->lastInterrupt = getMSTime();
+    CoaTelemetryNoteInterrupt(bot, NoteKick(bot, caster, enemySpellId, kick));
+}
+
 // CoaPvpTactics.cpp: crowd control on an enemy player, when the bot knows one that is ready.
 bool CoaHasReadyControl(PlayerbotAI* botAI, Player* bot)
 {

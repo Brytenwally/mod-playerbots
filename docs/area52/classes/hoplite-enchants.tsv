@@ -1,0 +1,18 @@
+slot	spell	name	quality	level	worldforged	effect
+1	978217	Hoplite	Legendary	1	0	polearm and shield in Battle Stance; Thrust, Shield Strike, Javelin, Flurry of Spears
+2	912326	Sweeping Swings	Epic	1	0	Sweeping Strikes hits the primary target; melee hits shorten its cooldown
+3	979187	Wind Slam	Epic	1	0	more Windfury procs; Windfury empowers the next Shield Slam
+4	84445	Spartan Kick	Epic	1	0	Kick knocks back, own 20 s cooldown
+5	947294	Critical Block	Rare	1	0	Critical Block and Shield Slam crit (stack 1 of 3)
+6	947294	Critical Block	Rare	1	0	Critical Block and Shield Slam crit (stack 2 of 3)
+7	947294	Critical Block	Rare	1	0	Critical Block and Shield Slam crit (stack 3 of 3)
+8	782246	Draconic Sinister Strike	Rare	1	1	Sinister Strike grants Draconic Power (stack 1 of 3)
+9	782246	Draconic Sinister Strike	Rare	1	1	Sinister Strike grants Draconic Power (stack 2 of 3)
+10	782246	Draconic Sinister Strike	Rare	1	1	Sinister Strike grants Draconic Power (stack 3 of 3)
+11	946908	Intensify Rage	Rare	1	0	Bloodrage, Recklessness, Death Wish cooldowns (stack 1 of 3)
+12	946908	Intensify Rage	Rare	1	0	Bloodrage, Recklessness, Death Wish cooldowns (stack 2 of 3)
+13	946908	Intensify Rage	Rare	1	0	Bloodrage, Recklessness, Death Wish cooldowns (stack 3 of 3)
+14	912700	Poleaxe Specialization	Rare	1	0	axe and polearm crit (stack 1 of 3)
+15	912700	Poleaxe Specialization	Rare	1	0	axe and polearm crit (stack 2 of 3)
+16	912700	Poleaxe Specialization	Rare	1	0	axe and polearm crit (stack 3 of 3)
+17	918427	Aggression	Rare	1	0	Sinister Strike crit

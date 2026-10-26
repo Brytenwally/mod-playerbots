@@ -33,7 +33,8 @@ and rotation lines name those.
 
 ## Build
 
-68 ability points and 61 talent points by level 70. Every pick and rank with its spell id, tree and cost:
+68 ability points and 61 talent points by level 70; the server's level cap is 60 for now, so the picks above it
+wait. Every pick and rank with its spell id, tree and cost:
 `mystic-knight-build.tsv`. Levels 2, 3, 5-7 and 9 take nothing.
 
 | Level | Picks |

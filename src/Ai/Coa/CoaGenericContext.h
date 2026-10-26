@@ -451,6 +451,118 @@ public:
     bool IsActive() override;
 };
 
+/* "coa none::<trigger>&<trigger>[&...]" - none of the named triggers is active. A Naturalist deals damage only
+ * while the group is healthy: "coa none::coa party hurt::2,75&coa party hurt::1,50". */
+class CoaNoneTrigger : public Trigger, public Qualified
+{
+public:
+    CoaNoneTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa none") {}
+    std::string const getName() override { return "coa none::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "coa party hurt::<members>,<percent>" - at least <members> living group members within 40 yards, the bot
+ * included, are below <percent> health. */
+class CoaPartyHurtTrigger : public Trigger, public Qualified
+{
+public:
+    CoaPartyHurtTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa party hurt") {}
+    std::string const getName() override { return "coa party hurt::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "coa party aura count::<aura>,<members>" - at least <members> group members within 40 yards carry the bot's own
+ * <aura>. Bloom only pays once Seed of Life sits on several allies. */
+class CoaPartyAuraCountTrigger : public Trigger, public Qualified
+{
+public:
+    CoaPartyAuraCountTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa party aura count") {}
+    std::string const getName() override { return "coa party aura count::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "coa party aura spread::<aura>,<members>" - fewer than <members> group members within 40 yards carry the bot's
+ * own <aura>, and one of them lacks it. With "coa spread" it keeps a heal over time on a share of the group:
+ * Rejuvenation on 7 or 8 members, the owner's rule for the Naturalist (27/10). */
+class CoaPartyAuraSpreadTrigger : public Trigger, public Qualified
+{
+public:
+    CoaPartyAuraSpreadTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa party aura spread") {}
+    std::string const getName() override { return "coa party aura spread::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "coa tank aura below::<aura>,<stacks>" - the group's main tank, within 40 yards, carries fewer than <stacks> of
+ * the bot's own <aura>; 1 means it lacks it. */
+class CoaTankAuraBelowTrigger : public Trigger, public Qualified
+{
+public:
+    CoaTankAuraBelowTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa tank aura below") {}
+    std::string const getName() override { return "coa tank aura below::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "coa tank health::<min>,<max>" - the group's main tank is between <min> and <max> percent health. */
+class CoaTankHealthTrigger : public Trigger, public Qualified
+{
+public:
+    CoaTankHealthTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa tank health") {}
+    std::string const getName() override { return "coa tank health::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "target stacks below max::<aura>" - the current target carries fewer stacks of <aura>, from anyone, than the aura
+ * allows. Sunder Armor is built up to its 5 stacks with Devastate. */
+class CoaTargetStacksBelowMaxTrigger : public Trigger, public Qualified
+{
+public:
+    CoaTargetStacksBelowMaxTrigger(PlayerbotAI* botAI) : Trigger(botAI, "target stacks below max") {}
+    std::string const GetTargetName() override { return "current target"; }
+    std::string const getName() override { return "target stacks below max::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "target aura expiring::<aura>,<seconds>" - <aura> on the current target, from anyone, runs out within <seconds>.
+ * A full stack of Sunder Armor is renewed before it falls off. */
+class CoaTargetAuraExpiringTrigger : public Trigger, public Qualified
+{
+public:
+    CoaTargetAuraExpiringTrigger(PlayerbotAI* botAI) : Trigger(botAI, "target aura expiring") {}
+    std::string const GetTargetName() override { return "current target"; }
+    std::string const getName() override { return "target aura expiring::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "last cast not::<spell>" - the bot's last cast was something else. Two lines alternate with it: Devastate and
+ * Thrust take turns while Sunder Armor builds. */
+class CoaLastCastNotTrigger : public Trigger, public Qualified
+{
+public:
+    CoaLastCastNotTrigger(PlayerbotAI* botAI) : Trigger(botAI, "last cast not") {}
+    std::string const getName() override { return "last cast not::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "coa no imbue" - the main hand weapon carries no temporary enchant (Windfury Weapon, Earthliving Weapon). */
+class CoaNoImbueTrigger : public Trigger
+{
+public:
+    CoaNoImbueTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa no imbue") {}
+    bool IsActive() override;
+};
+
+/* "coa enemy casting::<kick>[,alone|,<ms>]" - an enemy in reach of <kick> casts something it interrupts; the same
+ * qualifier as the "coa kick" it leads to. "alone": no other enemy stands within 10 yards of the caster (Spartan
+ * Kick knocks back, which scatters a pack). <ms>: the cast has run that long, so the group's other kicks came first;
+ * a Naturalist's Counterspell is the last one (the owner's rule, 27/10). */
+class CoaEnemyCastingTrigger : public Trigger, public Qualified
+{
+public:
+    CoaEnemyCastingTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa enemy casting") {}
+    std::string const getName() override { return "coa enemy casting::" + qualifier; }
+    bool IsActive() override;
+};
+
 /* "coa channeling::<spell>" - the bot is channeling that spell, so "cancel channel" can break it off. */
 class CoaChannelingTrigger : public Trigger, public Qualified
 {
@@ -609,6 +721,66 @@ private:
     static Strategy* basic_attack(PlayerbotAI* botAI) { return new CoaBasicAttackStrategy(botAI); }
 };
 
+/* Actions for the Area 52 Legendary classes (docs/area52/classes/). The spell is the qualifier, resolved against
+ * the bot's spellbook like the casts above. */
+
+/* "cast on tank::<spell>" - on the group's main tank within 40 yards, also when it already carries the spell:
+ * Lifebloom stacks up to 3 on the tank. */
+class CoaCastOnTankAction : public Action, public Qualified
+{
+public:
+    CoaCastOnTankAction(PlayerbotAI* botAI) : Action(botAI, "cast on tank") {}
+    std::string const getName() override { return "cast on tank::" + qualifier; }
+    bool Execute(Event event) override;
+    bool isPossible() override;
+};
+
+/* "coa spread::<spell>[,others]" - on a group member within 40 yards without the bot's own aura of that name: a
+ * tank first, then a healer, then the most hurt. "others" leaves the bot out: a Hoplite keeps Blessing of Might on
+ * itself and gives the group Kings, and one caster's blessings replace each other on a target. */
+class CoaSpreadAction : public Action, public Qualified
+{
+public:
+    CoaSpreadAction(PlayerbotAI* botAI) : Action(botAI, "coa spread") {}
+    std::string const getName() override { return "coa spread::" + qualifier; }
+    bool Execute(Event event) override;
+    bool isPossible() override;
+};
+
+/* "cast on aura::<spell>,<aura>" - on the most hurt group member within 40 yards that carries the bot's own <aura>:
+ * Bloom starts on a Seed of Life. */
+class CoaCastOnAuraAction : public Action, public Qualified
+{
+public:
+    CoaCastOnAuraAction(PlayerbotAI* botAI) : Action(botAI, "cast on aura") {}
+    std::string const getName() override { return "cast on aura::" + qualifier; }
+    bool Execute(Event event) override;
+    bool isPossible() override;
+};
+
+/* "coa kick::<kick>[,alone|,<ms>]" - interrupts the cast "coa enemy casting" with the same qualifier found. */
+class CoaKickAction : public Action, public Qualified
+{
+public:
+    CoaKickAction(PlayerbotAI* botAI) : Action(botAI, "coa kick") {}
+    std::string const getName() override { return "coa kick::" + qualifier; }
+    bool Execute(Event event) override;
+    bool isPossible() override;
+};
+
+/* "cast imbue::<spell>" - a weapon imbue on the main hand. */
+class CoaCastImbueAction : public CastEnchantItemMainHandAction, public Qualified
+{
+public:
+    CoaCastImbueAction(PlayerbotAI* botAI) : CastEnchantItemMainHandAction(botAI, "") {}
+    void Qualify(std::string const qual) override
+    {
+        Qualified::Qualify(qual);
+        spell = qual;
+    }
+    std::string const getName() override { return "cast imbue::" + qualifier; }
+};
+
 class CoaGenericActionContext : public NamedObjectContext<Action>
 {
 public:
@@ -625,6 +797,11 @@ public:
         creators["cast heal tank"] = &CoaGenericActionContext::cast_heal_tank;
         creators["cast cure party"] = &CoaGenericActionContext::cast_cure_party;
         creators["cast rez"] = &CoaGenericActionContext::cast_rez;
+        creators["cast on tank"] = &CoaGenericActionContext::cast_on_tank;
+        creators["coa spread"] = &CoaGenericActionContext::coa_spread;
+        creators["cast on aura"] = &CoaGenericActionContext::cast_on_aura;
+        creators["coa kick"] = &CoaGenericActionContext::coa_kick;
+        creators["cast imbue"] = &CoaGenericActionContext::cast_imbue;
     }
 
 private:
@@ -639,6 +816,11 @@ private:
     static Action* cast_heal_tank(PlayerbotAI* botAI) { return new CoaGroundHealAction(botAI); }
     static Action* cast_cure_party(PlayerbotAI* botAI) { return new CoaCurePartyAction(botAI); }
     static Action* cast_rez(PlayerbotAI* botAI) { return new CoaCastRezAction(botAI); }
+    static Action* cast_on_tank(PlayerbotAI* botAI) { return new CoaCastOnTankAction(botAI); }
+    static Action* coa_spread(PlayerbotAI* botAI) { return new CoaSpreadAction(botAI); }
+    static Action* cast_on_aura(PlayerbotAI* botAI) { return new CoaCastOnAuraAction(botAI); }
+    static Action* coa_kick(PlayerbotAI* botAI) { return new CoaKickAction(botAI); }
+    static Action* cast_imbue(PlayerbotAI* botAI) { return new CoaCastImbueAction(botAI); }
 };
 
 class CoaGenericTriggerContext : public NamedObjectContext<Trigger>
@@ -663,6 +845,17 @@ public:
         creators["coa aggro lost"] = &CoaGenericTriggerContext::coa_aggro_lost;
         creators["coa channeling"] = &CoaGenericTriggerContext::coa_channeling;
         creators["coa party low mana"] = &CoaGenericTriggerContext::coa_party_low_mana;
+        creators["coa none"] = &CoaGenericTriggerContext::coa_none;
+        creators["coa party hurt"] = &CoaGenericTriggerContext::coa_party_hurt;
+        creators["coa party aura count"] = &CoaGenericTriggerContext::coa_party_aura_count;
+        creators["coa party aura spread"] = &CoaGenericTriggerContext::coa_party_aura_spread;
+        creators["coa tank aura below"] = &CoaGenericTriggerContext::coa_tank_aura_below;
+        creators["coa tank health"] = &CoaGenericTriggerContext::coa_tank_health;
+        creators["target stacks below max"] = &CoaGenericTriggerContext::target_stacks_below_max;
+        creators["target aura expiring"] = &CoaGenericTriggerContext::target_aura_expiring;
+        creators["last cast not"] = &CoaGenericTriggerContext::last_cast_not;
+        creators["coa no imbue"] = &CoaGenericTriggerContext::coa_no_imbue;
+        creators["coa enemy casting"] = &CoaGenericTriggerContext::coa_enemy_casting;
     }
 
 private:
@@ -684,6 +877,17 @@ private:
     static Trigger* coa_aggro_lost(PlayerbotAI* botAI) { return new CoaAggroLostTrigger(botAI); }
     static Trigger* coa_channeling(PlayerbotAI* botAI) { return new CoaChannelingTrigger(botAI); }
     static Trigger* coa_party_low_mana(PlayerbotAI* botAI) { return new CoaPartyLowManaTrigger(botAI); }
+    static Trigger* coa_none(PlayerbotAI* botAI) { return new CoaNoneTrigger(botAI); }
+    static Trigger* coa_party_hurt(PlayerbotAI* botAI) { return new CoaPartyHurtTrigger(botAI); }
+    static Trigger* coa_party_aura_count(PlayerbotAI* botAI) { return new CoaPartyAuraCountTrigger(botAI); }
+    static Trigger* coa_party_aura_spread(PlayerbotAI* botAI) { return new CoaPartyAuraSpreadTrigger(botAI); }
+    static Trigger* coa_tank_aura_below(PlayerbotAI* botAI) { return new CoaTankAuraBelowTrigger(botAI); }
+    static Trigger* coa_tank_health(PlayerbotAI* botAI) { return new CoaTankHealthTrigger(botAI); }
+    static Trigger* target_stacks_below_max(PlayerbotAI* botAI) { return new CoaTargetStacksBelowMaxTrigger(botAI); }
+    static Trigger* target_aura_expiring(PlayerbotAI* botAI) { return new CoaTargetAuraExpiringTrigger(botAI); }
+    static Trigger* last_cast_not(PlayerbotAI* botAI) { return new CoaLastCastNotTrigger(botAI); }
+    static Trigger* coa_no_imbue(PlayerbotAI* botAI) { return new CoaNoImbueTrigger(botAI); }
+    static Trigger* coa_enemy_casting(PlayerbotAI* botAI) { return new CoaEnemyCastingTrigger(botAI); }
 };
 
 #endif

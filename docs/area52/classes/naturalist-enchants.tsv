@@ -1,0 +1,18 @@
+slot	spell	name	quality	level	worldforged	effect
+1	965937	Seed of Life	Legendary	1	0	Regrowth and Rejuvenation ticks crit and plant Seed of Life; teaches Bloom
+2	81248	Druid of Rot: Call Fungarians	Epic	1	0	Force of Nature becomes Force of Nature (Call Fungarians)
+3	415012	Everliving	Epic	1	0	Nature heals stack a stronger Swiftmend
+4	81501	Evergreen	Epic	1	0	Regrowth and Healing Touch refresh Lifebloom
+5	917111	Improved Rejuvenation	Rare	1	0	Rejuvenation (stack 1 of 3)
+6	917111	Improved Rejuvenation	Rare	1	0	Rejuvenation (stack 2 of 3)
+7	917111	Improved Rejuvenation	Rare	1	0	Rejuvenation (stack 3 of 3)
+8	920259	Divine Intellect	Rare	1	0	Intellect (stack 1 of 3)
+9	920259	Divine Intellect	Rare	1	0	Intellect (stack 2 of 3)
+10	920259	Divine Intellect	Rare	1	0	Intellect (stack 3 of 3)
+11	957810	Genesis	Rare	1	0	periodic Druid spells (stack 1 of 3)
+12	957810	Genesis	Rare	1	0	periodic Druid spells (stack 2 of 3)
+13	957810	Genesis	Rare	1	0	periodic Druid spells (stack 3 of 3)
+14	951554	Blessing of the Eternals	Rare	1	0	Nature crit, Earthliving on low allies
+15	966105	Elune's Blessing	Uncommon	1	0	Nature crit after a periodic heal (stack 1 of 3)
+16	966105	Elune's Blessing	Uncommon	1	0	Nature crit after a periodic heal (stack 2 of 3)
+17	966105	Elune's Blessing	Uncommon	1	0	Nature crit after a periodic heal (stack 3 of 3)

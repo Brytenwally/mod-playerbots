@@ -12,6 +12,7 @@ updates applied. The Windows build is `Brytenwally/Freepick-build`.
   **Legendary Mystic Enchant**.
 - **Random bots start with every Mystic Enchant learned at creation** (the owner's rule): add all of them to the bot
   account's collection, then slot the ones its Legendary class uses.
+- **The level cap is 60 for now.** Builds go to 70 or 80; their later picks wait for a higher cap.
 - **Each Legendary Mystic Enchant is treated as a class.** The owner will provide, per Legendary, a build and a basic
   rotation. Until then, do not guess builds or rotations.
 
@@ -154,8 +155,9 @@ Work needed (not built yet):
 - Random bots: spread the Legendary classes the way classes are spread; stop skipping class 10 on a Freepick realm.
 
 Written so far (data only; inert until the work above exists):
-- **Mystic Knight** (Eldritch Knight 81116, tank): `docs/area52/classes/mystic-knight.md`, its `-build.tsv` and
-  `-enchants.tsv`, rotation rows in `data/sql/playerbots/custom/area52_mystic_knight.sql`.
+- **Mystic Knight** (Eldritch Knight 81116, tank), **Hoplite** (978217, melee damage), **Naturalist** (Seed of Life
+  965937, healer): `docs/area52/classes/<class>.md`, its `-build.tsv` and `-enchants.tsv`, rotation rows in
+  `data/sql/playerbots/custom/area52_<class>.sql`.
 
 A class file holds: the Legendary and what its enchants swap in (rotation lines name the swapped-in spells), the
 build by level, the 17 enchant slots, role/position/stat/gear, the rotation with the owner's rules and the defaults
@@ -164,8 +166,13 @@ improve the build's core spells and let the owner choose.
 
 Triggers added for Legendary classes (`src/Ai/Coa/CoaGenericContext.h`): `coa all::<a>&<b>` (all of them active),
 `coa steady aggro` (every fighting enemy on the bot), `coa aggro lost` (a fighting enemy on someone else),
-`coa channeling::<spell>`, `coa party low mana::<members>,<percent>`. Break off a channel with the base action
-`cancel channel`.
+`coa channeling::<spell>`, `coa party low mana::<members>,<percent>`, `coa none::<a>&<b>` (none active),
+`coa party hurt::<members>,<percent>`, `coa party aura count::<aura>,<members>`,
+`coa party aura spread::<aura>,<members>`, `coa tank aura below::<aura>,<stacks>`, `coa tank health::<min>,<max>`,
+`target stacks below max::<aura>`, `target aura expiring::<aura>,<seconds>`, `last cast not::<spell>`,
+`coa no imbue`, `coa enemy casting::<kick>[,alone|,<ms>]`. Actions: `cast on tank::<spell>`,
+`coa spread::<spell>[,others]`, `cast on aura::<spell>,<aura>`, `coa kick::<kick>[,alone|,<ms>]` (shares the claims of
+the interrupt coordination), `cast imbue::<spell>`; break off a channel with the base action `cancel channel`.
 
 ### How the owner's builds look
 
@@ -188,4 +195,4 @@ The owner sends builds known to work on Area 52, as screenshots of the Ascension
 
 - DBCs: `MysticEnchant.dbc`, `CharacterAdvancement.dbc`, `CharacterAdvancementClassTypes.dbc` and
   `CharacterAdvancementCategories.dbc` arrived 2026-10-26 (summarised in `docs/area52/`).
-- Per Legendary: the build and the basic rotation (done: Mystic Knight).
+- Per Legendary: the build and the basic rotation (done: Mystic Knight, Hoplite, Naturalist).
