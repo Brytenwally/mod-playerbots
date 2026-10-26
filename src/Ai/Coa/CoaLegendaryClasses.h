@@ -22,6 +22,7 @@
 #include <utility>
 
 class Player;
+struct ItemTemplate;
 
 struct CoaLegendaryClass
 {
@@ -49,6 +50,9 @@ std::span<CoaLegendaryClass const> CoaLegendaryClasses();
 // Whether random bots are created as Heroes: AiPlayerbot.Area52HeroBots on a core with Free Pick enabled.
 bool CoaHeroBotsWanted();
 
+// Whether the core lets the bot hold this shield next to this two-handed weapon (a Hoplite's polearm).
+bool CoaHeroHoldsShieldWith(Player const* bot, ItemTemplate const* main, ItemTemplate const* off);
+
 // A Freepick Hero, whose class comes from its Legendary.
 bool IsCoaHero(Player const* player);
 
@@ -63,10 +67,12 @@ bool ApplyCoaLegendaryClass(Player* bot, CoaLegendaryClass const& legendaryClass
 
 // A Hero bot without a class gets one: random bots by chance (20% tank, 20% healer, 60% damage), the same one
 // for a bot every time. A Hero with a class gets its picks for its level and, until its Legendary is on, its
-// enchants again. Does nothing for anyone else.
+// enchants again. Once its Legendary is on, a class that carries a shield next to a two-handed weapon equips one:
+// the core refuses it before the Legendary is on, when the bot's gear is first chosen. Does nothing for anyone else.
 void EnsureCoaLegendaryClass(Player* bot);
 
-// Whether a Hero bot's class is not fully set up: no class, picks behind its level, or the Legendary not on yet.
+// Whether a Hero bot's class is not fully set up: no class, picks behind its level, the Legendary not on yet, or
+// the shield of its class missing.
 bool CoaLegendaryClassUnready(Player* bot);
 
 std::string CoaLegendaryClassList(Player const* bot);

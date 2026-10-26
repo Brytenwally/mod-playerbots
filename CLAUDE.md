@@ -163,10 +163,12 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`, data generated into `CoaLegenda
   and style come from the class; combat strategies as the CoA classes ("coa tank" + "tank assist", "coa heal",
   "coa"/"coa ranged" + "dps assist") plus `custom::<class>` and its position; non-combat adds `custom::<class>-nc`.
 - **Gear**: armor up to the class's heaviest type, a shield only if it carries one, only its weapons; stat weights
-  from the class.
+  from the class. The core lets a Hoplite hold a shield next to its polearm only while the Legendary aura is on
+  (`Player::CanUseTwoHandWithShield`), and that aura comes after the first gear pass: once it is on,
+  `EnsureCoaLegendaryClass` equips the best shield from the bags, or for a random bot runs the gear pass for the
+  off-hand. `ItemUsageValue` counts such a shield as an upgrade (`CoaHeroHoldsShieldWith`).
 
-Still open: whether Heroes have the weapon and armor proficiencies their class wears; Hoplite's polearm with a
-shield in the bot's gear pass.
+Still open: whether Heroes have the weapon and armor proficiencies their class wears.
 
 Classes written:
 - **Mystic Knight** (Eldritch Knight 81116, tank), **Hoplite** (978217, melee damage), **Naturalist** (Seed of Life

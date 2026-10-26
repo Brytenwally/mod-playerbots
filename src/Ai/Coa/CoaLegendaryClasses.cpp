@@ -2,12 +2,15 @@
 
 #include "Config.h"
 #include "IWorld.h"
+#include "Item.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Player.h"
 #include "PlayerbotAIConfig.h"
+#include "PlayerbotFactory.h"
 #include "RandomPlayerbotMgr.h"
 #include "StatsCollector.h"
+#include "StatsWeightCalculator.h"
 #include "Timer.h"
 #include "World.h"
 #include <mutex>
@@ -50,15 +53,16 @@ std::array<CoaLegendaryClass, 3> const LegendaryClasses = {{
          { STATS_TYPE_SPELL_POWER, 1.0f }, { STATS_TYPE_MANA_REGENERATION, 1.5f }, { STATS_TYPE_HASTE, 1.0f } }} },
 }};
 
-struct BotState
+struct LegendaryState
 {
     uint32 appliedLevel = 0;
     uint32 nextTry = 0;
     uint32 nextCollection = 0;
+    uint32 nextShield = 0;
 };
 
 std::mutex StatesLock;
-std::unordered_map<uint64, BotState> States;
+std::unordered_map<uint64, LegendaryState> States;
 
 bool Due(uint32 now, uint32 when) { return !when || int32(now - when) >= 0; }
 
@@ -80,6 +84,67 @@ CoaLegendaryClass const* RandomClassFor(Player const* bot)
             return &legendaryClass;
     }
     return &LegendaryClasses.back();
+}
+
+template <typename Hero>
+bool HoldsShieldWith(Hero const* bot, ItemTemplate const* main, ItemTemplate const* off)
+{
+    if constexpr (requires { bot->CanUseTwoHandWithShield(main, off); })
+        return bot->CanUseTwoHandWithShield(main, off);
+    else
+        return false;
+}
+
+bool ShieldMissing(Player* bot, CoaLegendaryClass const& legendaryClass)
+{
+    if (!legendaryClass.shield || !bot->HasAura(legendaryClass.legendary) ||
+        bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+        return false;
+    Item* main = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    return main && main->GetTemplate()->InventoryType == INVTYPE_2HWEAPON;
+}
+
+Item* BestBagShield(Player* bot)
+{
+    Item* main = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    StatsWeightCalculator calculator(bot);
+    Item* best = nullptr;
+    float bestScore = -1.0f;
+    auto consider = [&](Item* item)
+    {
+        if (!item || item->GetTemplate()->InventoryType != INVTYPE_SHIELD ||
+            !HoldsShieldWith(bot, main->GetTemplate(), item->GetTemplate()))
+            return;
+        float const score = calculator.CalculateItem(item->GetEntry(), item->GetItemRandomPropertyId());
+        if (score > bestScore)
+        {
+            best = item;
+            bestScore = score;
+        }
+    };
+    for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < INVENTORY_SLOT_ITEM_END; ++slot)
+        consider(bot->GetItemByPos(INVENTORY_SLOT_BAG_0, slot));
+    for (uint8 bag = INVENTORY_SLOT_BAG_START; bag < INVENTORY_SLOT_BAG_END; ++bag)
+        if (Bag* container = bot->GetBagByPos(bag))
+            for (uint32 slot = 0; slot < container->GetBagSize(); ++slot)
+                consider(container->GetItemByPos(slot));
+    return best;
+}
+
+void EquipLegendaryShield(Player* bot)
+{
+    if (Item* shield = BestBagShield(bot))
+    {
+        uint16 dest;
+        if (bot->CanEquipItem(EQUIPMENT_SLOT_OFFHAND, dest, shield, false) == EQUIP_ERR_OK)
+        {
+            bot->RemoveItem(shield->GetBagSlot(), shield->GetSlot(), true);
+            bot->EquipItem(dest, shield, true);
+            return;
+        }
+    }
+    if (sRandomPlayerbotMgr.IsRandomBot(bot))
+        PlayerbotFactory(bot, bot->GetLevel()).InitEquipment(false, false, EQUIPMENT_SLOT_OFFHAND);
 }
 
 #if COA_LEGENDARY_CLASSES
@@ -135,6 +200,11 @@ bool CoaHeroBotsWanted()
 #else
     return false;
 #endif
+}
+
+bool CoaHeroHoldsShieldWith(Player const* bot, ItemTemplate const* main, ItemTemplate const* off)
+{
+    return main && off && HoldsShieldWith(bot, main, off);
 }
 
 bool IsCoaHero(Player const* player)
@@ -211,7 +281,7 @@ bool ApplyCoaLegendaryClass(Player* bot, CoaLegendaryClass const& legendaryClass
     bool requestCollection = false;
     {
         std::lock_guard<std::mutex> guard(StatesLock);
-        BotState& state = States[bot->GetGUID().GetRawValue()];
+        LegendaryState& state = States[bot->GetGUID().GetRawValue()];
         state.appliedLevel = bot->GetLevel();
         if (!bot->HasAura(legendaryClass.legendary) && Due(now, state.nextCollection))
         {
@@ -244,14 +314,26 @@ void EnsureCoaLegendaryClass(Player* bot)
     }
 
     uint32 const now = getMSTime();
+    bool equipShield = false;
     {
         std::lock_guard<std::mutex> guard(StatesLock);
-        BotState& state = States[bot->GetGUID().GetRawValue()];
+        LegendaryState& state = States[bot->GetGUID().GetRawValue()];
         if (state.appliedLevel == bot->GetLevel() && bot->HasAura(legendaryClass->legendary))
+        {
+            if (!ShieldMissing(bot, *legendaryClass) || !Due(now, state.nextShield))
+                return;
+            state.nextShield = now + CollectionRetryMs;
+            equipShield = true;
+        }
+        else if (!Due(now, state.nextTry))
             return;
-        if (!Due(now, state.nextTry))
-            return;
-        state.nextTry = now + RetryMs;
+        else
+            state.nextTry = now + RetryMs;
+    }
+    if (equipShield)
+    {
+        EquipLegendaryShield(bot);
+        return;
     }
 
     std::string error;
@@ -270,9 +352,12 @@ bool CoaLegendaryClassUnready(Player* bot)
 
     std::lock_guard<std::mutex> guard(StatesLock);
     auto const found = States.find(bot->GetGUID().GetRawValue());
-    bool const behind = found == States.end() || found->second.appliedLevel != bot->GetLevel() ||
-        !bot->HasAura(legendaryClass->legendary);
-    return behind && (found == States.end() || Due(getMSTime(), found->second.nextTry));
+    if (found == States.end())
+        return true;
+    uint32 const now = getMSTime();
+    if (found->second.appliedLevel == bot->GetLevel() && bot->HasAura(legendaryClass->legendary))
+        return ShieldMissing(bot, *legendaryClass) && Due(now, found->second.nextShield);
+    return Due(now, found->second.nextTry);
 }
 
 std::string CoaLegendaryClassList(Player const* bot)

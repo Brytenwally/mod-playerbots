@@ -7,6 +7,7 @@
 #include "ItemUsageValue.h"
 #include "AiFactory.h"
 #include "ChatHelper.h"
+#include "CoaLegendaryClasses.h"
 #include "CoaSpecLookup.h"
 #include "CoaSpecStatWeights.h"
 #include "GuildTaskMgr.h"
@@ -313,7 +314,8 @@ ItemUsage ItemUsageValue::QueryItemUsageForEquip(ItemTemplate const* itemProto, 
     if (dstSlot == EQUIPMENT_SLOT_OFFHAND && !bot->CanTitanGrip())
     {
         Item* mainHand = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-        if (mainHand && mainHand->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
+        if (mainHand && mainHand->GetTemplate()->InventoryType == INVTYPE_2HWEAPON &&
+            !CoaHeroHoldsShieldWith(bot, mainHand->GetTemplate(), itemProto))
             return ITEM_USAGE_NONE;
     }
 
