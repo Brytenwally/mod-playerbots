@@ -11,7 +11,7 @@ updates applied. The Windows build is `Brytenwally/Freepick-build`.
 - A Hero's role and rotation come from its picks together with its **Mystic Enchants**, above all its
   **Legendary Mystic Enchant**.
 - **Each Legendary Mystic Enchant is treated as a class.** The owner will provide, per Legendary, a build and a basic
-  rotation, together with the Freepick DBCs (`MysticEnchant.dbc`, `CharacterAdvancementClassTypes.dbc`). Until then,
+  rotation, together with the Freepick DBCs (`MysticEnchant.dbc` received, `CharacterAdvancementClassTypes.dbc`). Until then,
   do not guess builds or rotations.
 
 ## Working rules
@@ -87,6 +87,11 @@ Taken against core `037025155` (azerothcore-wotlk-coa `main`, 2026-10-24) and th
 - **Catalog**: client `MysticEnchant.dbc`, rows with flag bit 9 (`AscensionMysticEnchantCatalog.cpp`). Entry:
   enchant `Spell`, scroll `Item`, `Level`, `Quality` (2 Uncommon, 3 Rare, 4 Epic, 5 Legendary), `Worldforged`, and up
   to 3 requirements `Classes[i]`/`Tabs[i]` with `AbilityInvestment[i]`/`TalentInvestment[i]`.
+  Freepick's file (WDBC, 31 fields, 124-byte rows; fields: 0 id, 1 spell, 3 quality string, 5 level, 6 item,
+  7 worldforged, 8 must be non-zero, 13 flags, 19-21 classes, 22-24 tabs, 25-27 AE, 28-30 TE): 3,822 usable rows,
+  170 Legendary, 575 Epic, 1,498 Rare, 1,579 Uncommon. The 170 Legendaries are listed in
+  `docs/area52/legendary-mystic-enchants.tsv`: 26 Worldforged, 5 with an investment requirement (15 TE in one of
+  three trees), almost all level 0.
 - **Slots**: 17, one per equipment slot, stored as player setting `core.freepick.mystic.<preset>` (not on items).
   Active preset: `core.area52.mystic.active`.
 - **Rules** (`ValidateSlots`): enchant level ≤ character level; quality 2-5; owned; per-enchant stack limit;
@@ -163,5 +168,6 @@ The owner sends builds known to work on Area 52, as screenshots of the Ascension
 
 ### Still to come from the owner
 
-- Freepick `MysticEnchant.dbc` and `CharacterAdvancementClassTypes.dbc`.
+- Freepick `CharacterAdvancementClassTypes.dbc` (names the source trees in the requirement and `Class`/`Tab` ids).
+  `MysticEnchant.dbc` arrived 2026-10-26.
 - Per Legendary: the build and the basic rotation.
