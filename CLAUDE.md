@@ -181,7 +181,9 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
   from the class. The core lets a Hoplite hold a shield next to its polearm only while the Legendary aura is on
   (`Player::CanUseTwoHandWithShield`), and that aura comes after the first gear pass: once it is on,
   `EnsureCoaLegendaryClass` equips the best shield from the bags, or for a random bot runs the gear pass for the
-  off-hand. `ItemUsageValue` counts such a shield as an upgrade (`CoaHeroHoldsShieldWith`).
+  off-hand. `ItemUsageValue` counts such a shield as an upgrade (`CoaHeroHoldsShieldWith`). Before the aura is on,
+  `InitEquipment` (random gear, `autogear`) puts the best shield in the bags instead (`CoaShieldWaitsForLegendary`,
+  only one better than every shield carried), and `ItemUsageValue` keeps such a shield.
 - **Points**: a Hero's spells come only from its picks, so its AE and TE are spent: class trainers
   (`InitAvailableSpells`) and class quest reward spells are skipped for Heroes. `EnsureCoaLegendaryClass` logs a
   refused apply at info level ("could not take its <class> picks"). The three class builds pass the core's `Select` and

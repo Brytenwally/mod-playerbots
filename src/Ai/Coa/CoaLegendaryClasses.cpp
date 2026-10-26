@@ -413,6 +413,17 @@ bool CoaHeroHoldsShieldWith(Player const* bot, ItemTemplate const* main, ItemTem
     return main && off && HoldsShieldWith(bot, main, off);
 }
 
+bool CoaShieldWaitsForLegendary(Player* bot, ItemTemplate const* proto)
+{
+    CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(bot);
+    if (!legendaryClass || !legendaryClass->shield || !proto || proto->InventoryType != INVTYPE_SHIELD ||
+        bot->CanUseItem(proto) != EQUIP_ERR_OK)
+        return false;
+    Item* main = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    return main && main->GetTemplate()->InventoryType == INVTYPE_2HWEAPON &&
+        !HoldsShieldWith(bot, main->GetTemplate(), proto);
+}
+
 bool IsCoaHero(Player const* player)
 {
 #if COA_LEGENDARY_CLASSES

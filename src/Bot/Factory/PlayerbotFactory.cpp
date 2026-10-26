@@ -2722,6 +2722,34 @@ bool PlayerbotFactory::IsCoaPvpItem(ItemTemplate const* proto)
     return false;
 }
 
+namespace
+{
+// A Hoplite's shield goes to its bags while its polearm fills both hands; EnsureCoaLegendaryClass equips it once the
+// Legendary is on. One better than every shield already carried only.
+void StoreWaitingShield(Player* bot, uint32 itemId, int32 randomProperty, float score,
+    StatsWeightCalculator& calculator)
+{
+    bool carriesBetter = false;
+    auto consider = [&](Item* item)
+    {
+        carriesBetter |= item && item->GetTemplate()->InventoryType == INVTYPE_SHIELD &&
+            calculator.CalculateItem(item->GetEntry(), item->GetItemRandomPropertyId()) >= score;
+    };
+    for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < INVENTORY_SLOT_ITEM_END; ++slot)
+        consider(bot->GetItemByPos(INVENTORY_SLOT_BAG_0, slot));
+    for (uint8 bag = INVENTORY_SLOT_BAG_START; bag < INVENTORY_SLOT_BAG_END; ++bag)
+        if (Bag* container = bot->GetBagByPos(bag))
+            for (uint32 slot = 0; slot < container->GetBagSize(); ++slot)
+                consider(container->GetItemByPos(slot));
+    if (carriesBetter)
+        return;
+
+    ItemPosCountVec dest;
+    if (bot->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1) == EQUIP_ERR_OK)
+        bot->StoreNewItem(dest, itemId, true, randomProperty);
+}
+}  // namespace
+
 void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance, int32 onlySlot)
 {
     if (level < 5)
@@ -2975,7 +3003,7 @@ void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance, int32
                 if (!CanEquipItem(proto))
                     continue;
                 uint16 dest;
-                if (!CanEquipUnseenItem(slot, dest, newItemId))
+                if (!CanEquipUnseenItem(slot, dest, newItemId) && !CoaShieldWaitsForLegendary(bot, proto))
                     continue;
                 bestScoreForSlot = cur_score;
                 bestItemForSlot = newItemId;
@@ -2990,6 +3018,8 @@ void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance, int32
         uint16 dest;
         if (!CanEquipUnseenItem(slot, dest, bestItemForSlot))
         {
+            if (CoaShieldWaitsForLegendary(bot, sObjectMgr->GetItemTemplate(bestItemForSlot)))
+                StoreWaitingShield(bot, bestItemForSlot, bestRandomPropForSlot, bestScoreForSlot, calculator);
             continue;
         }
 

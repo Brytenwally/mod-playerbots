@@ -65,6 +65,10 @@ bool CoaHeroBotsWanted();
 // Whether the core lets the bot hold this shield next to this two-handed weapon (a Hoplite's polearm).
 bool CoaHeroHoldsShieldWith(Player const* bot, ItemTemplate const* main, ItemTemplate const* off);
 
+// A shield of the bot's class it cannot hold yet beside its two-handed weapon: the core allows it only once the
+// Legendary is on (a Hoplite's polearm). The bot keeps it in its bags until then.
+bool CoaShieldWaitsForLegendary(Player* bot, ItemTemplate const* proto);
+
 // A Freepick Hero, whose class comes from its Legendary.
 bool IsCoaHero(Player const* player);
 

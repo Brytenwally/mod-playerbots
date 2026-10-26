@@ -316,7 +316,7 @@ ItemUsage ItemUsageValue::QueryItemUsageForEquip(ItemTemplate const* itemProto, 
         Item* mainHand = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
         if (mainHand && mainHand->GetTemplate()->InventoryType == INVTYPE_2HWEAPON &&
             !CoaHeroHoldsShieldWith(bot, mainHand->GetTemplate(), itemProto))
-            return ITEM_USAGE_NONE;
+            return CoaShieldWaitsForLegendary(bot, itemProto) ? ITEM_USAGE_KEEP : ITEM_USAGE_NONE;
     }
 
     for (uint8 i = 0; i < possibleSlots; i++)
