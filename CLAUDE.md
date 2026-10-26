@@ -162,6 +162,11 @@ build by level, the 17 enchant slots, role/position/stat/gear, the rotation with
 the owner accepted, and what still needs code. When the guide leaves enchant slots empty, propose Uncommons that
 improve the build's core spells and let the owner choose.
 
+Triggers added for Legendary classes (`src/Ai/Coa/CoaGenericContext.h`): `coa all::<a>&<b>` (all of them active),
+`coa steady aggro` (every fighting enemy on the bot), `coa aggro lost` (a fighting enemy on someone else),
+`coa channeling::<spell>`, `coa party low mana::<members>,<percent>`. Break off a channel with the base action
+`cancel channel`.
+
 ### How the owner's builds look
 
 The owner sends builds known to work on Area 52, as screenshots of the Ascension build planner. Read them like this:

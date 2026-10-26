@@ -18,6 +18,7 @@
 #include "PlayerbotAIConfig.h"
 #include "CoaSpecialization.h"
 #include "GenericBuffUtils.h"
+#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "Timer.h"
@@ -26,6 +27,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <limits>
+#include <utility>
 
 // How far an enemy cleave, cone or spin around the caster reaches; 0 when the spell reaches its target.
 static float CoaCasterCentredReach(Player* bot, SpellInfo const* info)
@@ -728,4 +730,87 @@ bool CoaSpellReadyTrigger::IsActive()
         return false;
 
     return !bot->HasSpellCooldown(spellId);
+}
+
+bool CoaAllTrigger::IsActive()
+{
+    if (qualifier.empty())
+        return false;
+
+    for (std::string const& part : split(qualifier, '&'))
+    {
+        Trigger* trigger = context->GetTrigger(part);
+        if (!trigger || !trigger->IsActive())
+            return false;
+    }
+    return true;
+}
+
+// Enemies within sight that are fighting someone: how many are on the bot, how many on anyone else.
+static std::pair<uint32, uint32> CoaAggroSplit(Player* bot, PlayerbotAI* botAI, GuidVector const& attackers)
+{
+    uint32 onBot = 0;
+    uint32 elsewhere = 0;
+    for (ObjectGuid const guid : attackers)
+    {
+        Unit* unit = botAI->GetUnit(guid);
+        if (!unit || !unit->IsAlive() || bot->GetDistance(unit) > sPlayerbotAIConfig.sightDistance)
+            continue;
+
+        Unit* victim = unit->GetVictim();
+        if (!victim)
+            continue;
+
+        if (victim == bot)
+            ++onBot;
+        else
+            ++elsewhere;
+    }
+    return {onBot, elsewhere};
+}
+
+bool CoaSteadyAggroTrigger::IsActive()
+{
+    auto const [onBot, elsewhere] = CoaAggroSplit(bot, botAI, AI_VALUE(GuidVector, "attackers"));
+    return onBot && !elsewhere;
+}
+
+bool CoaAggroLostTrigger::IsActive()
+{
+    return CoaAggroSplit(bot, botAI, AI_VALUE(GuidVector, "attackers")).second > 0;
+}
+
+bool CoaChannelingTrigger::IsActive()
+{
+    Spell const* channel = bot->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+    return channel && !qualifier.empty() && channel->GetSpellInfo()->SpellName[0] == qualifier;
+}
+
+bool CoaPartyLowManaTrigger::IsActive()
+{
+    std::vector<std::string> const parts = split(qualifier, ',');
+    if (parts.size() != 2)
+        return false;
+
+    int const wanted = std::atoi(parts[0].c_str());
+    int const percent = std::atoi(parts[1].c_str());
+    if (wanted <= 0 || percent <= 0)
+        return false;
+
+    auto const low = [&](Player* member)
+    {
+        return member && member->IsAlive() && member->GetMaxPower(POWER_MANA) > 0 &&
+            member->GetMapId() == bot->GetMapId() && bot->GetDistance(member) <= 35.0f &&
+            member->GetPowerPct(POWER_MANA) < percent;
+    };
+
+    int count = 0;
+    Group* group = bot->GetGroup();
+    if (!group)
+        return low(bot) && wanted <= 1;
+
+    for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
+        if (low(ref->GetSource()) && ++count >= wanted)
+            return true;
+    return false;
 }

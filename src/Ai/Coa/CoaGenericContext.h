@@ -411,6 +411,55 @@ public:
     bool IsActive() override;
 };
 
+/* "coa all::<trigger>&<trigger>[&...]" - every named trigger is active. A rotation line has a single trigger;
+ * this joins existing ones instead of one more class per pair. The parts may be qualified themselves:
+ * "coa all::coa channeling::Invocation&coa aggro lost". */
+class CoaAllTrigger : public Trigger, public Qualified
+{
+public:
+    CoaAllTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa all") {}
+    std::string const getName() override { return "coa all::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "coa steady aggro" - enemies are fighting and every one of them is on the bot. "has aggro" looks at the
+ * current target only, which says nothing about the rest of a pack. A Mystic Knight channels Invocation for
+ * mana only while the whole pack stays on it (the owner's rule, 27/10). */
+class CoaSteadyAggroTrigger : public Trigger
+{
+public:
+    CoaSteadyAggroTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa steady aggro") {}
+    bool IsActive() override;
+};
+
+/* "coa aggro lost" - an enemy that is fighting is on someone other than the bot. */
+class CoaAggroLostTrigger : public Trigger
+{
+public:
+    CoaAggroLostTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa aggro lost") {}
+    bool IsActive() override;
+};
+
+/* "coa party low mana::<members>,<percent>" - at least <members> living group members within 35 yards, the bot
+ * included, are below <percent> mana. For a group mana cooldown: Brilliance Aura goes out when 2 are below 30%
+ * (the owner's rule, 26/10). */
+class CoaPartyLowManaTrigger : public Trigger, public Qualified
+{
+public:
+    CoaPartyLowManaTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa party low mana") {}
+    std::string const getName() override { return "coa party low mana::" + qualifier; }
+    bool IsActive() override;
+};
+
+/* "coa channeling::<spell>" - the bot is channeling that spell, so "cancel channel" can break it off. */
+class CoaChannelingTrigger : public Trigger, public Qualified
+{
+public:
+    CoaChannelingTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa channeling") {}
+    std::string const getName() override { return "coa channeling::" + qualifier; }
+    bool IsActive() override;
+};
+
 /* These three derive from SpellTrigger, whose `spell` field is settable - here
  * qualifying is enough and the logic stays that of the original. */
 #define COA_QUALIFIED_SPELL_TRIGGER(ClassName, Base, Label)                     \
@@ -609,6 +658,11 @@ public:
         creators["can cast"] = &CoaGenericTriggerContext::can_cast;
         creators["buff missing"] = &CoaGenericTriggerContext::buff_missing;
         creators["debuff missing"] = &CoaGenericTriggerContext::debuff_missing;
+        creators["coa all"] = &CoaGenericTriggerContext::coa_all;
+        creators["coa steady aggro"] = &CoaGenericTriggerContext::coa_steady_aggro;
+        creators["coa aggro lost"] = &CoaGenericTriggerContext::coa_aggro_lost;
+        creators["coa channeling"] = &CoaGenericTriggerContext::coa_channeling;
+        creators["coa party low mana"] = &CoaGenericTriggerContext::coa_party_low_mana;
     }
 
 private:
@@ -625,6 +679,11 @@ private:
     static Trigger* can_cast(PlayerbotAI* botAI) { return new CoaCanCastTrigger(botAI); }
     static Trigger* buff_missing(PlayerbotAI* botAI) { return new CoaBuffMissingTrigger(botAI); }
     static Trigger* debuff_missing(PlayerbotAI* botAI) { return new CoaDebuffMissingTrigger(botAI); }
+    static Trigger* coa_all(PlayerbotAI* botAI) { return new CoaAllTrigger(botAI); }
+    static Trigger* coa_steady_aggro(PlayerbotAI* botAI) { return new CoaSteadyAggroTrigger(botAI); }
+    static Trigger* coa_aggro_lost(PlayerbotAI* botAI) { return new CoaAggroLostTrigger(botAI); }
+    static Trigger* coa_channeling(PlayerbotAI* botAI) { return new CoaChannelingTrigger(botAI); }
+    static Trigger* coa_party_low_mana(PlayerbotAI* botAI) { return new CoaPartyLowManaTrigger(botAI); }
 };
 
 #endif

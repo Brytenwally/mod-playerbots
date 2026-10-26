@@ -69,14 +69,19 @@ Wisdom (99497) for them.
 ## Rotation
 
 Guide, single target: Judgement of Wisdom > Consecration > Eldritch Wrath > Invocation > Deconstruct, Arcane Barrage
-as filler. AoE: the same, Arcane Explosion as filler instead of Arcane Barrage, and Deconstruct keeps Sunder on the
-important target.
+as filler; the owner's Invocation rule below replaces its place in that list. AoE: the same, Arcane Explosion as
+filler instead of Arcane Barrage, and Deconstruct keeps Sunder on the important target.
 
 Owner's rules (2026-10-26):
 
 - Devotion Aura always on.
-- Brilliance Aura (91234) is a cooldown: cast it when 2 or more party members are below 30% mana.
+- Brilliance Aura (91234) is a cooldown: cast it when 2 or more party members within 35 yards, the tank included,
+  are below 30% mana (`coa party low mana::2,30`).
 - Deconstruct, never Devastate.
+- Invocation (a channel) only when low on mana (below 15%, `AiPlayerbot.LowMana`) and every enemy in the fight is
+  on the tank (`coa steady aggro`). It then comes before the damage rotation. If any enemy turns to someone else
+  (`coa aggro lost`), the tank breaks off the channel and goes back to taking aggro.
+- Capacitor Totem lands at the caster's feet and stuns enemies within 8 yards: cast it with 3+ enemies close by.
 
 Defaults stated to the owner and not contradicted:
 
@@ -95,11 +100,6 @@ Defaults stated to the owner and not contradicted:
 
 ## Open for implementation
 
-- **Brilliance Aura** needs a trigger such as `party members low mana::2,30` (count of party members under a mana
-  percentage). None exists in playerbots or the CoA context, so the line is not in the SQL yet.
-- **Capacitor Totem** is placed at a destination (`/cast [@cursor]`). Check in game that `cast::` places it at the
-  bot's target; otherwise it needs a ground-target action.
-- **Invocation** is a channel; check that the bot does not channel it while it should hold threat.
 - Hero support itself (context, kit, Legendary class table, build application and enchant slotting): see the plan in
   `CLAUDE.md`, section 5.
 
