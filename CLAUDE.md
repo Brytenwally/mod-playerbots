@@ -170,7 +170,6 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`, data generated into `CoaLegenda
   (`Player::CanUseTwoHandWithShield`), and that aura comes after the first gear pass: once it is on,
   `EnsureCoaLegendaryClass` equips the best shield from the bags, or for a random bot runs the gear pass for the
   off-hand. `ItemUsageValue` counts such a shield as an upgrade (`CoaHeroHoldsShieldWith`).
-
 - **Proficiencies**: the core teaches a Hero every weapon and armor proficiency at login. `ClearSpells` leaves a
   Hero's spells alone (its picks are kept by `EnsureCoaLegendaryClass`), and `InitSkills` gives a Hero every weapon
   and armor skill again after `ClearSkills`.
