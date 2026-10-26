@@ -1,4 +1,4 @@
-name	spell	level	scroll_item	worldforged	requirements (classType/tab:AE/TE)
+name	spell	level	scroll_item	worldforged	requirement (any one of)
 Abiding Fel Energy	84805	0	1176248	0	
 Adorned by Light	991030	0	200024	0	
 Aimed Explosive Shot	81448	0	1176041	0	
@@ -34,7 +34,7 @@ Consecrated Strikes	965295	0	1178483	0
 Consumed by Fire	414080	0	1178400	0	
 Controlled Burn	81407	0	1176027	0	
 Corrupted Bear Form	99634	0	1178229	0	
-Crazy Cultist	84529	0	1176116	0	7/17:AE0/TE15 7/18:AE0/TE15 7/19:AE0/TE15
+Crazy Cultist	84529	0	1176116	0	Warlock Affliction 15 TE; Warlock Demonology 15 TE; Warlock Destruction 15 TE
 Crimson Champion	977727	0	1178617	0	
 Cryotherapist	86576	0	134879	1	
 Curse of Arugal	982806	0	132619	1	
@@ -48,14 +48,14 @@ Defias Gunslinger	997047	0	132677	1
 Demolisher	977864	0	1178642	0	
 Demonic Influence	965313	0	1178492	0	
 Demonic Persistence	990130	0	132667	0	
-Deranged Druid	84531	0	1176117	0	8/20:AE0/TE15 8/21:AE0/TE15 8/22:AE0/TE15
+Deranged Druid	84531	0	1176117	0	Druid Restoration 15 TE; Druid Feral 15 TE; Druid Balance 15 TE
 Disciple of Arugal	982980	0	132637	1	
 Disciple of the Tides	978234	0	1178699	0	
 Divine Purpose	965421	0	1178518	0	
 Dominant Word: Shield	81472	0	1176049	0	
 Double Down	978742	0	1178714	0	
 Dragon Warrior	954252	0	1178447	0	
-Eccentric Elementalist	84533	0	1176118	0	9/20:AE0/TE15 9/23:AE0/TE15 9/24:AE0/TE15
+Eccentric Elementalist	84533	0	1176118	0	Shaman Restoration 15 TE; Shaman Elemental 15 TE; Shaman Enhancement 15 TE
 Edge of Fury	986234	0	134892	1	
 Eldritch Knight	81116	0	1175936	0	
 Elemental Assassin	978229	0	1178694	0	
@@ -159,7 +159,7 @@ Undaunted	978721	0	1178709	0
 Unrelenting Wrath	965288	0	1178478	0	
 Vampire Lord	997126	0	134876	1	
 Verdant Convergence	902122	0	133381	1	
-Wacky Wizardry	965442	0	1178519	0	5/11:AE0/TE15 5/12:AE0/TE15 5/13:AE0/TE15
+Wacky Wizardry	965442	0	1178519	0	Mage Arcane 15 TE; Mage Frost 15 TE; Mage Fire 15 TE
 Warcry	965337	0	1178501	0	
 Warden of Demonreach	997113	0	132687	1	
 Whispers of the Old Gods	965445	0	1178520	0	
@@ -168,4 +168,4 @@ Wild Felfire	965315	0	1178493	0
 Wind Rager	978232	0	1178697	0	
 Words of Healing	81470	0	1176048	0	
 Zandalari Windreaver	902137	0	200014	1	
-Zany Zealot	84527	0	1176115	0	6/14:AE0/TE15 6/15:AE0/TE15 6/16:AE0/TE15
+Zany Zealot	84527	0	1176115	0	Priest Holy 15 TE; Priest Shadow 15 TE; Priest Discipline 15 TE
