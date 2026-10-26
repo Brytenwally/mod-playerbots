@@ -162,25 +162,51 @@ std::set<uint32> const& CatalogSpells()
     return spells;
 }
 
-void WriteSlots(Player* bot, std::array<uint32, 17> const& enchants)
-{
-    std::string const setting = SlotSetting(bot);
-    PlayerSettingVector const* stored = bot->FindPlayerSettings(setting);
-    for (uint32 slot = 0; slot < enchants.size(); ++slot)
-        if (!stored || slot >= stored->size() || (*stored)[slot].value != enchants[slot])
-            bot->UpdatePlayerSetting(setting, slot, enchants[slot]);
-}
-
 void Quiet(void*, std::string_view) { }
 void Finished(void*, bool) { }
+
+void QueueCommand(std::string const& command)
+{
+    sWorld->QueueCliCommand(new CliCommandHolder(nullptr, command.c_str(), &Quiet, &Finished));
+}
 
 // The core grants an account every Mystic Enchant through its console command, then reloads the collection of
 // the character and puts the slotted ones on. It refuses while the character's collection is still loading or
 // the character fights, so this is asked again until the Legendary is on.
 void RequestCollection(Player* bot)
 {
-    std::string const command = "mystic grant 0 " + bot->GetName();
-    sWorld->QueueCliCommand(new CliCommandHolder(nullptr, command.c_str(), &Quiet, &Finished));
+    QueueCommand("mystic grant 0 " + bot->GetName());
+}
+
+// The core puts on no enchant at all while one slotted enchant is invalid (one this server does not connect, or
+// more stacks than it allows), and the Legendary with them. The Legendary alone is valid, so it is written
+// straight to its slot, which also keeps the class, and every other slot emptied. The rest go through the core's
+// "mystic equip" command, which checks each slot as the Mystic Enchant window does: an invalid enchant stays out
+// alone.
+void EquipSlots(Player* bot, CoaLegendaryClass const& legendaryClass)
+{
+    std::array<uint32, 17> const& enchants = *legendaryClass.enchants;
+    std::string const setting = SlotSetting(bot);
+    PlayerSettingVector const* stored = bot->FindPlayerSettings(setting);
+    auto storedAt = [stored](uint32 slot) { return stored && slot < stored->size() ? (*stored)[slot].value : 0; };
+
+    if (!bot->HasAura(legendaryClass.legendary))
+    {
+        for (uint32 slot = 0; slot < enchants.size(); ++slot)
+        {
+            uint32 const wanted = enchants[slot] == legendaryClass.legendary ? enchants[slot] : 0;
+            if (storedAt(slot) != wanted || !stored || slot >= stored->size())
+                bot->UpdatePlayerSetting(setting, slot, wanted);
+        }
+        AscensionMysticEnchant::RefreshEquipped(bot);
+        stored = bot->FindPlayerSettings(setting);
+    }
+
+    std::string const name = bot->GetName();
+    for (uint32 slot = 0; slot < enchants.size(); ++slot)
+        if (storedAt(slot) != enchants[slot])
+            QueueCommand("mystic equip " + std::to_string(slot + 1) + " " + std::to_string(enchants[slot]) + " " +
+                name);
 }
 #endif
 }  // namespace
@@ -274,8 +300,7 @@ bool ApplyCoaLegendaryClass(Player* bot, CoaLegendaryClass const& legendaryClass
         return false;
     }
 
-    WriteSlots(bot, *legendaryClass.enchants);
-    AscensionMysticEnchant::RefreshEquipped(bot);
+    EquipSlots(bot, legendaryClass);
 
     uint32 const now = getMSTime();
     bool requestCollection = false;

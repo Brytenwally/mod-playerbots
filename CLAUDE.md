@@ -151,9 +151,12 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`, data generated into `CoaLegenda
 - **Hero detection**: `IsCoaHero` = class 10 and `AscensionFreePick::Applies`. A Hero's class is the Legendary slotted
   in its active enchant preset (`GetCoaLegendaryClass`); no other storage.
 - **Applying a class** (`ApplyCoaLegendaryClass`): `PlanSelection` + `Apply` with the class's picks (those in the
-  catalog) and primary stat; the 17 slots written to `core.freepick.mystic.<preset>`; the console command
-  `mystic grant 0 <name>` (every enchant for the account, then the core reloads and slots them), asked again every
-  minute until the Legendary's aura is on; `RefreshEquipped`.
+  catalog) and primary stat; the console command `mystic grant 0 <name>` (every connected enchant for the account),
+  asked again every minute until the Legendary's aura is on. The core puts on no enchant while any slotted one is
+  invalid (not connected on that server, or over its stack limit), so only the Legendary is written straight to
+  `core.freepick.mystic.<preset>` (the other slots emptied) and the rest go through `mystic equip <slot> <spell>
+  <name>`, which refuses an invalid enchant alone. Critical Block (947294) is missing from the Spell.dbc copies
+  checked, so it stays out of a Hoplite's slots.
 - **Random bots**: `EnsureCoaLegendaryClass` gives a classless Hero random bot a class by a stable roll (20% Mystic
   Knight, 20% Naturalist, 60% Hoplite) and keeps its picks at its level. Called from `InitTalentsTree`, the combat
   strategy setup and the non-combat strategy `coa legendary` (trigger `coa legendary unready`, action
