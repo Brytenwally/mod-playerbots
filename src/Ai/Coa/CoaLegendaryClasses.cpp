@@ -1,5 +1,6 @@
 #include "CoaLegendaryClasses.h"
 
+#include "Config.h"
 #include "IWorld.h"
 #include "ItemTemplate.h"
 #include "Log.h"
@@ -121,10 +122,16 @@ void RequestCollection(Player* bot)
 
 std::span<CoaLegendaryClass const> CoaLegendaryClasses() { return LegendaryClasses; }
 
+// Random bots are created in OnBeforeWorldInitialized, before the core turns Free Pick on in OnStartup, so
+// AscensionFreePick::Enabled() is still false then: the bots came out in CoA classes. This reads the settings the
+// core decides by (AscensionCompat.cpp, OnStartup), with the core's defaults.
 bool CoaHeroBotsWanted()
 {
 #if COA_LEGENDARY_CLASSES
-    return sPlayerbotAIConfig.area52HeroBots && AscensionFreePick::Enabled();
+    return sPlayerbotAIConfig.area52HeroBots && sConfigMgr->GetOption<bool>("CoA.Enable", true) &&
+        sConfigMgr->GetOption<std::string>("CoA.ClassModel", "coa") == "hero" &&
+        sConfigMgr->GetOption<std::string>("CoA.RealmType", "live") == "live" &&
+        !(sConfigMgr->GetOption<uint32>("CoA.GameModeMask", 0) & ~AscensionFreePick::QualityMode);
 #else
     return false;
 #endif
