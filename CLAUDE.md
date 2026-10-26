@@ -153,6 +153,15 @@ Work needed (not built yet):
   table + slot setting + `RefreshEquipped`); gear for the build's primary stat.
 - Random bots: spread the Legendary classes the way classes are spread; stop skipping class 10 on a Freepick realm.
 
+Written so far (data only; inert until the work above exists):
+- **Mystic Knight** (Eldritch Knight 81116, tank): `docs/area52/classes/mystic-knight.md`, its `-build.tsv` and
+  `-enchants.tsv`, rotation rows in `data/sql/playerbots/custom/area52_mystic_knight.sql`.
+
+A class file holds: the Legendary and what its enchants swap in (rotation lines name the swapped-in spells), the
+build by level, the 17 enchant slots, role/position/stat/gear, the rotation with the owner's rules and the defaults
+the owner accepted, and what still needs code. When the guide leaves enchant slots empty, propose Uncommons that
+improve the build's core spells and let the owner choose.
+
 ### How the owner's builds look
 
 The owner sends builds known to work on Area 52, as screenshots of the Ascension build planner. Read them like this:
@@ -174,4 +183,4 @@ The owner sends builds known to work on Area 52, as screenshots of the Ascension
 
 - DBCs: `MysticEnchant.dbc`, `CharacterAdvancement.dbc`, `CharacterAdvancementClassTypes.dbc` and
   `CharacterAdvancementCategories.dbc` arrived 2026-10-26 (summarised in `docs/area52/`).
-- Per Legendary: the build and the basic rotation.
+- Per Legendary: the build and the basic rotation (done: Mystic Knight).

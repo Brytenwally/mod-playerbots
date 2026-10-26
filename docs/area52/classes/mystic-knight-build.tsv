@@ -1,0 +1,103 @@
+level	name	rank	spell	type	class	tab	ae	te	quality
+1	Charge	1/1	100	Ability	Warrior	Arms	2	0	Epic
+1	Devastate	1/1	20243	TalentAbility	Warrior	Protection	2	0	Normal
+4	Mana-forged Barrier	1/1	701463	Ability	Mage	Arcane	2	0	Epic
+8	Consecration	1/1	26573	Ability	Paladin	Holy	2	0	Normal
+10	Sinister Strike	1/1	1752	Ability	Rogue	Combat	2	0	Normal
+10	Benediction	1/3	20101	Talent	Paladin	Retribution	0	1	Normal
+11	Benediction	2/3	20102	Talent	Paladin	Retribution	0	1	Normal
+12	Benediction	3/3	20103	Talent	Paladin	Retribution	0	1	Normal
+12	Seal Mastery	1/1	954707	Ability	Paladin	Holy	1	0	Rare
+12	Seal of Wisdom	1/1	20166	Ability	Paladin	Holy	1	0	Rare
+13	Spellblade	1/3	812575	Talent	Mage	Arcane	0	1	Normal
+14	Spellblade	2/3	812576	Talent	Mage	Arcane	0	1	Normal
+14	Invocation	1/1	986067	Ability	Mage	Arcane	2	0	Rare
+15	Spellblade	3/3	812577	Talent	Mage	Arcane	0	1	Normal
+16	Power Surge	1/3	828574	Talent	Mage	Arcane	0	1	Normal
+16	Arcane Explosion	1/1	1449	Ability	Mage	Arcane	2	0	Normal
+17	Power Surge	2/3	828575	Talent	Mage	Arcane	0	1	Normal
+18	Power Surge	3/3	828576	Talent	Mage	Arcane	0	1	Normal
+18	Demon Mastery	1/1	954705	Ability	Warlock	Demonology	1	0	Epic
+18	Summon Voidwalker	1/1	697	Ability	Warlock	Demonology	1	0	Epic
+19	Spiritual Attunement	1/2	31785	Talent	Paladin	Protection	0	1	Normal
+20	Spiritual Attunement	2/2	33776	Talent	Paladin	Protection	0	1	Normal
+20	Judgement Mastery	1/1	92169	Ability	Paladin	Retribution	1	0	Rare
+20	Judgement of Wisdom	1/1	53408	Ability	Paladin	Retribution	1	0	Rare
+21	Arcane Fortitude	1/3	28574	Talent	Mage	Arcane	0	1	Normal
+22	Arcane Fortitude	2/3	54658	Talent	Mage	Arcane	0	1	Normal
+23	Arcane Fortitude	3/3	54659	Talent	Mage	Arcane	0	1	Normal
+24	Soul Link	1/1	1469028	Ability	Warlock	Demonology	0	0	Normal
+24	Heart of the Crusader	1/3	20335	Talent	Paladin	Retribution	0	1	Normal
+25	Heart of the Crusader	2/3	20336	Talent	Paladin	Retribution	0	1	Normal
+26	Heart of the Crusader	3/3	20337	Talent	Paladin	Retribution	0	1	Normal
+26	Brilliance Aura	1/1	91234	Ability	Mage	Arcane	2	0	Rare
+27	Shield Specialization	1/3	12298	Talent	Warrior	Protection	0	1	Normal
+28	Shield Specialization	2/3	12724	Talent	Warrior	Protection	0	1	Normal
+28	Evasion	1/1	5277	Ability	Rogue	Combat	2	0	Epic
+29	Shield Specialization	3/3	12725	Talent	Warrior	Protection	0	1	Normal
+30	Improved Consecration	1/3	410000	Talent	Paladin	Protection	0	1	Normal
+31	Shimmer	1/1	760216	Ability	Mage	Arcane	3	0	Legendary
+31	Improved Consecration	2/3	410001	Talent	Paladin	Protection	0	1	Normal
+32	Improved Consecration	3/3	410002	Talent	Paladin	Protection	0	1	Normal
+33	Blessing Mastery	1/1	954711	Ability	Paladin	Holy	1	0	Uncommon
+33	Blessing of Sanctuary	1/1	20911	TalentAbility	Paladin	Protection	1	0	Uncommon
+33	Adaptive Defense	1/5	12297	Talent	Warrior	Protection	0	1	Normal
+34	Conjure Water	1/1	5504	Ability	Mage	Arcane	1	0	Normal
+34	Adaptive Defense	2/5	12750	Talent	Warrior	Protection	0	1	Normal
+35	Redoubt	1/3	20127	Talent	Paladin	Protection	0	1	Normal
+36	Redoubt	2/3	20130	Talent	Paladin	Protection	0	1	Normal
+36	Blessing of Kings	1/1	20217	Ability	Paladin	Protection	1	0	Uncommon
+37	Redoubt	3/3	20135	Talent	Paladin	Protection	0	1	Normal
+38	Adaptive Defense	3/5	12751	Talent	Warrior	Protection	0	1	Normal
+38	Angelic Feather	1/1	760053	Ability	Priest	Discipline	2	0	Legendary
+39	Adaptive Defense	4/5	12752	Talent	Warrior	Protection	0	1	Normal
+40	Mage Armor	1/1	6117	Ability	Mage	Arcane	1	0	Rare
+40	Adaptive Defense	5/5	12753	Talent	Warrior	Protection	0	1	Normal
+40	Mage Armor Mastery	1/1	92155	Ability	Mage	Arcane	1	0	Rare
+41	Master Demonologist	1/5	23785	Talent	Warlock	Demonology	0	1	Normal
+42	Master Demonologist	2/5	23822	Talent	Warlock	Demonology	0	1	Normal
+42	Paladin Aura Mastery	1/1	92157	Ability	Paladin	Protection	1	0	Uncommon
+42	Devotion Aura	1/1	465	Ability	Paladin	Protection	1	0	Uncommon
+43	Master Demonologist	3/5	23823	Talent	Warlock	Demonology	0	1	Normal
+44	Master Demonologist	4/5	23824	Talent	Warlock	Demonology	0	1	Normal
+44	Arcane Orb	1/1	955032	Ability	Mage	Arcane	2	0	Epic
+45	Master Demonologist	5/5	23825	Talent	Warlock	Demonology	0	1	Normal
+46	Anticipation	1/5	20096	Talent	Paladin	Protection	0	1	Normal
+46	Cleanse	1/1	4987	Ability	Paladin	Holy	2	0	Epic
+47	Anticipation	2/5	20097	Talent	Paladin	Protection	0	1	Normal
+48	Anticipation	3/5	20098	Talent	Paladin	Protection	0	1	Normal
+48	Arcane Intellect	1/1	1459	Ability	Mage	Arcane	2	0	Uncommon
+49	Anticipation	4/5	20099	Talent	Paladin	Protection	0	1	Normal
+50	Anticipation	5/5	20100	Talent	Paladin	Protection	0	1	Normal
+50	Holy Wrath	1/1	2812	Ability	Paladin	Holy	2	0	Normal
+51	Firm Grip	1/3	12299	Talent	Warrior	Protection	0	1	Normal
+52	Pain Suppression	1/1	33206	TalentAbility	Priest	Discipline	2	0	Legendary
+52	Firm Grip	2/3	12761	Talent	Warrior	Protection	0	1	Normal
+53	Firm Grip	3/3	12762	Talent	Warrior	Protection	0	1	Normal
+54	Capacitor Totem	1/1	954518	Ability	Shaman	Elemental	2	0	Epic
+54	One-Handed Weapon Specialization	1/5	16538	Talent	Warrior	Protection	0	1	Normal
+55	Enlightened Judgements	1/2	53556	Talent	Paladin	Holy	0	1	Normal
+56	Enlightened Judgements	2/2	53557	Talent	Paladin	Holy	0	1	Normal
+56	Summon Felguard	1/1	30146	TalentAbility	Warlock	Demonology	1	0	Epic
+57	One-Handed Weapon Specialization	2/5	16539	Talent	Warrior	Protection	0	1	Normal
+58	One-Handed Weapon Specialization	3/5	16540	Talent	Warrior	Protection	0	1	Normal
+58	Power Word: Fortitude	1/1	1243	Ability	Priest	Discipline	2	0	Uncommon
+59	One-Handed Weapon Specialization	4/5	16541	Talent	Warrior	Protection	0	1	Normal
+60	One-Handed Weapon Specialization	5/5	16542	Talent	Warrior	Protection	0	1	Normal
+60	Arcane Barrage	1/1	44425	TalentAbility	Mage	Arcane	2	0	Normal
+60	Dispersion	1/1	47585	TalentAbility	Priest	Shadow	3	0	Legendary
+61	Balance of Power	1/2	33592	Talent	Druid	Balance	0	1	Normal
+61	Challenging Shout	1/1	1161	Ability	Warrior	Fury	2	0	Normal
+62	Balance of Power	2/2	33596	Talent	Druid	Balance	0	1	Normal
+62	Mark of the Wild	1/1	1126	Ability	Druid	Restoration	2	0	Uncommon
+63	Ardent Defender	1/3	31850	Talent	Paladin	Protection	0	1	Normal
+64	Ardent Defender	2/3	31851	Talent	Paladin	Protection	0	1	Normal
+65	Ardent Defender	3/3	31852	Talent	Paladin	Protection	0	1	Normal
+65	Ritual of Summoning	1/1	698	Ability	Warlock	Demonology	2	0	Normal
+66	Demonic Embrace	1/3	18697	Talent	Warlock	Demonology	0	1	Normal
+67	Demonic Embrace	2/3	18698	Talent	Warlock	Demonology	0	1	Normal
+68	Demonic Embrace	3/3	18699	Talent	Warlock	Demonology	0	1	Normal
+68	Intercept	1/1	20252	Ability	Warrior	Fury	3	0	Epic
+69	Improved Power Word: Fortitude	1/2	14749	Talent	Priest	Discipline	0	1	Normal
+70	Improved Power Word: Fortitude	2/2	14767	Talent	Priest	Discipline	0	1	Normal
+70	Astral Recall	1/1	556	Ability	Shaman	Enhancement	2	0	Normal

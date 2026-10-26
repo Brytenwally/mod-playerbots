@@ -1,0 +1,18 @@
+slot	spell	name	quality	level	worldforged	effect
+1	81116	Eldritch Knight	Legendary	1	0	Eldritch Effusion, Eldritch Weapon, Holy Wrath becomes Eldritch Wrath
+2	954081	Deconstruction	Epic	1	0	Devastate becomes Deconstruct
+3	926573	Emanating Light	Epic	1	0	Consecration becomes Consecration (Emanate)
+4	92580	Flesh Hook	Epic	1	1	teaches Flesh Hook (92583)
+5	912298	Shield Specialization	Rare	1	0	stack 1 of 3
+6	912298	Shield Specialization	Rare	1	0	stack 2 of 3
+7	912298	Shield Specialization	Rare	1	0	stack 3 of 3
+8	920127	Redoubt	Rare	1	0	stack 1 of 3
+9	920127	Redoubt	Rare	1	0	stack 2 of 3
+10	920127	Redoubt	Rare	1	0	stack 3 of 3
+11	965377	Spiritual Attunement	Rare	1	0	mana when healed
+12	913705	Precision	Rare	1	0	hit chance
+13	933592	Balance of Power	Rare	1	0	hit chance
+14	500196	Holy Guardian	Uncommon	1	0	threat from Holy damage
+15	101278	Arcane Fulmination	Uncommon	1	0	threat from Arcane damage
+16	90219	Taunting Holy Wrath	Uncommon	1	0	threat of Holy Wrath, so of Eldritch Wrath (owner's pick 2026-10-26)
+17	99497	Hasty Judgement of Wisdom	Uncommon	1	0	cooldown of Judgement of Wisdom (owner's pick 2026-10-26)
