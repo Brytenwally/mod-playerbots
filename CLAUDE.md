@@ -10,6 +10,8 @@ updates applied. The Windows build is `Brytenwally/Freepick-build`.
   talent points (TE) and spends them freely on spells and talents from every source tree.
 - A Hero's role and rotation come from its picks together with its **Mystic Enchants**, above all its
   **Legendary Mystic Enchant**.
+- **Random bots start with every Mystic Enchant learned at creation** (the owner's rule): add all of them to the bot
+  account's collection, then slot the ones its Legendary class uses.
 - **Each Legendary Mystic Enchant is treated as a class.** The owner will provide, per Legendary, a build and a basic
   rotation. Until then, do not guess builds or rotations.
 
