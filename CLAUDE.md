@@ -169,7 +169,8 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
   no enchant while any slotted one is invalid (not connected on that server, or over its stack limit), so only the
   Legendary is written straight to `core.freepick.mystic.<preset>` (the other slots emptied) and the rest go through
   `mystic equip <slot> <spell> <name>`, which refuses an invalid enchant alone; slots still differing once the
-  Legendary is on (equips refused before the collection loaded) are asked for again, up to 5 times a minute apart. (The server's Spell.dbc, 239,065 rows, has every enchant of the
+  Legendary is on (equips refused before the collection loaded) are asked for again, up to 5 times a minute
+  apart. (The server's Spell.dbc, 239,065 rows, has every enchant of the
   three classes; older copies lacked some.)
 - **Changing class** (`talents spec`, or a tweaked build after a restart): `Apply` swaps the picks;
   `RemoveUnpickedSpells` then removes Free Pick spells of entries the bot has not picked (trainer, quest or old class
