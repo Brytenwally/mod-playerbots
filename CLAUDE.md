@@ -155,8 +155,8 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`, data generated into `CoaLegenda
   asked again every minute until the Legendary's aura is on. The core puts on no enchant while any slotted one is
   invalid (not connected on that server, or over its stack limit), so only the Legendary is written straight to
   `core.freepick.mystic.<preset>` (the other slots emptied) and the rest go through `mystic equip <slot> <spell>
-  <name>`, which refuses an invalid enchant alone. Critical Block (947294) is missing from the Spell.dbc copies
-  checked, so it stays out of a Hoplite's slots.
+  <name>`, which refuses an invalid enchant alone. (The server's Spell.dbc, 239,065 rows, has every enchant of the
+  three classes; older copies lacked some.)
 - **Random bots**: `EnsureCoaLegendaryClass` gives a classless Hero random bot a class by a stable roll (20% Mystic
   Knight, 20% Naturalist, 60% Hoplite) and keeps its picks at its level. Called from `InitTalentsTree`, the combat
   strategy setup and the non-combat strategy `coa legendary` (trigger `coa legendary unready`, action
@@ -171,7 +171,9 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`, data generated into `CoaLegenda
   `EnsureCoaLegendaryClass` equips the best shield from the bags, or for a random bot runs the gear pass for the
   off-hand. `ItemUsageValue` counts such a shield as an upgrade (`CoaHeroHoldsShieldWith`).
 
-Still open: whether Heroes have the weapon and armor proficiencies their class wears.
+- **Proficiencies**: the core teaches a Hero every weapon and armor proficiency at login. `ClearSpells` leaves a
+  Hero's spells alone (its picks are kept by `EnsureCoaLegendaryClass`), and `InitSkills` gives a Hero every weapon
+  and armor skill again after `ClearSkills`.
 
 Classes written:
 - **Mystic Knight** (Eldritch Knight 81116, tank), **Hoplite** (978217, melee damage), **Naturalist** (Seed of Life

@@ -1959,6 +1959,12 @@ void PlayerbotFactory::ClearSpells()
         return;
     }
 
+    // A Freepick Hero's spells are its Free Pick selection, kept by EnsureCoaLegendaryClass, and the weapon and
+    // armor proficiencies the core teaches it at login (Polearms, Shield, Block...): wiped here, a Hero bot held
+    // neither its polearm nor its shield until its next login.
+    if (IsCoaHero(bot))
+        return;
+
     std::list<uint32> spells;
     for (PlayerSpellMap::iterator itr = bot->GetSpellMap().begin(); itr != bot->GetSpellMap().end(); ++itr)
     {
@@ -3869,6 +3875,18 @@ void PlayerbotFactory::InitSkills()
             break;
         default:
             break;
+    }
+
+    // The Freepick Hero wields and wears everything: the core teaches it every proficiency at login
+    // (AscensionCompat.cpp, OnPlayerLogin), but ClearSkills took the skills of those spells away.
+    if (IsCoaHero(bot))
+    {
+        for (uint16 weapon : { SKILL_AXES, SKILL_2H_AXES, SKILL_MACES, SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS,
+                 SKILL_2H_SWORDS, SKILL_STAVES, SKILL_BOWS, SKILL_GUNS, SKILL_DAGGERS, SKILL_THROWN, SKILL_WANDS,
+                 SKILL_CROSSBOWS, SKILL_FIST_WEAPONS })
+            SetRandomSkill(weapon);
+        for (uint16 armor : { SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, SKILL_SHIELD })
+            bot->SetSkill(armor, 0, 1, 1);
     }
 
     InitTradeSkills();
