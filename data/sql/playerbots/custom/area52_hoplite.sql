@@ -10,7 +10,7 @@ DELETE FROM `playerbots_custom_strategy` WHERE `owner` = 0 AND `name` IN ('hopli
 INSERT INTO `playerbots_custom_strategy` (`name`, `idx`, `owner`, `action_line`) VALUES
 ('hoplite', 1, 0, 'buff missing::Battle Stance>cast buff::Battle Stance!98'),
 ('hoplite', 2, 0, 'coa no imbue>cast imbue::Windfury Weapon!97'),
-('hoplite', 3, 0, 'no pet>cast::Call Pet!96'),
+('hoplite', 3, 0, 'no pet>coa legendary pet!96'),
 ('hoplite', 4, 0, 'critical health>cast buff::Pain Suppression!95'),
 ('hoplite', 5, 0, 'coa enemy casting::Shield Bash>coa kick::Shield Bash!94'),
 ('hoplite', 6, 0, 'coa enemy casting::Kick,alone>coa kick::Kick!93'),
@@ -39,7 +39,7 @@ INSERT INTO `playerbots_custom_strategy` (`name`, `idx`, `owner`, `action_line`)
 ('hoplite', 29, 0, 'coa summon missing::Windfury Totem>cast::Windfury Totem!19'),
 ('hoplite-nc', 1, 0, 'buff missing::Battle Stance>cast buff::Battle Stance!30'),
 ('hoplite-nc', 2, 0, 'coa no imbue>cast imbue::Windfury Weapon!29'),
-('hoplite-nc', 3, 0, 'no pet>cast::Call Pet!28'),
+('hoplite-nc', 3, 0, 'no pet>coa legendary pet!28'),
 ('hoplite-nc', 4, 0, 'buff missing::Blessing of Might>cast buff::Blessing of Might!27'),
 ('hoplite-nc', 5, 0, 'coa party aura spread::Blessing of Kings,40>coa spread::Blessing of Kings,others!26'),
 ('hoplite-nc', 6, 0, 'buff missing::Commanding Shout>cast buff::Commanding Shout!25'),

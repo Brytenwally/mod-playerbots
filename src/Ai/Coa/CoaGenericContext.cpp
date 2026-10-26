@@ -18,6 +18,7 @@
 #include "ServerFacade.h"
 #include "Playerbots.h"
 #include "PlayerbotAIConfig.h"
+#include "CoaLegendaryPets.h"
 #include "CoaSpecialization.h"
 #include "GenericBuffUtils.h"
 #include "Spell.h"
@@ -1171,4 +1172,13 @@ bool CoaCastOnAuraAction::Execute(Event /*event*/)
 {
     Player* target = CoaAuraTarget(botAI, bot, qualifier);
     return target && botAI->CastSpell(split(qualifier, ',')[0], target);
+}
+
+bool CoaLegendaryPetAction::isUseful() { return !bot->GetPet() && CoaLegendaryPetEntry(bot); }
+
+bool CoaLegendaryPetAction::Execute(Event /*event*/)
+{
+    if (!bot->GetPetStable() || !bot->GetPetStable()->CurrentPet)
+        return CoaCreateLegendaryPet(bot) != nullptr;
+    return botAI->CastSpell("Call Pet", bot) || botAI->CastSpell("Revive Pet", bot);
 }

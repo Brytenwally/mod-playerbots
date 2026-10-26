@@ -781,6 +781,16 @@ public:
     std::string const getName() override { return "cast imbue::" + qualifier; }
 };
 
+/* "coa legendary pet" - the pet that comes with the bot's Legendary (CoaLegendaryPets.h): created the first time,
+ * afterwards called back, or revived when it died. */
+class CoaLegendaryPetAction : public Action
+{
+public:
+    CoaLegendaryPetAction(PlayerbotAI* botAI) : Action(botAI, "coa legendary pet") {}
+    bool Execute(Event event) override;
+    bool isUseful() override;
+};
+
 class CoaGenericActionContext : public NamedObjectContext<Action>
 {
 public:
@@ -802,6 +812,7 @@ public:
         creators["cast on aura"] = &CoaGenericActionContext::cast_on_aura;
         creators["coa kick"] = &CoaGenericActionContext::coa_kick;
         creators["cast imbue"] = &CoaGenericActionContext::cast_imbue;
+        creators["coa legendary pet"] = &CoaGenericActionContext::coa_legendary_pet;
     }
 
 private:
@@ -821,6 +832,7 @@ private:
     static Action* cast_on_aura(PlayerbotAI* botAI) { return new CoaCastOnAuraAction(botAI); }
     static Action* coa_kick(PlayerbotAI* botAI) { return new CoaKickAction(botAI); }
     static Action* cast_imbue(PlayerbotAI* botAI) { return new CoaCastImbueAction(botAI); }
+    static Action* coa_legendary_pet(PlayerbotAI* botAI) { return new CoaLegendaryPetAction(botAI); }
 };
 
 class CoaGenericTriggerContext : public NamedObjectContext<Trigger>

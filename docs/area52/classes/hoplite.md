@@ -11,7 +11,7 @@ page, read 2026-10-27), with the owner's answers of the same day. Resolved again
 | Role / position | damage / close |
 | Primary stat | Strength |
 | Equipment | Mail, polearm, **shield** (the core refuses Hoplite abilities without one), thrown weapon |
-| Pet | a Ferocity pet, any family (Tame Beast Abilities, Hunter vs. Wild, Aspect of the Beast) |
+| Pet | Winter Wolf (1131), a Ferocity wolf, given with the Legendary: no taming |
 | Combat strategy | `custom::hoplite` |
 | Non-combat strategy | `custom::hoplite-nc` |
 | Rotation rows | `data/sql/playerbots/custom/area52_hoplite.sql` |
@@ -72,6 +72,11 @@ Owner's rules:
   first.
 - Combo points always spent at 5.
 
+- **Pet**: no taming. The moment Hoplite is active on the bot (its aura is on), the bot learns Call Pet, Dismiss Pet
+  and Revive Pet and gets a Winter Wolf as its pet (`src/Ai/Coa/CoaLegendaryPets.cpp`, owner's rule 27/10). The
+  bot factory does it when it sets the bot up; the `coa legendary pet` line creates it if it is still missing,
+  calls it back after that, or revives it.
+
 Order, highest first:
 
 1. Battle Stance, Windfury Weapon on the polearm, the pet, Pain Suppression below 25% health.
@@ -91,8 +96,6 @@ Aura, Aspect of the Beast.
 
 ## Open for implementation
 
-- **Pet**: taming and keeping a Ferocity pet for a Hero bot belongs to the bot setup; the bot factory makes pets for
-  hunters only. Until then `no pet>cast::Call Pet` finds nothing to call.
 - **Heroic Leap** lands at a destination; check in game that `cast::` throws it at the target.
 - **Gear**: a polearm and a shield together, which no vanilla class wears; the gear step of the bot setup has to
   allow it.

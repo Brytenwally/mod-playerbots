@@ -10,6 +10,7 @@
 #include "AiObjectContext.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "CoaLegendaryPets.h"
 #include "CoaSpecLookup.h"
 #include "CoaSpecStatWeights.h"
 #include "CoaSpecialization.h"
@@ -1508,6 +1509,12 @@ void PlayerbotFactory::InitPet()
 
     if (!pet && bot->GetPetStable() && bot->GetPetStable()->CurrentPet)
         return;
+
+    if (!pet && CoaLegendaryPetEntry(bot))
+    {
+        CoaCreateLegendaryPet(bot);
+        return;
+    }
 
     if (!pet)
     {

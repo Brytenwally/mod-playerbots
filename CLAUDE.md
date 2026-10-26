@@ -174,6 +174,10 @@ Triggers added for Legendary classes (`src/Ai/Coa/CoaGenericContext.h`): `coa al
 `coa spread::<spell>[,others]`, `cast on aura::<spell>,<aura>`, `coa kick::<kick>[,alone|,<ms>]` (shares the claims of
 the interrupt coordination), `cast imbue::<spell>`; break off a channel with the base action `cancel channel`.
 
+Legendary pets (`src/Ai/Coa/CoaLegendaryPets.h`): a Legendary that plays with a pet gives the bot a fixed creature and
+the pet commands (Call, Dismiss, Revive Pet, learnt inside `AscensionFreePick::SpellLearningScope`) as soon as its
+aura is on; no taming. `PlayerbotFactory::InitPet` and the action `coa legendary pet` use it. Hoplite → Winter Wolf.
+
 ### How the owner's builds look
 
 The owner sends builds known to work on Area 52, as screenshots of the Ascension build planner. Read them like this:
