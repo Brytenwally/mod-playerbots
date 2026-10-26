@@ -22,6 +22,7 @@
 #include "PlayerbotSpellRepository.h"
 #include "PlayerbotWorldThreadProcessor.h"
 #include "RandomPlayerbotMgr.h"
+#include "CoaLegendaryClasses.h"
 #include "ScriptMgr.h"
 #include "cmath"
 
@@ -410,6 +411,7 @@ public:
         LOG_INFO("server.loading", " ");
 
         PlayerbotSpellRepository::Instance().Initialize();
+        CoaLegendaryClasses();
 
         if (sPlayerbotAIConfig.coaBossKnowledge)
             CoaBossKnowledge::Load();

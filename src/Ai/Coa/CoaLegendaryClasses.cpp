@@ -1,8 +1,11 @@
 #include "CoaLegendaryClasses.h"
 
+#include "CoaLegendaryPets.h"
 #include "Config.h"
+#include "DatabaseEnv.h"
 #include "IWorld.h"
 #include "Item.h"
+#include "Pet.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Player.h"
@@ -13,9 +16,12 @@
 #include "StatsWeightCalculator.h"
 #include "Timer.h"
 #include "World.h"
+#include <algorithm>
+#include <map>
 #include <mutex>
 #include <set>
 #include <sstream>
+#include <string_view>
 #include <unordered_map>
 
 #if __has_include("AscensionFreePick.h") && __has_include("Area52BuildProtocol.h") && \
@@ -33,25 +39,158 @@ namespace
 constexpr uint32 RetryMs = 10 * IN_MILLISECONDS;
 constexpr uint32 CollectionRetryMs = 60 * IN_MILLISECONDS;
 
-constexpr uint32 Weapon(uint32 subclass) { return 1u << subclass; }
+std::map<std::string_view, uint32> const WeaponSubclasses = {
+    { "axe", ITEM_SUBCLASS_WEAPON_AXE }, { "axe2", ITEM_SUBCLASS_WEAPON_AXE2 }, { "bow", ITEM_SUBCLASS_WEAPON_BOW },
+    { "gun", ITEM_SUBCLASS_WEAPON_GUN }, { "mace", ITEM_SUBCLASS_WEAPON_MACE }, { "mace2", ITEM_SUBCLASS_WEAPON_MACE2 },
+    { "polearm", ITEM_SUBCLASS_WEAPON_POLEARM }, { "sword", ITEM_SUBCLASS_WEAPON_SWORD },
+    { "sword2", ITEM_SUBCLASS_WEAPON_SWORD2 }, { "staff", ITEM_SUBCLASS_WEAPON_STAFF },
+    { "fist", ITEM_SUBCLASS_WEAPON_FIST }, { "dagger", ITEM_SUBCLASS_WEAPON_DAGGER },
+    { "thrown", ITEM_SUBCLASS_WEAPON_THROWN }, { "crossbow", ITEM_SUBCLASS_WEAPON_CROSSBOW },
+    { "wand", ITEM_SUBCLASS_WEAPON_WAND },
+};
 
-std::array<CoaLegendaryClass, 3> const LegendaryClasses = {{
-    { "mknight", "Mystic Knight", 81116, CoaSpecRole::Tank, "close", 3, "custom::mystic-knight",
-      "custom::mystic-knight-nc", 20, CoaLegendaryPicksMknight, &CoaLegendaryEnchantsMknight,
-      ITEM_SUBCLASS_ARMOR_PLATE, true, Weapon(ITEM_SUBCLASS_WEAPON_SWORD),
-      {{ { STATS_TYPE_STAMINA, 3.0f }, { STATS_TYPE_BLOCK_VALUE, 2.5f }, { STATS_TYPE_INTELLECT, 2.0f },
-         { STATS_TYPE_STRENGTH, 1.0f }, { STATS_TYPE_DEFENSE, 1.0f }, { STATS_TYPE_ARMOR, 0.02f } }} },
-    { "hoplite", "Hoplite", 978217, CoaSpecRole::Dps, "close", 0, "custom::hoplite", "custom::hoplite-nc", 60,
-      CoaLegendaryPicksHoplite, &CoaLegendaryEnchantsHoplite, ITEM_SUBCLASS_ARMOR_MAIL, true,
-      Weapon(ITEM_SUBCLASS_WEAPON_POLEARM) | Weapon(ITEM_SUBCLASS_WEAPON_THROWN),
-      {{ { STATS_TYPE_STRENGTH, 2.5f }, { STATS_TYPE_ATTACK_POWER, 1.0f }, { STATS_TYPE_HIT, 1.4f },
-         { STATS_TYPE_CRIT, 1.2f }, { STATS_TYPE_ARMOR_PENETRATION, 1.0f }, { STATS_TYPE_MELEE_DPS, 5.0f } }} },
-    { "naturalist", "Naturalist", 965937, CoaSpecRole::Heal, "ranged", 4, "custom::naturalist",
-      "custom::naturalist-nc", 20, CoaLegendaryPicksNaturalist, &CoaLegendaryEnchantsNaturalist,
-      ITEM_SUBCLASS_ARMOR_LEATHER, false, Weapon(ITEM_SUBCLASS_WEAPON_STAFF),
-      {{ { STATS_TYPE_SPIRIT, 2.5f }, { STATS_TYPE_INTELLECT, 2.0f }, { STATS_TYPE_HEAL_POWER, 1.5f },
-         { STATS_TYPE_SPELL_POWER, 1.0f }, { STATS_TYPE_MANA_REGENERATION, 1.5f }, { STATS_TYPE_HASTE, 1.0f } }} },
-}};
+std::map<std::string_view, uint32> const ArmorSubclasses = {
+    { "cloth", ITEM_SUBCLASS_ARMOR_CLOTH }, { "leather", ITEM_SUBCLASS_ARMOR_LEATHER },
+    { "mail", ITEM_SUBCLASS_ARMOR_MAIL }, { "plate", ITEM_SUBCLASS_ARMOR_PLATE },
+};
+
+std::map<std::string_view, CoaSpecRole> const Roles = {
+    { "tank", CoaSpecRole::Tank }, { "heal", CoaSpecRole::Heal }, { "dps", CoaSpecRole::Dps },
+};
+
+std::map<std::string_view, uint8> const Stats = {
+    { "agility", STATS_TYPE_AGILITY }, { "strength", STATS_TYPE_STRENGTH }, { "intellect", STATS_TYPE_INTELLECT },
+    { "spirit", STATS_TYPE_SPIRIT }, { "stamina", STATS_TYPE_STAMINA }, { "hit", STATS_TYPE_HIT },
+    { "crit", STATS_TYPE_CRIT }, { "haste", STATS_TYPE_HASTE }, { "armor", STATS_TYPE_ARMOR },
+    { "defense", STATS_TYPE_DEFENSE }, { "dodge", STATS_TYPE_DODGE }, { "parry", STATS_TYPE_PARRY },
+    { "block_value", STATS_TYPE_BLOCK_VALUE }, { "block_rating", STATS_TYPE_BLOCK_RATING },
+    { "resilience", STATS_TYPE_RESILIENCE }, { "health_regeneration", STATS_TYPE_HEALTH_REGENERATION },
+    { "spell_power", STATS_TYPE_SPELL_POWER }, { "spell_penetration", STATS_TYPE_SPELL_PENETRATION },
+    { "heal_power", STATS_TYPE_HEAL_POWER }, { "mana_regeneration", STATS_TYPE_MANA_REGENERATION },
+    { "attack_power", STATS_TYPE_ATTACK_POWER }, { "armor_penetration", STATS_TYPE_ARMOR_PENETRATION },
+    { "expertise", STATS_TYPE_EXPERTISE }, { "melee_dps", STATS_TYPE_MELEE_DPS },
+    { "ranged_dps", STATS_TYPE_RANGED_DPS },
+};
+
+template <typename Value>
+bool Lookup(std::map<std::string_view, Value> const& names, std::string const& name, Value& value,
+    std::string const& spec, char const* column)
+{
+    auto const found = names.find(name);
+    if (found == names.end())
+    {
+        LOG_ERROR("playerbots", "Legendary class '{}': {} '{}' is unknown", spec, column, name);
+        return false;
+    }
+    value = found->second;
+    return true;
+}
+
+CoaLegendaryClass* FindLoaded(std::vector<CoaLegendaryClass>& classes, std::string const& spec)
+{
+    auto const found = std::find_if(classes.begin(), classes.end(),
+        [&spec](CoaLegendaryClass const& legendaryClass) { return legendaryClass.spec == spec; });
+    if (found == classes.end())
+    {
+        LOG_ERROR("playerbots", "Legendary class '{}' has rows but no playerbots_legendary_class row", spec);
+        return nullptr;
+    }
+    return &*found;
+}
+
+std::vector<CoaLegendaryClass> LoadClasses()
+{
+    std::vector<CoaLegendaryClass> classes;
+    QueryResult rows = PlayerbotsDatabase.Query("SELECT `spec`, `name`, `legendary`, `role`, `position`, "
+        "`primary_stat`, `combat`, `noncombat`, `chance`, `armor`, `shield`, `weapons`, `pet` "
+        "FROM `playerbots_legendary_class` ORDER BY `spec`");
+    if (!rows)
+    {
+        LOG_ERROR("playerbots", "No Area 52 Legendary classes in playerbots_legendary_class: Hero bots get no class");
+        return classes;
+    }
+    do
+    {
+        Field* field = rows->Fetch();
+        CoaLegendaryClass legendaryClass;
+        legendaryClass.spec = field[0].Get<std::string>();
+        legendaryClass.name = field[1].Get<std::string>();
+        legendaryClass.legendary = field[2].Get<uint32>();
+        legendaryClass.position = field[4].Get<std::string>();
+        legendaryClass.primaryStat = field[5].Get<uint8>();
+        legendaryClass.combat = field[6].Get<std::string>();
+        legendaryClass.nonCombat = field[7].Get<std::string>();
+        legendaryClass.chance = field[8].Get<uint8>();
+        legendaryClass.shield = field[10].Get<uint8>() != 0;
+        legendaryClass.pet = field[12].Get<uint32>();
+        std::string const& spec = legendaryClass.spec;
+        bool valid = Lookup(Roles, field[3].Get<std::string>(), legendaryClass.role, spec, "role") &&
+            Lookup(ArmorSubclasses, field[9].Get<std::string>(), legendaryClass.heaviestArmor, spec, "armor");
+        std::stringstream weapons(field[11].Get<std::string>());
+        for (std::string weapon; valid && std::getline(weapons, weapon, ',');)
+        {
+            uint32 subclass = 0;
+            valid = Lookup(WeaponSubclasses, weapon, subclass, spec, "weapon");
+            legendaryClass.weapons |= 1u << subclass;
+        }
+        if (legendaryClass.position != "close" && legendaryClass.position != "ranged")
+        {
+            LOG_ERROR("playerbots", "Legendary class '{}': position '{}' is neither close nor ranged", spec,
+                legendaryClass.position);
+            valid = false;
+        }
+        if (valid)
+            classes.push_back(std::move(legendaryClass));
+    } while (rows->NextRow());
+
+    if (QueryResult picks = PlayerbotsDatabase.Query(
+            "SELECT `spec`, `spell`, `level` FROM `playerbots_legendary_pick` ORDER BY `spec`, `level`, `spell`"))
+        do
+        {
+            Field* field = picks->Fetch();
+            if (CoaLegendaryClass* legendaryClass = FindLoaded(classes, field[0].Get<std::string>()))
+                legendaryClass->picks.push_back({ field[1].Get<uint32>(), field[2].Get<uint8>() });
+        } while (picks->NextRow());
+
+    if (QueryResult enchants = PlayerbotsDatabase.Query(
+            "SELECT `spec`, `slot`, `spell` FROM `playerbots_legendary_enchant`"))
+        do
+        {
+            Field* field = enchants->Fetch();
+            uint8 const slot = field[1].Get<uint8>();
+            if (slot < 1 || slot > 17)
+                LOG_ERROR("playerbots", "Legendary class '{}': enchant slot {} is not 1 to 17",
+                    field[0].Get<std::string>(), slot);
+            else if (CoaLegendaryClass* legendaryClass = FindLoaded(classes, field[0].Get<std::string>()))
+                legendaryClass->enchants[slot - 1] = field[2].Get<uint32>();
+        } while (enchants->NextRow());
+
+    if (QueryResult weights = PlayerbotsDatabase.Query(
+            "SELECT `spec`, `stat`, `weight` FROM `playerbots_legendary_weight`"))
+        do
+        {
+            Field* field = weights->Fetch();
+            std::string const spec = field[0].Get<std::string>();
+            uint8 stat = 0;
+            if (CoaLegendaryClass* legendaryClass = FindLoaded(classes, spec))
+                if (Lookup(Stats, field[1].Get<std::string>(), stat, spec, "stat"))
+                    legendaryClass->weights.emplace_back(stat, field[2].Get<float>());
+        } while (weights->NextRow());
+
+    for (CoaLegendaryClass const& legendaryClass : classes)
+        if (std::find(legendaryClass.enchants.begin(), legendaryClass.enchants.end(), legendaryClass.legendary) ==
+            legendaryClass.enchants.end())
+            LOG_ERROR("playerbots", "Legendary class '{}': its Legendary {} is in none of its enchant slots",
+                legendaryClass.spec, legendaryClass.legendary);
+    LOG_INFO("server.loading", ">> Loaded {} Area 52 Legendary classes for the bots", classes.size());
+    return classes;
+}
+
+std::vector<CoaLegendaryClass> const& LoadedClasses()
+{
+    static std::vector<CoaLegendaryClass> const classes = LoadClasses();
+    return classes;
+}
 
 struct LegendaryState
 {
@@ -78,13 +217,13 @@ CoaLegendaryClass const* RandomClassFor(Player const* bot)
 {
     uint32 const roll = (bot->GetGUID().GetCounter() * 2654435761u >> 16) % 100;
     uint32 reached = 0;
-    for (CoaLegendaryClass const& legendaryClass : LegendaryClasses)
+    for (CoaLegendaryClass const& legendaryClass : LoadedClasses())
     {
         reached += legendaryClass.chance;
         if (roll < reached)
             return &legendaryClass;
     }
-    return &LegendaryClasses.back();
+    return LoadedClasses().empty() ? nullptr : &LoadedClasses().back();
 }
 
 template <typename Hero>
@@ -149,18 +288,58 @@ void EquipLegendaryShield(Player* bot)
 }
 
 #if COA_LEGENDARY_CLASSES
-std::set<uint32> const& CatalogSpells()
+// The Free Pick entries each catalog spell belongs to, any rank.
+std::unordered_map<uint32, std::vector<uint32>> const& CatalogEntries()
 {
-    static std::set<uint32> const spells = []
+    static std::unordered_map<uint32, std::vector<uint32>> const entries = []
     {
-        std::set<uint32> known;
+        std::unordered_map<uint32, std::vector<uint32>> bySpell;
         AscensionFreePick::Catalog catalog;
         if (AscensionFreePick::LoadCatalog(catalog))
             for (auto const& [id, entry] : catalog.Entries)
-                known.insert(entry.Spells.begin(), entry.Spells.end());
-        return known;
+                for (uint32 spell : entry.Spells)
+                    bySpell[spell].push_back(id);
+        return bySpell;
     }();
-    return spells;
+    return entries;
+}
+
+bool GrantedByEnchant(Player const* bot, uint32 spell)
+{
+    PlayerSettingVector const* owners = bot->FindPlayerSettings("core.freepick.mystic.grant." + std::to_string(spell));
+    return owners && owners->size() > 1 &&
+        std::any_of(owners->begin() + 1, owners->end(), [](PlayerSetting const& owner) { return owner.value != 0; });
+}
+
+// Free Pick spells of entries the bot has not picked: those a trainer or a quest handed it, and those of a class it
+// played before. They stayed when it changed class, beside the new picks.
+void RemoveUnpickedSpells(Player* bot, CoaLegendaryClass const& legendaryClass)
+{
+    std::set<uint32> picked;
+    for (AscensionFreePick::KnownEntry const& known : AscensionFreePick::KnownEntries(bot))
+        picked.insert(known.EntryId);
+    std::vector<uint32> unpicked;
+    for (auto const& [spell, playerSpell] : bot->GetSpellMap())
+    {
+        auto const entries = CatalogEntries().find(spell);
+        if (playerSpell->State == PLAYERSPELL_REMOVED || entries == CatalogEntries().end() ||
+            std::any_of(entries->second.begin(), entries->second.end(),
+                [&picked](uint32 entry) { return picked.contains(entry); }) ||
+            (legendaryClass.pet && CoaLegendaryPetCommand(spell)) || GrantedByEnchant(bot, spell))
+            continue;
+        unpicked.push_back(spell);
+    }
+    for (uint32 spell : unpicked)
+        bot->removeSpell(spell, SPEC_MASK_ALL, false);
+}
+
+// A bot changing class leaves the pet of the old one, and a random bot takes the gear of the new one.
+void LeaveClass(Player* bot, CoaLegendaryClass const& previous, CoaLegendaryClass const& next)
+{
+    if (Pet* pet = bot->GetPet(); pet && previous.pet && pet->GetEntry() == previous.pet && next.pet != previous.pet)
+        bot->RemovePet(pet, PET_SAVE_AS_DELETED);
+    if (sRandomPlayerbotMgr.IsRandomBot(bot))
+        PlayerbotFactory(bot, bot->GetLevel()).InitEquipment(false);
 }
 
 void Quiet(void*, std::string_view) { }
@@ -186,7 +365,7 @@ void RequestCollection(Player* bot)
 // alone.
 void EquipSlots(Player* bot, CoaLegendaryClass const& legendaryClass)
 {
-    std::array<uint32, 17> const& enchants = *legendaryClass.enchants;
+    std::array<uint32, 17> const& enchants = legendaryClass.enchants;
     std::string const setting = SlotSetting(bot);
     PlayerSettingVector const* stored = bot->FindPlayerSettings(setting);
     auto storedAt = [stored](uint32 slot) { return stored && slot < stored->size() ? (*stored)[slot].value : 0; };
@@ -212,7 +391,7 @@ void EquipSlots(Player* bot, CoaLegendaryClass const& legendaryClass)
 #endif
 }  // namespace
 
-std::span<CoaLegendaryClass const> CoaLegendaryClasses() { return LegendaryClasses; }
+std::span<CoaLegendaryClass const> CoaLegendaryClasses() { return LoadedClasses(); }
 
 // Random bots are created in OnBeforeWorldInitialized, before the core turns Free Pick on in OnStartup, so
 // AscensionFreePick::Enabled() is still false then: the bots came out in CoA classes. This reads the settings the
@@ -253,7 +432,7 @@ CoaLegendaryClass const* GetCoaLegendaryClass(Player const* player)
     if (!slots)
         return nullptr;
     for (auto const& slot : *slots)
-        for (CoaLegendaryClass const& legendaryClass : LegendaryClasses)
+        for (CoaLegendaryClass const& legendaryClass : LoadedClasses())
             if (slot.value == legendaryClass.legendary)
                 return &legendaryClass;
     return nullptr;
@@ -261,7 +440,7 @@ CoaLegendaryClass const* GetCoaLegendaryClass(Player const* player)
 
 CoaLegendaryClass const* FindCoaLegendaryClass(std::string const& spec)
 {
-    for (CoaLegendaryClass const& legendaryClass : LegendaryClasses)
+    for (CoaLegendaryClass const& legendaryClass : LoadedClasses())
         if (spec == legendaryClass.spec)
             return &legendaryClass;
     return nullptr;
@@ -276,10 +455,11 @@ bool ApplyCoaLegendaryClass(Player* bot, CoaLegendaryClass const& legendaryClass
         return false;
     }
 
+    CoaLegendaryClass const* previous = GetCoaLegendaryClass(bot);
     Area52Build::Entry plan;
     plan.PrimaryStat = legendaryClass.primaryStat;
     for (CoaLegendaryPick const& pick : legendaryClass.picks)
-        if (CatalogSpells().contains(pick.spell))
+        if (CatalogEntries().contains(pick.spell))
         {
             Area52Build::Spell spell;
             spell.Id = pick.spell;
@@ -302,6 +482,9 @@ bool ApplyCoaLegendaryClass(Player* bot, CoaLegendaryClass const& legendaryClass
     }
 
     EquipSlots(bot, legendaryClass);
+    RemoveUnpickedSpells(bot, legendaryClass);
+    if (previous && previous != &legendaryClass)
+        LeaveClass(bot, *previous, legendaryClass);
 
     uint32 const now = getMSTime();
     bool requestCollection = false;
@@ -337,6 +520,8 @@ void EnsureCoaLegendaryClass(Player* bot)
         if (!sRandomPlayerbotMgr.IsRandomBot(bot))
             return;
         legendaryClass = RandomClassFor(bot);
+        if (!legendaryClass)
+            return;
     }
 
     uint32 const now = getMSTime();
@@ -400,7 +585,7 @@ std::string CoaLegendaryClassList(Player const* bot)
     CoaLegendaryClass const* current = GetCoaLegendaryClass(bot);
     std::ostringstream out;
     out << "Legendary classes (talents spec <name>):";
-    for (CoaLegendaryClass const& legendaryClass : LegendaryClasses)
+    for (CoaLegendaryClass const& legendaryClass : LoadedClasses())
     {
         char const* role = legendaryClass.role == CoaSpecRole::Tank ? "tank" :
             legendaryClass.role == CoaSpecRole::Heal ? "healer" : "damage";

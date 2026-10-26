@@ -146,8 +146,16 @@ One "class" = one Legendary enchant with:
 2. a **role and position** (tank/heal/dps, close/ranged), like a `CoaSpecStrategies` row;
 3. a **rotation**: `custom::<legendary>` lines in `playerbots_custom_strategy`.
 
-Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`, data generated into `CoaLegendaryClassData.h` by
-`apps/area52/generate_legendary_class_data.py` from the class TSVs; rerun it after changing a TSV):
+Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
+- **Classes are data** in the playerbots database, read once at startup (`CoaLegendaryClasses()`, called from
+  `OnBeforeWorldInitialized`): `playerbots_legendary_class` (settings: role, position, primary stat, rotation names,
+  random-bot chance, armor, shield, weapons, pet), `playerbots_legendary_pick` (spell, level),
+  `playerbots_legendary_enchant` (slot 1-17, spell) and `playerbots_legendary_weight` (stat name, weight). The owner's
+  rule (27/10): **every class and build goes in these tables**; a tweak needs a restart, no new build. Source of the
+  shipped rows: `docs/area52/classes/classes.tsv` plus each class's `-build.tsv` and `-enchants.tsv`;
+  `apps/area52/generate_legendary_class_data.py` writes `data/sql/playerbots/custom/area52_legendary_classes.sql`
+  (rerun it after changing a TSV). Bad names in a row are logged and the row skipped. Code changes are needed only
+  for new triggers, actions or mechanics.
 - **Hero detection**: `IsCoaHero` = class 10 and `AscensionFreePick::Applies`. A Hero's class is the Legendary slotted
   in its active enchant preset (`GetCoaLegendaryClass`); no other storage.
 - **Applying a class** (`ApplyCoaLegendaryClass`): `PlanSelection` + `Apply` with the class's picks (those in the
@@ -157,6 +165,10 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`, data generated into `CoaLegenda
   `core.freepick.mystic.<preset>` (the other slots emptied) and the rest go through `mystic equip <slot> <spell>
   <name>`, which refuses an invalid enchant alone. (The server's Spell.dbc, 239,065 rows, has every enchant of the
   three classes; older copies lacked some.)
+- **Changing class** (`talents spec`, or a tweaked build after a restart): `Apply` swaps the picks;
+  `RemoveUnpickedSpells` then removes Free Pick spells of entries the bot has not picked (trainer, quest or old class
+  leftovers), keeping enchant grants and, for a class with a pet, the pet commands; `LeaveClass` removes the old
+  class's pet and re-gears a random bot. The core accepts every switch between the three classes (checked offline).
 - **Random bots**: `EnsureCoaLegendaryClass` gives a classless Hero random bot a class by a stable roll (20% Mystic
   Knight, 20% Naturalist, 60% Hoplite) and keeps its picks at its level. Called from `InitTalentsTree`, the combat
   strategy setup and the non-combat strategy `coa legendary` (trigger `coa legendary unready`, action

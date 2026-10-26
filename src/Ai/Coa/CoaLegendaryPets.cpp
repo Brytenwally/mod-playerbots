@@ -1,4 +1,5 @@
 #include "CoaLegendaryPets.h"
+#include "CoaLegendaryClasses.h"
 
 #include "DBCStores.h"
 #include "Log.h"
@@ -16,17 +17,6 @@ namespace
 {
 constexpr uint8 HeroClass = 10;
 constexpr int32 FerocityTalents = 0;
-
-struct LegendaryPet
-{
-    uint32 legendary;  // the Legendary Mystic Enchant, also its aura
-    uint32 creature;
-};
-
-// Hoplite: Winter Wolf, a wolf (Ferocity, Furious Howl) that any Hero may have.
-constexpr std::array<LegendaryPet, 1> LegendaryPets = {{
-    { 978217, 1131 },
-}};
 
 // Call Pet, Dismiss Pet, Revive Pet.
 std::set<uint32> const PetCommands = { 883, 2641, 982 };
@@ -55,11 +45,13 @@ uint32 CoaLegendaryPetEntry(Player* bot)
 {
     if (!bot || bot->getClass() != HeroClass)
         return 0;
-    for (LegendaryPet const& pet : LegendaryPets)
-        if (bot->HasAura(pet.legendary))
-            return pet.creature;
+    for (CoaLegendaryClass const& legendaryClass : CoaLegendaryClasses())
+        if (legendaryClass.pet && bot->HasAura(legendaryClass.legendary))
+            return legendaryClass.pet;
     return 0;
 }
+
+bool CoaLegendaryPetCommand(uint32 spell) { return PetCommands.contains(spell); }
 
 Pet* CoaCreateLegendaryPet(Player* bot)
 {

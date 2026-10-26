@@ -4,7 +4,9 @@
  * A Freepick Hero (class 10 under Free Pick) has no class of its own: its picks and its Mystic Enchants make it
  * what it is. Each Legendary here is a class with a build, 17 enchant slots, a role and a rotation. The bot's
  * class is read from its slotted Legendary, so a class chosen once (randomly for a random bot, or with "talents
- * spec <spec>") stays with the character.
+ * spec <spec>") stays with the character. The classes are data in the playerbots database (playerbots_legendary_*,
+ * data/sql/playerbots/custom/area52_legendary_classes.sql), read once at startup: a build is changed there and the
+ * server restarted, without a new build of the module.
  *
  * Everything goes through what the core exposes: AscensionFreePick::PlanSelection and Apply for the picks, the
  * player setting the core keeps the slots in, and the console command "mystic grant" for the collection. On a
@@ -13,38 +15,48 @@
 #ifndef PLAYERBOTS_COALEGENDARYCLASSES_H
 #define PLAYERBOTS_COALEGENDARYCLASSES_H
 
-#include "CoaLegendaryClassData.h"
 #include "CoaSpecStrategies.h"
 #include "Define.h"
 #include <array>
 #include <span>
 #include <string>
 #include <utility>
+#include <vector>
 
 class Player;
 struct ItemTemplate;
 
+struct CoaLegendaryPick
+{
+    uint32 spell;  // a spell of the Free Pick entry, the rank picked
+    uint32 level;  // the character level it is picked at
+};
+
+// One row of playerbots_legendary_class with its picks, enchants and stat weights (data/sql/playerbots/custom/
+// area52_legendary_classes.sql), read once at startup.
 struct CoaLegendaryClass
 {
-    char const* spec;                     // "talents spec <spec>"
-    char const* name;
-    uint32 legendary;                     // the Legendary Mystic Enchant, also its aura
-    CoaSpecRole role;
-    char const* position;                 // "close" or "ranged"
-    uint32 primaryStat;                   // Area52Build::Entry::PrimaryStat: 0 Strength, 3 Intellect, 4 Spirit
-    char const* combat;                   // custom::<class>
-    char const* nonCombat;                // custom::<class>-nc
-    uint32 chance;                        // percent of the random bots that play it
-    std::span<CoaLegendaryPick const> picks;
-    std::array<uint32, 17> const* enchants;
-    uint32 heaviestArmor;                 // ITEM_SUBCLASS_ARMOR_CLOTH to ITEM_SUBCLASS_ARMOR_PLATE
-    bool shield;
-    uint32 weapons;                       // bits of ITEM_SUBCLASS_WEAPON_*
-    std::array<std::pair<uint8, float>, 6> weights;  // StatsCollector STATS_TYPE_*, weight
+    std::string spec;                     // "talents spec <spec>"
+    std::string name;
+    uint32 legendary = 0;                 // the Legendary Mystic Enchant, also its aura
+    CoaSpecRole role = CoaSpecRole::Dps;
+    std::string position;                 // "close" or "ranged"
+    uint32 primaryStat = 0;               // Area52Build::Entry::PrimaryStat: 0 Strength, 3 Intellect, 4 Spirit
+    std::string combat;                   // custom::<class>
+    std::string nonCombat;                // custom::<class>-nc
+    uint32 chance = 0;                    // percent of the random bots that play it
+    std::vector<CoaLegendaryPick> picks;
+    std::array<uint32, 17> enchants{};
+    uint32 heaviestArmor = 0;             // ITEM_SUBCLASS_ARMOR_CLOTH to ITEM_SUBCLASS_ARMOR_PLATE
+    bool shield = false;
+    uint32 weapons = 0;                   // bits of ITEM_SUBCLASS_WEAPON_*
+    std::vector<std::pair<uint8, float>> weights;  // StatsCollector STATS_TYPE_*, weight
+    uint32 pet = 0;                       // creature entry of the pet the Legendary gives, 0 for none
 };
 
 inline constexpr uint8 CoaHeroClass = 10;
 
+// The classes from the playerbots database, read on the first call (the playerbots script calls it at startup).
 std::span<CoaLegendaryClass const> CoaLegendaryClasses();
 
 // Whether random bots are created as Heroes: AiPlayerbot.Area52HeroBots on a core with Free Pick enabled.
