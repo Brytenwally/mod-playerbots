@@ -159,11 +159,17 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
 - **Hero detection**: `IsCoaHero` = class 10 and `AscensionFreePick::Applies`. A Hero's class is the Legendary slotted
   in its active enchant preset (`GetCoaLegendaryClass`); no other storage.
 - **Applying a class** (`ApplyCoaLegendaryClass`): `PlanSelection` + `Apply` with the class's picks (those in the
-  catalog) and primary stat; the console command `mystic grant 0 <name>` (every connected enchant for the account),
-  asked again every minute until the Legendary's aura is on. The core puts on no enchant while any slotted one is
-  invalid (not connected on that server, or over its stack limit), so only the Legendary is written straight to
-  `core.freepick.mystic.<preset>` (the other slots emptied) and the rest go through `mystic equip <slot> <spell>
-  <name>`, which refuses an invalid enchant alone. (The server's Spell.dbc, 239,065 rows, has every enchant of the
+  catalog) and primary stat. The collection: `CoaFillMysticCollection` writes every catalog enchant into
+  `account_freepick_mystic_collection` for the bot account before the bot logs in (`HandlePlayerBotLoginCallback`),
+  and the core loads it at login. A bot session never runs `WorldSession::Update`, so `PlayerbotHolder::UpdateSessions`
+  drains its query processor (`GetQueryProcessor().ProcessReadyCallbacks()`): without it the core's collection load
+  never finished and a bot wore no enchant at all (no Hoplite aura, no shield beside the polearm). The core's
+  `mystic grant` is not used for bots: its completion goes through the session's private transaction callbacks,
+  which never run for a bot, and it left the collection busy, refusing every later `mystic equip`. The core puts on
+  no enchant while any slotted one is invalid (not connected on that server, or over its stack limit), so only the
+  Legendary is written straight to `core.freepick.mystic.<preset>` (the other slots emptied) and the rest go through
+  `mystic equip <slot> <spell> <name>`, which refuses an invalid enchant alone; slots still differing once the
+  Legendary is on (equips refused before the collection loaded) are asked for again, up to 5 times a minute apart. (The server's Spell.dbc, 239,065 rows, has every enchant of the
   three classes; older copies lacked some.)
 - **Changing class** (`talents spec`, or a tweaked build after a restart): `Apply` swaps the picks;
   `RemoveUnpickedSpells` then removes Free Pick spells of entries the bot has not picked (trainer, quest or old class

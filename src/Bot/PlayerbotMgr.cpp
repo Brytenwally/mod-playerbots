@@ -5,6 +5,7 @@
  */
 
 #include "PlayerbotMgr.h"
+#include "CoaLegendaryClasses.h"
 #include "CoaSpecialization.h"
 #include "BroadcastHelper.h"
 #include "ChannelMgr.h"
@@ -240,6 +241,7 @@ void PlayerbotHolder::HandlePlayerBotLoginCallback(PlayerbotLoginQueryHolder con
         new WorldSession(botAccountId, "", 0x0, nullptr, SEC_PLAYER, EXPANSION_WRATH_OF_THE_LICH_KING, time_t(0),
                          sWorld->GetDefaultDbcLocale(), 0, false, false, 0, true);
 
+    CoaFillMysticCollection(botAccountId);
     botSession->HandlePlayerLoginFromDB(holder);  // will delete lqh
 
     Player* bot = botSession->GetPlayer();
@@ -288,6 +290,10 @@ void PlayerbotHolder::UpdateSessions()
         else if (bot->IsInWorld())
         {
             HandleBotPackets(bot->GetSession());
+            // A bot session never runs WorldSession::Update, so the results of the queries the core starts for it
+            // were never delivered: the Free Pick Mystic Enchant collection, loaded at login, stayed unloaded and the
+            // bot wore none of its enchants (a Hoplite bot could not hold its shield beside its polearm).
+            bot->GetSession()->GetQueryProcessor().ProcessReadyCallbacks();
         }
     }
 }

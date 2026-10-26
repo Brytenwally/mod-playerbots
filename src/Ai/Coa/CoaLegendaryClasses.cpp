@@ -2,6 +2,7 @@
 
 #include "CoaLegendaryPets.h"
 #include "Config.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "IWorld.h"
 #include "Item.h"
@@ -37,7 +38,8 @@
 namespace
 {
 constexpr uint32 RetryMs = 10 * IN_MILLISECONDS;
-constexpr uint32 CollectionRetryMs = 60 * IN_MILLISECONDS;
+constexpr uint32 SlotRetryMs = 60 * IN_MILLISECONDS;
+constexpr uint32 SlotTries = 5;
 
 std::map<std::string_view, uint32> const WeaponSubclasses = {
     { "axe", ITEM_SUBCLASS_WEAPON_AXE }, { "axe2", ITEM_SUBCLASS_WEAPON_AXE2 }, { "bow", ITEM_SUBCLASS_WEAPON_BOW },
@@ -196,7 +198,8 @@ struct LegendaryState
 {
     uint32 appliedLevel = 0;
     uint32 nextTry = 0;
-    uint32 nextCollection = 0;
+    uint32 nextSlots = 0;
+    uint32 slotTries = 0;
     uint32 nextShield = 0;
     std::string failure;
 };
@@ -287,6 +290,15 @@ void EquipLegendaryShield(Player* bot)
         PlayerbotFactory(bot, bot->GetLevel()).InitEquipment(false, false, EQUIPMENT_SLOT_OFFHAND);
 }
 
+bool SlotsMatch(Player const* bot, CoaLegendaryClass const& legendaryClass)
+{
+    PlayerSettingVector const* stored = bot->FindPlayerSettings(SlotSetting(bot));
+    for (uint32 slot = 0; slot < legendaryClass.enchants.size(); ++slot)
+        if ((stored && slot < stored->size() ? (*stored)[slot].value : 0) != legendaryClass.enchants[slot])
+            return false;
+    return true;
+}
+
 #if COA_LEGENDARY_CLASSES
 // The Free Pick entries each catalog spell belongs to, any rank.
 std::unordered_map<uint32, std::vector<uint32>> const& CatalogEntries()
@@ -350,14 +362,6 @@ void QueueCommand(std::string const& command)
     sWorld->QueueCliCommand(new CliCommandHolder(nullptr, command.c_str(), &Quiet, &Finished));
 }
 
-// The core grants an account every Mystic Enchant through its console command, then reloads the collection of
-// the character and puts the slotted ones on. It refuses while the character's collection is still loading or
-// the character fights, so this is asked again until the Legendary is on.
-void RequestCollection(Player* bot)
-{
-    QueueCommand("mystic grant 0 " + bot->GetName());
-}
-
 // The core puts on no enchant at all while one slotted enchant is invalid (one this server does not connect, or
 // more stacks than it allows), and the Legendary with them. The Legendary alone is valid, so it is written
 // straight to its slot, which also keeps the class, and every other slot emptied. The rest go through the core's
@@ -411,6 +415,41 @@ bool CoaHeroBotsWanted()
 bool CoaHeroHoldsShieldWith(Player const* bot, ItemTemplate const* main, ItemTemplate const* off)
 {
     return main && off && HoldsShieldWith(bot, main, off);
+}
+
+void CoaFillMysticCollection(uint32 accountId)
+{
+#if COA_LEGENDARY_CLASSES
+    static std::mutex lock;
+    static std::set<uint32> filled;
+    static std::vector<uint32> const enchants = []
+    {
+        std::vector<uint32> spells;
+        AscensionMysticEnchant::Catalog catalog;
+        if (AscensionMysticEnchant::LoadCatalog(catalog, GetClientDBCPath("MysticEnchant.dbc")))
+            for (auto const& [spell, entry] : catalog.BySpell)
+                spells.push_back(spell);
+        return spells;
+    }();
+    if (enchants.empty() || !AscensionFreePick::Enabled())
+        return;
+    {
+        std::lock_guard<std::mutex> guard(lock);
+        if (!filled.insert(accountId).second)
+            return;
+    }
+    if (QueryResult owned = CharacterDatabase.Query(
+            "SELECT COUNT(*) FROM `account_freepick_mystic_collection` WHERE `account` = {}", accountId))
+        if (owned->Fetch()[0].Get<uint64>() >= enchants.size())
+            return;
+    std::ostringstream insert;
+    insert << "INSERT IGNORE INTO `account_freepick_mystic_collection` (`account`, `spell`) VALUES ";
+    for (std::size_t i = 0; i < enchants.size(); ++i)
+        insert << (i ? "," : "") << '(' << accountId << ',' << enchants[i] << ')';
+    CharacterDatabase.DirectExecute(insert.str());
+#else
+    (void)accountId;
+#endif
 }
 
 bool CoaShieldWaitsForLegendary(Player* bot, ItemTemplate const* proto)
@@ -497,20 +536,13 @@ bool ApplyCoaLegendaryClass(Player* bot, CoaLegendaryClass const& legendaryClass
     if (previous && previous != &legendaryClass)
         LeaveClass(bot, *previous, legendaryClass);
 
-    uint32 const now = getMSTime();
-    bool requestCollection = false;
     {
         std::lock_guard<std::mutex> guard(StatesLock);
         LegendaryState& state = States[bot->GetGUID().GetRawValue()];
         state.appliedLevel = bot->GetLevel();
-        if (!bot->HasAura(legendaryClass.legendary) && Due(now, state.nextCollection))
-        {
-            state.nextCollection = now + CollectionRetryMs;
-            requestCollection = true;
-        }
+        state.nextSlots = getMSTime() + SlotRetryMs;
+        state.slotTries = 0;
     }
-    if (requestCollection)
-        RequestCollection(bot);
     return true;
 #else
     (void)bot;
@@ -537,24 +569,41 @@ void EnsureCoaLegendaryClass(Player* bot)
 
     uint32 const now = getMSTime();
     bool equipShield = false;
+    bool equipSlots = false;
     {
         std::lock_guard<std::mutex> guard(StatesLock);
         LegendaryState& state = States[bot->GetGUID().GetRawValue()];
         if (state.appliedLevel == bot->GetLevel() && bot->HasAura(legendaryClass->legendary))
         {
-            if (!ShieldMissing(bot, *legendaryClass) || !Due(now, state.nextShield))
+            // The "mystic equip" commands of an apply made before the core had loaded the collection were refused:
+            // the slots are asked for again a few times.
+            if (!SlotsMatch(bot, *legendaryClass) && state.slotTries < SlotTries && Due(now, state.nextSlots))
+            {
+                state.nextSlots = now + SlotRetryMs;
+                ++state.slotTries;
+                equipSlots = true;
+            }
+            if (ShieldMissing(bot, *legendaryClass) && Due(now, state.nextShield))
+            {
+                state.nextShield = now + SlotRetryMs;
+                equipShield = true;
+            }
+            if (!equipSlots && !equipShield)
                 return;
-            state.nextShield = now + CollectionRetryMs;
-            equipShield = true;
         }
         else if (!Due(now, state.nextTry))
             return;
         else
             state.nextTry = now + RetryMs;
     }
-    if (equipShield)
+    if (equipSlots || equipShield)
     {
-        EquipLegendaryShield(bot);
+#if COA_LEGENDARY_CLASSES
+        if (equipSlots)
+            EquipSlots(bot, *legendaryClass);
+#endif
+        if (equipShield)
+            EquipLegendaryShield(bot);
         return;
     }
 
@@ -586,9 +635,11 @@ bool CoaLegendaryClassUnready(Player* bot)
     if (found == States.end())
         return true;
     uint32 const now = getMSTime();
-    if (found->second.appliedLevel == bot->GetLevel() && bot->HasAura(legendaryClass->legendary))
-        return ShieldMissing(bot, *legendaryClass) && Due(now, found->second.nextShield);
-    return Due(now, found->second.nextTry);
+    LegendaryState const& state = found->second;
+    if (state.appliedLevel == bot->GetLevel() && bot->HasAura(legendaryClass->legendary))
+        return (ShieldMissing(bot, *legendaryClass) && Due(now, state.nextShield)) ||
+            (state.slotTries < SlotTries && Due(now, state.nextSlots) && !SlotsMatch(bot, *legendaryClass));
+    return Due(now, state.nextTry);
 }
 
 std::string CoaLegendaryClassList(Player const* bot)

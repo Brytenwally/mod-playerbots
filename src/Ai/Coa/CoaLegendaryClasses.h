@@ -9,8 +9,8 @@
  * server restarted, without a new build of the module.
  *
  * Everything goes through what the core exposes: AscensionFreePick::PlanSelection and Apply for the picks, the
- * player setting the core keeps the slots in, and the console command "mystic grant" for the collection. On a
- * core without Free Pick the module compiles to nothing and no player is a Hero here.
+ * player setting the core keeps the slots in with its "mystic equip" console command, and the collection table it
+ * reads at login. On a core without Free Pick the module compiles to nothing and no player is a Hero here.
  */
 #ifndef PLAYERBOTS_COALEGENDARYCLASSES_H
 #define PLAYERBOTS_COALEGENDARYCLASSES_H
@@ -65,6 +65,11 @@ bool CoaHeroBotsWanted();
 // Whether the core lets the bot hold this shield next to this two-handed weapon (a Hoplite's polearm).
 bool CoaHeroHoldsShieldWith(Player const* bot, ItemTemplate const* main, ItemTemplate const* off);
 
+// Puts every Mystic Enchant in a bot account's collection (the owner's rule for bots) before the bot logs in: the
+// core reads the collection at login, and its "mystic grant" command never finishes for a bot (see
+// PlayerbotHolder::UpdateSessions). Once per account and server start; nothing on a core without Free Pick.
+void CoaFillMysticCollection(uint32 accountId);
+
 // A shield of the bot's class it cannot hold yet beside its two-handed weapon: the core allows it only once the
 // Legendary is on (a Hoplite's polearm). The bot keeps it in its bags until then.
 bool CoaShieldWaitsForLegendary(Player* bot, ItemTemplate const* proto);
@@ -77,8 +82,8 @@ CoaLegendaryClass const* GetCoaLegendaryClass(Player const* player);
 
 CoaLegendaryClass const* FindCoaLegendaryClass(std::string const& spec);
 
-// Takes the picks of the class for the bot's level, slots its enchants and asks the core for the whole
-// collection (all Mystic Enchants, the owner's rule for bots). False with the reason when the core refused.
+// Takes the picks of the class for the bot's level and slots its enchants (the collection comes from
+// CoaFillMysticCollection). False with the reason when the core refused.
 bool ApplyCoaLegendaryClass(Player* bot, CoaLegendaryClass const& legendaryClass, std::string& error);
 
 // A Hero bot without a class gets one: random bots by chance (20% tank, 20% healer, 60% damage), the same one
