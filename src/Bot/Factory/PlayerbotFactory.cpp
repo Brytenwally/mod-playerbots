@@ -3969,6 +3969,11 @@ void PlayerbotFactory::InitAvailableSpells()
     {
         Trainer::Trainer* trainer = sObjectMgr->GetTrainer(trainerId);
 
+        // A Freepick Hero spends its ability and talent points on its picks (EnsureCoaLegendaryClass): a class
+        // trainer would hand it spells for nothing, and its points stayed unspent.
+        if (IsCoaHero(bot) && trainer->GetTrainerType() == Trainer::Type::Class)
+            continue;
+
         for (auto& spell : trainer->GetSpells())
         {
             // simplified version of Trainer::TeachSpell method

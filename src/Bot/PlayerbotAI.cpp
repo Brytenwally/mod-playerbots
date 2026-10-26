@@ -3736,6 +3736,9 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell,
     if (CoaRivalBuffBlocks(bot, sSpellMgr->GetSpellInfo(spellid), target))
         return false;
 
+    if (CoaEquivalentBuffWorn(bot, sSpellMgr->GetSpellInfo(spellid), target))
+        return false;
+
     // A purge on an enemy wearing nothing it can take off: a Felsworn Tyrant cast Consume Magic 20 times every 2
     // minutes on a boss with no magic buff, global cooldowns its threat lacked (bench, 10/10).
     if (target != bot && bot->IsValidAttackTarget(target))

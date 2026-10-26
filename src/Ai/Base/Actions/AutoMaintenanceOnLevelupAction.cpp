@@ -5,6 +5,7 @@
  */
 
 #include "AutoMaintenanceOnLevelupAction.h"
+#include "CoaLegendaryClasses.h"
 #include "CoaSpecialization.h"
 #include "CoaSpecialization.h"
 #include "BroadcastHelper.h"
@@ -101,7 +102,8 @@ void AutoMaintenanceOnLevelupAction::LearnSpells(std::ostringstream* out)
     if (sPlayerbotAIConfig.autoLearnTrainerSpells && sRandomPlayerbotMgr.IsRandomBot(bot))
         LearnTrainerSpells(out);
 
-    if (sPlayerbotAIConfig.autoLearnQuestSpells && sRandomPlayerbotMgr.IsRandomBot(bot))
+    // A Freepick Hero learns its spells with its points only (EnsureCoaLegendaryClass).
+    if (sPlayerbotAIConfig.autoLearnQuestSpells && sRandomPlayerbotMgr.IsRandomBot(bot) && !IsCoaHero(bot))
         LearnQuestSpells(out);
 }
 

@@ -170,6 +170,15 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`, data generated into `CoaLegenda
   (`Player::CanUseTwoHandWithShield`), and that aura comes after the first gear pass: once it is on,
   `EnsureCoaLegendaryClass` equips the best shield from the bags, or for a random bot runs the gear pass for the
   off-hand. `ItemUsageValue` counts such a shield as an upgrade (`CoaHeroHoldsShieldWith`).
+- **Points**: a Hero's spells come only from its picks, so its AE and TE are spent: class trainers
+  (`InitAvailableSpells`) and class quest reward spells are skipped for Heroes. `EnsureCoaLegendaryClass` logs a refused
+  apply at info level ("could not take its <class> picks"). The three class builds pass the core's `Select` and
+  `Validate` at every level 1-60 (checked offline against the 10,255-row `CharacterAdvancement.dbc`).
+- **Dungeon Finder role**: `LfgJoinAction::GetRoles` takes the role from the bot's combat strategies (tank or heal type,
+  else damage), for every class; the talent-tab guess only remains for a bot without combat strategies.
+- **Buffs**: `CoaEquivalentBuffWorn` (checked in `PlayerbotAI::CanCastSpell` for CoA classes and Heroes) leaves a buff of a
+  minute or more that does not stack while the target wears it in any rank or greater form, one the core keeps
+  exclusive with it (spell specific, spell group) or one with the same stat effects.
 - **Proficiencies**: the core teaches a Hero every weapon and armor proficiency at login. `ClearSpells` leaves a
   Hero's spells alone (its picks are kept by `EnsureCoaLegendaryClass`), and `InitSkills` gives a Hero every weapon
   and armor skill again after `ClearSkills`.

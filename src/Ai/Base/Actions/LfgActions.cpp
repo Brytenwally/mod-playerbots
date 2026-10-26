@@ -23,6 +23,15 @@ bool LfgJoinAction::Execute(Event /*event*/) { return JoinLFG(); }
 
 uint32 LfgJoinAction::GetRoles()
 {
+    // The bot queues as what it plays: its combat strategies say it, for every class. Freepick Heroes have no talent
+    // tabs, and the guess below sent all of them as damage dealers.
+    if (botAI->ContainsStrategy(STRATEGY_TYPE_TANK))
+        return PLAYER_ROLE_TANK;
+    if (botAI->ContainsStrategy(STRATEGY_TYPE_HEAL))
+        return PLAYER_ROLE_HEALER;
+    if (botAI->ContainsStrategy(STRATEGY_TYPE_COMBAT))
+        return PLAYER_ROLE_DAMAGE;
+
     // Conquest of Azeroth classes have no talent tabs: their role comes from the specialization.
     if (IsAscensionCustomClassId(bot->getClass()))
     {

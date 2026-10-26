@@ -59,6 +59,7 @@ struct LegendaryState
     uint32 nextTry = 0;
     uint32 nextCollection = 0;
     uint32 nextShield = 0;
+    std::string failure;
 };
 
 std::mutex StatesLock;
@@ -362,8 +363,17 @@ void EnsureCoaLegendaryClass(Player* bot)
     }
 
     std::string error;
-    if (!ApplyCoaLegendaryClass(bot, *legendaryClass, error))
-        LOG_DEBUG("playerbots", "{} could not take {}: {}", bot->GetName(), legendaryClass->name, error);
+    bool const applied = ApplyCoaLegendaryClass(bot, *legendaryClass, error);
+    bool report = false;
+    {
+        std::lock_guard<std::mutex> guard(StatesLock);
+        std::string& failure = States[bot->GetGUID().GetRawValue()].failure;
+        report = !applied && failure != error;
+        failure = applied ? std::string() : error;
+    }
+    if (report)
+        LOG_INFO("playerbots", "{} (level {}) could not take its {} picks: {}", bot->GetName(), bot->GetLevel(),
+            legendaryClass->name, error);
 }
 
 bool CoaLegendaryClassUnready(Player* bot)

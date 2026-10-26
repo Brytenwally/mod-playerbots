@@ -9,6 +9,7 @@
 #include "Action.h"
 #include "AttackAction.h"
 #include "CoaDungeonPriorities.h"
+#include "CoaLegendaryClasses.h"
 #include "CoaSpecialization.h"
 #include "CombatStrategy.h"
 #include "DatabaseEnv.h"
@@ -5024,6 +5025,107 @@ bool CoaRivalBuffBlocks(Player* bot, SpellInfo const* info, Unit* target)
     if (target == bot && (info->GetMaxDuration() <= 0 || info->HasAura(SPELL_AURA_MOD_SHAPESHIFT)))
         return false;
     return WearsRivalBuffFrom(target, bot, info) && !target->GetAura(info->Id, bot->GetGUID());
+}
+
+namespace
+{
+bool IsStatAura(uint32 aura)
+{
+    switch (aura)
+    {
+        case SPELL_AURA_MOD_STAT:
+        case SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE:
+        case SPELL_AURA_MOD_PERCENT_STAT:
+        case SPELL_AURA_MOD_RESISTANCE:
+        case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
+        case SPELL_AURA_MOD_BASE_RESISTANCE_PCT:
+        case SPELL_AURA_MOD_ATTACK_POWER:
+        case SPELL_AURA_MOD_ATTACK_POWER_PCT:
+        case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
+        case SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT:
+        case SPELL_AURA_MOD_INCREASE_HEALTH:
+        case SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT:
+        case SPELL_AURA_MOD_INCREASE_ENERGY:
+        case SPELL_AURA_MOD_POWER_REGEN:
+        case SPELL_AURA_MOD_POWER_REGEN_PERCENT:
+        case SPELL_AURA_MOD_DAMAGE_DONE:
+        case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
+        case SPELL_AURA_MOD_HEALING_DONE:
+        case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
+        case SPELL_AURA_MOD_CRIT_PCT:
+        case SPELL_AURA_MOD_MELEE_HASTE:
+        case SPELL_AURA_MOD_MELEE_RANGED_HASTE:
+        case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:
+        case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// Every stat effect of the buff is among those of the worn one: Arcane Brilliance for Arcane Intellect, Gift of the
+// Wild for Mark of the Wild, another class's Kings.
+bool SameStatEffects(SpellInfo const* buff, SpellInfo const* worn)
+{
+    bool any = false;
+    for (SpellEffectInfo const& effect : buff->Effects)
+    {
+        if (!effect.IsAura())
+            continue;
+        if (!IsStatAura(effect.ApplyAuraName))
+            return false;
+        any = true;
+        auto const same = [&effect](SpellEffectInfo const& other)
+        {
+            return other.IsAura() && other.ApplyAuraName == effect.ApplyAuraName &&
+                other.MiscValue == effect.MiscValue;
+        };
+        bool const found = std::any_of(worn->Effects.begin(), worn->Effects.end(), same);
+        if (!found)
+            return false;
+    }
+    return any;
+}
+}
+
+bool CoaEquivalentBuffWorn(Player* bot, SpellInfo const* info, Unit* target)
+{
+    // Party buffs went on again and again: a rotation line asks for a buff by its name, and a member wearing the
+    // greater form, another rank or another class's version still lacked it. Each cast was refused or replaced the
+    // other one, and the line fired again.
+    if (!bot || !info || !target || (!IsAscensionCustomClassId(bot->getClass()) && !IsCoaHero(bot)))
+        return false;
+    if (!info->IsPositive() || info->IsPassive() || info->GetMaxDuration() < int32(MINUTE * IN_MILLISECONDS) ||
+        info->StackAmount > 1 || info->HasAura(SPELL_AURA_MOD_SHAPESHIFT) ||
+        std::none_of(info->Effects.begin(), info->Effects.end(), [](SpellEffectInfo const& e) { return e.IsAura(); }))
+        return false;
+
+    SpellInfo const* first = info->GetFirstRankSpell();
+    for (auto const& [id, application] : target->GetAppliedAuras())
+    {
+        Aura const* aura = application->GetBase();
+        SpellInfo const* worn = aura->GetSpellInfo();
+        if (!application->IsPositive() || worn->IsPassive())
+            continue;
+        if (worn->GetFirstRankSpell() == first || info->IsAuraExclusiveBySpecificWith(worn))
+            return true;
+        switch (sSpellMgr->CheckSpellGroupStackRules(info, worn))
+        {
+            case SPELL_GROUP_STACK_RULE_EXCLUSIVE:
+            case SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST:
+            case SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT:
+                return true;
+            case SPELL_GROUP_STACK_RULE_EXCLUSIVE_FROM_SAME_CASTER:
+                if (aura->GetCasterGUID() == bot->GetGUID())
+                    return true;
+                break;
+            default:
+                break;
+        }
+        if (SameStatEffects(info, worn))
+            return true;
+    }
+    return WearsBuffNamed(target, info);
 }
 
 bool CoaCarriesBotAway(Player* bot, SpellInfo const* info)

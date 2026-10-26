@@ -97,6 +97,11 @@ bool CoaTankOnlySpell(Player* bot, SpellInfo const* info, Unit* target);
 // Whether the target already wears a rival buff of this one from the bot (a caster keeps one of them on each target).
 bool CoaRivalBuffBlocks(Player* bot, SpellInfo const* info, Unit* target);
 
+// Whether the target already wears this buff, any rank or its greater form, or another doing the same (one the
+// core keeps exclusive with it, or one with the same stat effect), so a CoA or Freepick bot leaves it until it runs
+// out. Buffs lasting a minute or more that do not stack only.
+bool CoaEquivalentBuffWorn(Player* bot, SpellInfo const* info, Unit* target);
+
 // Whether this spell would carry the bot, in a fight, away from where it fights: a roll or run it cannot stop
 // (Boulder Dash), or a rush to a place ahead while it stands in reach of its enemy (Primal Rush). A healer
 // never casts a spell that moves it (a jump, leap, charge or blink: Dragon Leap), in a fight or out of it.
