@@ -756,7 +756,7 @@ bool PlayerbotAIConfig::Initialize()
     autoLearnTrainerSpells = sConfigMgr->GetOption<bool>("AiPlayerbot.AutoLearnTrainerSpells", true);
     autoLearnTradeskillSpells =
         sConfigMgr->GetOption<bool>("AiPlayerbot.AutoLearnTradeskillSpells", true);
-    coaClassesOnly = sConfigMgr->GetOption<bool>("AiPlayerbot.CoaClassesOnly", true);
+    coaClassesOnly = sConfigMgr->GetOption<bool>("AiPlayerbot.CoaClassesOnly", false);
     area52HeroBots = sConfigMgr->GetOption<bool>("AiPlayerbot.Area52HeroBots", true);
     gatherOnlySkillUp = sConfigMgr->GetOption<bool>("AiPlayerbot.GatherOnlySkillUp", true, false);
     // Written by the CoA Server Manager's custom races module ("bots use custom races"): a list of race ids,
