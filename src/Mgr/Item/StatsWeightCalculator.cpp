@@ -6,6 +6,7 @@
 
 #include "StatsWeightCalculator.h"
 #include "AiFactory.h"
+#include "CoaLegendaryClasses.h"
 #include "CoaSpecLookup.h"
 #include "CoaSpecStatWeights.h"
 #include "CoaSpecialization.h"
@@ -274,6 +275,14 @@ void StatsWeightCalculator::GenerateBasicWeights(Player* player)
     stats_weights_[STATS_TYPE_BONUS] += 1.0f;
     stats_weights_[STATS_TYPE_MELEE_DPS] += 0.01f;
     stats_weights_[STATS_TYPE_RANGED_DPS] += 0.01f;
+
+    // Area 52 Freepick Heroes: the stat priority of their Legendary class (CoaLegendaryClasses.cpp).
+    if (CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(player))
+    {
+        for (auto const& [stat, weight] : legendaryClass->weights)
+            stats_weights_[stat] += weight;
+        return;
+    }
 
     // Conquest of Azeroth classes have no talent tabs: without this they all fell through to
     // the bear tank weights below, casters included.

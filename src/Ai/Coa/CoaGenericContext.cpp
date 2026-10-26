@@ -18,6 +18,7 @@
 #include "ServerFacade.h"
 #include "Playerbots.h"
 #include "PlayerbotAIConfig.h"
+#include "CoaLegendaryClasses.h"
 #include "CoaLegendaryPets.h"
 #include "CoaSpecialization.h"
 #include "GenericBuffUtils.h"
@@ -1181,4 +1182,17 @@ bool CoaLegendaryPetAction::Execute(Event /*event*/)
     if (!bot->GetPetStable() || !bot->GetPetStable()->CurrentPet)
         return CoaCreateLegendaryPet(bot) != nullptr;
     return botAI->CastSpell("Call Pet", bot) || botAI->CastSpell("Revive Pet", bot);
+}
+
+bool CoaLegendaryUnreadyTrigger::IsActive() { return CoaLegendaryClassUnready(bot); }
+
+bool CoaLegendarySetupAction::isUseful() { return !bot->IsInCombat() && bot->IsAlive(); }
+
+bool CoaLegendarySetupAction::Execute(Event /*event*/)
+{
+    bool const hadClass = GetCoaLegendaryClass(bot) != nullptr;
+    EnsureCoaLegendaryClass(bot);
+    if (!hadClass && GetCoaLegendaryClass(bot))
+        botAI->ResetStrategies();
+    return true;
 }

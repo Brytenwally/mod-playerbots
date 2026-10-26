@@ -5,6 +5,7 @@
  */
 
 #include "PlayerbotAI.h"
+#include "CoaLegendaryClasses.h"
 #include "RaceMgr.h"
 #include "CoaSpecialization.h"
 #include "AiFactory.h"
@@ -2238,7 +2239,7 @@ bool PlayerbotAI::IsRanged(Player* player, bool bySpec)
     if (!bySpec && botAi)
         return botAi->ContainsStrategy(STRATEGY_TYPE_RANGED);
 
-    if (IsAscensionCustomClassId(player->getClass()))
+    if (IsAscensionCustomClassId(player->getClass()) || IsCoaHero(player))
         return GetCoaStyle(player) != CoaStyle::Melee;
 
     int tab = AiFactory::GetPlayerSpecTab(player);
@@ -2277,7 +2278,7 @@ bool PlayerbotAI::IsMelee(Player* player, bool bySpec) { return !IsRanged(player
 bool PlayerbotAI::IsCaster(Player* player, bool bySpec)
 {
     // CoA specializations that shoot on agility are ranged without being casters.
-    if (IsAscensionCustomClassId(player->getClass()))
+    if (IsAscensionCustomClassId(player->getClass()) || IsCoaHero(player))
         return IsRanged(player, bySpec) && GetCoaStyle(player) == CoaStyle::Caster;
 
     return IsRanged(player, bySpec) && player->getClass() != CLASS_HUNTER;
@@ -2614,7 +2615,7 @@ bool PlayerbotAI::IsTank(Player* player, bool bySpec)
     if (!bySpec && botAi)
         return botAi->ContainsStrategy(STRATEGY_TYPE_TANK);
 
-    if (IsAscensionCustomClassId(player->getClass()))
+    if (IsAscensionCustomClassId(player->getClass()) || IsCoaHero(player))
         return GetCoaRole(player) == CoaRole::Tank;
 
     int tab = AiFactory::GetPlayerSpecTab(player);
@@ -2655,7 +2656,7 @@ bool PlayerbotAI::IsHeal(Player* player, bool bySpec)
     if (!bySpec && botAi)
         return botAi->ContainsStrategy(STRATEGY_TYPE_HEAL);
 
-    if (IsAscensionCustomClassId(player->getClass()))
+    if (IsAscensionCustomClassId(player->getClass()) || IsCoaHero(player))
         return GetCoaRole(player) == CoaRole::Heal;
 
     int tab = AiFactory::GetPlayerSpecTab(player);
@@ -2695,7 +2696,7 @@ bool PlayerbotAI::IsDps(Player* player, bool bySpec)
     if (!bySpec && botAi)
         return botAi->ContainsStrategy(STRATEGY_TYPE_DPS);
 
-    if (IsAscensionCustomClassId(player->getClass()))
+    if (IsAscensionCustomClassId(player->getClass()) || IsCoaHero(player))
         return GetCoaRole(player) == CoaRole::Dps;
 
     int tab = AiFactory::GetPlayerSpecTab(player);

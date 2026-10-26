@@ -400,6 +400,7 @@ public:
     bool autoLearnTrainerSpells;
     bool autoLearnTradeskillSpells;
     bool coaClassesOnly;
+    bool area52HeroBots;
     bool gatherOnlySkillUp;
     std::vector<uint32> excludedBotRaces;
     bool customRacesForBots;

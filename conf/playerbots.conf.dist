@@ -1397,6 +1397,13 @@ AiPlayerbot.AutoLearnTradeskillSpells = 1
 # Default: 1 (enabled)
 AiPlayerbot.CoaClassesOnly = 1
 
+# Area 52 Freepick: random bots are created as Heroes (class 10), the only class a Freepick player has, instead
+# of one bot per class. Each Hero bot then takes a Legendary class: 20% Mystic Knight (tank), 20% Naturalist
+# (healer), 60% Hoplite (damage). Only on a core with Free Pick enabled; elsewhere CoaClassesOnly applies.
+# Bots already created keep their class either way; delete the bot accounts to renew them.
+# Default: 1 (enabled)
+AiPlayerbot.Area52HeroBots = 1
+
 # Gathering bots (herbalism, mining, skinning) only gather what still raises their skill: green, yellow or orange
 # for their client, never grey (100 points or more below their skill). One bot can gather everything again with the
 # chat command "nc +gather all" ("nc -gather all" to go back).

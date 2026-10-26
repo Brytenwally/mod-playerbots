@@ -117,8 +117,8 @@ Taken against core `037025155` (azerothcore-wotlk-coa `main`, 2026-10-24) and th
 ### 4. How playerbots fights
 
 - **Context per class** (`src/Bot/Factory/AiFactory.cpp`, `createAiObjectContext`): classes 1-11 hand-written;
-  CoA classes 12-32 (`IsAscensionCustomClassId`) get `CoaAiObjectContext`. **Class 10 gets the plain
-  `AiObjectContext`: no combat.** Class 10 is also skipped in `RandomPlayerbotMgr.cpp` (random bot class cache) and
+  CoA classes 12-32 (`IsAscensionCustomClassId`) and Freepick Heroes (`IsCoaHero`) get `CoaAiObjectContext`.
+  Class 10 is also skipped in `RandomPlayerbotMgr.cpp` (add-class bot cache) and
   `PlayerbotAIConfig.cpp` (talent specs).
 - **`CoaAiObjectContext`** (`src/Ai/Class/Coa/CoaAiObjectContext.cpp`): `coa attack` (rotates the class kit),
   `coa aoe`, `coa buff`, `coa dispel`, `coa purge`, `coa interrupt`, `coa taunt`, `coa defensive`, healer mana
@@ -146,15 +146,29 @@ One "class" = one Legendary enchant with:
 2. a **role and position** (tank/heal/dps, close/ranged), like a `CoaSpecStrategies` row;
 3. a **rotation**: `custom::<legendary>` lines in `playerbots_custom_strategy`.
 
-Work needed (not built yet):
-- Hero → `CoaAiObjectContext`, with a kit built from the Free Pick catalog.
-- A Legendary class table (enchant spell → build, role, position, rotation strategy) used for Heroes in place of
-  `CoaSpecStrategies`.
-- Bot setup per level: apply the build's picks (`PlanSelection` + `Apply`); add and slot the enchants (collection
-  table + slot setting + `RefreshEquipped`); gear for the build's primary stat.
-- Random bots: spread the Legendary classes the way classes are spread; stop skipping class 10 on a Freepick realm.
+Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`, data generated into `CoaLegendaryClassData.h` by
+`apps/area52/generate_legendary_class_data.py` from the class TSVs; rerun it after changing a TSV):
+- **Hero detection**: `IsCoaHero` = class 10 and `AscensionFreePick::Applies`. A Hero's class is the Legendary slotted
+  in its active enchant preset (`GetCoaLegendaryClass`); no other storage.
+- **Applying a class** (`ApplyCoaLegendaryClass`): `PlanSelection` + `Apply` with the class's picks (those in the
+  catalog) and primary stat; the 17 slots written to `core.freepick.mystic.<preset>`; the console command
+  `mystic grant 0 <name>` (every enchant for the account, then the core reloads and slots them), asked again every
+  minute until the Legendary's aura is on; `RefreshEquipped`.
+- **Random bots**: `EnsureCoaLegendaryClass` gives a classless Hero random bot a class by a stable roll (20% Mystic
+  Knight, 20% Naturalist, 60% Hoplite) and keeps its picks at its level. Called from `InitTalentsTree`, the combat
+  strategy setup and the non-combat strategy `coa legendary` (trigger `coa legendary unready`, action
+  `coa legendary setup`). `AiPlayerbot.Area52HeroBots` (default 1) makes the random bot factory create Heroes only.
+- **Master command**: `talents spec <mknight|hoplite|naturalist>` applies a class; `talents spec list` lists them.
+- **Play**: Heroes get `CoaAiObjectContext`; their role (`GetCoaRole`, `PlayerbotAI::IsTank/IsHeal/IsDps/IsRanged`)
+  and style come from the class; combat strategies as the CoA classes ("coa tank" + "tank assist", "coa heal",
+  "coa"/"coa ranged" + "dps assist") plus `custom::<class>` and its position; non-combat adds `custom::<class>-nc`.
+- **Gear**: armor up to the class's heaviest type, a shield only if it carries one, only its weapons; stat weights
+  from the class.
 
-Written so far (data only; inert until the work above exists):
+Still open: whether Heroes have the weapon and armor proficiencies their class wears; Hoplite's polearm with a
+shield in the bot's gear pass.
+
+Classes written:
 - **Mystic Knight** (Eldritch Knight 81116, tank), **Hoplite** (978217, melee damage), **Naturalist** (Seed of Life
   965937, healer): `docs/area52/classes/<class>.md`, its `-build.tsv` and `-enchants.tsv`, rotation rows in
   `data/sql/playerbots/custom/area52_<class>.sql`.

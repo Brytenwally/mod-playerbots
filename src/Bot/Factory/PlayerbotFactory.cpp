@@ -10,6 +10,7 @@
 #include "AiObjectContext.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "CoaLegendaryClasses.h"
 #include "CoaLegendaryPets.h"
 #include "CoaSpecLookup.h"
 #include "CoaSpecStatWeights.h"
@@ -2000,6 +2001,13 @@ void PlayerbotFactory::ResetQuests()
 
 uint32 PlayerbotFactory::InitTalentsTree(bool increment /*false*/, bool use_template /*true*/, bool reset /*false*/)
 {
+    // Area 52 Freepick Heroes have no talent tabs: their picks come from their Legendary class.
+    if (IsCoaHero(bot))
+    {
+        EnsureCoaLegendaryClass(bot);
+        return 0;
+    }
+
     uint32 specTab;
     uint8 cls = bot->getClass();
     std::map<uint8, uint32> tabs = AiFactory::GetPlayerSpecTabs(bot);
@@ -2263,6 +2271,17 @@ private:
 
 bool PlayerbotFactory::CanEquipArmor(ItemTemplate const* proto)
 {
+    // Area 52 Freepick Heroes wear what their Legendary class wears: up to its heaviest armor, a shield only if it
+    // carries one (a Hoplite fights with a polearm and a shield). Cloaks are cloth for every class.
+    if (CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(bot))
+    {
+        bool const bodyArmor = proto->SubClass >= ITEM_SUBCLASS_ARMOR_CLOTH &&
+            proto->SubClass <= ITEM_SUBCLASS_ARMOR_PLATE && proto->InventoryType != INVTYPE_CLOAK;
+        if ((bodyArmor && proto->SubClass > legendaryClass->heaviestArmor) ||
+            (proto->SubClass == ITEM_SUBCLASS_ARMOR_SHIELD && !legendaryClass->shield))
+            return false;
+    }
+
     if (proto->SubClass == ITEM_SUBCLASS_ARMOR_PLATE && !bot->HasSkill(SKILL_PLATE_MAIL))
     {
         return false;
@@ -2388,6 +2407,10 @@ bool PlayerbotFactory::CanEquipWeapon(ItemTemplate const* proto)
     if (IsAscensionCustomClassId(bot->getClass()) &&
         (proto->SubClass == ITEM_SUBCLASS_WEAPON_MISC || proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE))
         return false;
+
+    // Area 52 Freepick Heroes: only the weapons of their Legendary class (Hoplite: polearm and thrown).
+    if (CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(bot))
+        return (legendaryClass->weapons & (1u << proto->SubClass)) != 0;
 
     switch (bot->getClass())
     {
@@ -5904,6 +5927,9 @@ std::vector<InventoryType> PlayerbotFactory::GetPossibleInventoryTypeListBySlot(
                 if (stats && stats->needsThrown)
                     ret.push_back(INVTYPE_THROWN);
             }
+            if (CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(bot))
+                if (legendaryClass->weapons & (1u << ITEM_SUBCLASS_WEAPON_THROWN))
+                    ret.push_back(INVTYPE_THROWN);
             break;
         default:
             break;

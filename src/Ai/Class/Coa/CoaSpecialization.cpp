@@ -5,6 +5,7 @@
  */
 
 #include "CoaSpecialization.h"
+#include "CoaLegendaryClasses.h"
 #include "CoaLevelBuildData.h"
 #include "CoaSpecLookup.h"
 #include "Channel.h"
@@ -261,6 +262,9 @@ CoaArmorProficiency const* GetCoaArmorProficiency(uint8 playerClass)
 
 CoaRole GetCoaRole(Player const* player)
 {
+    if (CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(player))
+        return legendaryClass->role == CoaSpecRole::Tank ? CoaRole::Tank :
+            legendaryClass->role == CoaSpecRole::Heal ? CoaRole::Heal : CoaRole::Dps;
     if (!player || !IsAscensionCustomClassId(player->getClass()))
         return CoaRole::Dps;
 
@@ -269,6 +273,8 @@ CoaRole GetCoaRole(Player const* player)
 
 CoaStyle GetCoaStyle(Player const* player)
 {
+    if (CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(player))
+        return std::string_view(legendaryClass->position) == "close" ? CoaStyle::Melee : CoaStyle::Caster;
     if (!player || !IsAscensionCustomClassId(player->getClass()))
         return CoaStyle::Melee;
 

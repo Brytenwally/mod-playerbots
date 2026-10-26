@@ -563,6 +563,14 @@ public:
     bool IsActive() override;
 };
 
+/* "coa legendary unready" - a Freepick Hero bot's Legendary class is not fully set up (CoaLegendaryClasses.h). */
+class CoaLegendaryUnreadyTrigger : public Trigger
+{
+public:
+    CoaLegendaryUnreadyTrigger(PlayerbotAI* botAI) : Trigger(botAI, "coa legendary unready", 5) {}
+    bool IsActive() override;
+};
+
 /* "coa channeling::<spell>" - the bot is channeling that spell, so "cancel channel" can break it off. */
 class CoaChannelingTrigger : public Trigger, public Qualified
 {
@@ -709,16 +717,32 @@ public:
     void InitTriggers(std::vector<TriggerNode*>& /*triggers*/) override {}
 };
 
+/* "coa legendary" - out of combat, a Freepick Hero bot sets up its Legendary class until it is complete: given to
+ * every Hero bot, as a Hero without a class has no class strategy yet. */
+class CoaLegendaryStrategy : public Strategy
+{
+public:
+    CoaLegendaryStrategy(PlayerbotAI* botAI) : Strategy(botAI) {}
+
+    std::string const getName() override { return "coa legendary"; }
+    void InitTriggers(std::vector<TriggerNode*>& triggers) override
+    {
+        triggers.push_back(new TriggerNode("coa legendary unready", { NextAction("coa legendary setup", 40.0f) }));
+    }
+};
+
 class CoaGenericStrategyContext : public NamedObjectContext<Strategy>
 {
 public:
     CoaGenericStrategyContext() : NamedObjectContext<Strategy>(false, true)
     {
         creators["coa basic attack"] = &CoaGenericStrategyContext::basic_attack;
+        creators["coa legendary"] = &CoaGenericStrategyContext::legendary;
     }
 
 private:
     static Strategy* basic_attack(PlayerbotAI* botAI) { return new CoaBasicAttackStrategy(botAI); }
+    static Strategy* legendary(PlayerbotAI* botAI) { return new CoaLegendaryStrategy(botAI); }
 };
 
 /* Actions for the Area 52 Legendary classes (docs/area52/classes/). The spell is the qualifier, resolved against
@@ -781,6 +805,16 @@ public:
     std::string const getName() override { return "cast imbue::" + qualifier; }
 };
 
+/* "coa legendary setup" - sets up a Freepick Hero bot's Legendary class (CoaLegendaryClasses.h); with the trigger
+ * "coa legendary unready", out of combat, until its picks match its level and its Legendary is on. */
+class CoaLegendarySetupAction : public Action
+{
+public:
+    CoaLegendarySetupAction(PlayerbotAI* botAI) : Action(botAI, "coa legendary setup") {}
+    bool Execute(Event event) override;
+    bool isUseful() override;
+};
+
 /* "coa legendary pet" - the pet that comes with the bot's Legendary (CoaLegendaryPets.h): created the first time,
  * afterwards called back, or revived when it died. */
 class CoaLegendaryPetAction : public Action
@@ -813,6 +847,7 @@ public:
         creators["coa kick"] = &CoaGenericActionContext::coa_kick;
         creators["cast imbue"] = &CoaGenericActionContext::cast_imbue;
         creators["coa legendary pet"] = &CoaGenericActionContext::coa_legendary_pet;
+        creators["coa legendary setup"] = &CoaGenericActionContext::coa_legendary_setup;
     }
 
 private:
@@ -833,6 +868,7 @@ private:
     static Action* coa_kick(PlayerbotAI* botAI) { return new CoaKickAction(botAI); }
     static Action* cast_imbue(PlayerbotAI* botAI) { return new CoaCastImbueAction(botAI); }
     static Action* coa_legendary_pet(PlayerbotAI* botAI) { return new CoaLegendaryPetAction(botAI); }
+    static Action* coa_legendary_setup(PlayerbotAI* botAI) { return new CoaLegendarySetupAction(botAI); }
 };
 
 class CoaGenericTriggerContext : public NamedObjectContext<Trigger>
@@ -868,6 +904,7 @@ public:
         creators["last cast not"] = &CoaGenericTriggerContext::last_cast_not;
         creators["coa no imbue"] = &CoaGenericTriggerContext::coa_no_imbue;
         creators["coa enemy casting"] = &CoaGenericTriggerContext::coa_enemy_casting;
+        creators["coa legendary unready"] = &CoaGenericTriggerContext::coa_legendary_unready;
     }
 
 private:
@@ -900,6 +937,7 @@ private:
     static Trigger* last_cast_not(PlayerbotAI* botAI) { return new CoaLastCastNotTrigger(botAI); }
     static Trigger* coa_no_imbue(PlayerbotAI* botAI) { return new CoaNoImbueTrigger(botAI); }
     static Trigger* coa_enemy_casting(PlayerbotAI* botAI) { return new CoaEnemyCastingTrigger(botAI); }
+    static Trigger* coa_legendary_unready(PlayerbotAI* botAI) { return new CoaLegendaryUnreadyTrigger(botAI); }
 };
 
 #endif

@@ -27,6 +27,7 @@
 #include "SharedDefines.h"
 #include "SpellInfo.h"
 #include "CoaAiObjectContext.h"
+#include "CoaLegendaryClasses.h"
 #include "SpellMgr.h"
 #include "WarlockAiObjectContext.h"
 #include "WarriorAiObjectContext.h"
@@ -70,7 +71,7 @@ AiObjectContext* AiFactory::createAiObjectContext(Player* player, PlayerbotAI* b
     // Conquest of Azeroth custom classes (12 and above) have no hand written context.
     // Without this they fall through to the plain context, which has no combat rotation:
     // the bot follows and quests but never fights.
-    if (IsAscensionCustomClassId(player->getClass()))
+    if (IsAscensionCustomClassId(player->getClass()) || IsCoaHero(player))
         return new CoaAiObjectContext(botAI);
 
     return new AiObjectContext(botAI);
@@ -465,6 +466,37 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
         engine->addStrategy("coa pvp", false);
     }
 
+    // Area 52 Freepick Heroes: the role and rotation of the Legendary class (CoaLegendaryClasses.h), with the same
+    // CoA role strategies as the CoA classes. The authored rotation is their whole kit: the core gives a Hero no
+    // class ability list, so "coa" alone would find nothing to cast.
+    if (IsCoaHero(player))
+    {
+        EnsureCoaLegendaryClass(player);
+        if (CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(player))
+        {
+            switch (legendaryClass->role)
+            {
+                case CoaSpecRole::Tank:
+                    engine->addStrategiesNoInit("coa tank", "tank assist", nullptr);
+                    break;
+                case CoaSpecRole::Heal:
+                    engine->addStrategiesNoInit("coa heal", "dps assist", nullptr);
+                    break;
+                default:
+                    engine->addStrategiesNoInit(std::string_view(legendaryClass->position) == "close" ? "coa" :
+                                                "coa ranged", "dps assist", nullptr);
+                    break;
+            }
+            engine->addStrategy(legendaryClass->position, false);
+            engine->addStrategy(legendaryClass->combat, false);
+            if (std::string_view(legendaryClass->position) == "close")
+                engine->addStrategy("coa basic attack", false);
+        }
+        if (sPlayerbotAIConfig.coaBossKnowledge)
+            engine->addStrategy("coa boss dodge", false);
+        engine->addStrategy("coa pvp", false);
+    }
+
     if (PlayerbotAI::IsTank(player, true))
         engine->addStrategy("tank face", false);
 
@@ -645,10 +677,14 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
             break;
         default:
             // Conquest of Azeroth classes: party buffs, and tanks take the lead like the vanilla tanks.
-            if (IsAscensionCustomClassId(player->getClass()))
+            if (IsAscensionCustomClassId(player->getClass()) || IsCoaHero(player))
             {
                 nonCombatEngine->addStrategiesNoInit(GetCoaRole(player) == CoaRole::Tank ? "tank assist" : "dps assist",
                                                      "coa buff", "coa pvp", nullptr);
+                if (IsCoaHero(player))
+                    nonCombatEngine->addStrategy("coa legendary", false);
+                if (CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(player))
+                    nonCombatEngine->addStrategy(legendaryClass->nonCombat, false);
                 // Pulls on its own once the group of a real player is ready ("nc -coa auto pull" stops it).
                 if (GetCoaRole(player) == CoaRole::Tank)
                     nonCombatEngine->addStrategy("coa auto pull", false);

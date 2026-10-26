@@ -11,6 +11,7 @@
 #include "AscensionSpecialization.h"
 #include "AiObjectContext.h"
 #include "ChatHelper.h"
+#include "CoaLegendaryClasses.h"
 #include "CoaSpecLookup.h"
 #include "CoaSpecialization.h"
 #include "CoaTalentCompat.h"
@@ -205,6 +206,25 @@ bool ChangeTalentsAction::Execute(Event event)
             out << "Auto pick talents";
             botAI->ResetStrategies();
         }
+        else if (IsCoaHero(bot) && param.find("spec list") != std::string::npos)
+        {
+            out << CoaLegendaryClassList(bot);
+        }
+        else if (IsCoaHero(bot) && param.find("spec ") != std::string::npos)
+        {
+            // Area 52 Freepick: the Legendary classes (CoaLegendaryClasses.h). The bot takes the class's picks for
+            // its level, its 17 Mystic Enchants and the whole enchant collection, then its role and rotation.
+            std::string const wanted = param.substr(param.find("spec ") + 5);
+            CoaLegendaryClass const* legendaryClass = FindCoaLegendaryClass(wanted);
+            std::string error;
+            if (!legendaryClass)
+                out << "I have no class called '" << wanted << "'. Try 'talents spec list'.";
+            else if (!ApplyCoaLegendaryClass(bot, *legendaryClass, error))
+                out << "I cannot become " << legendaryClass->name << ": " << error;
+            else
+                out << "Now " << legendaryClass->name << ", running " << legendaryClass->combat << ".";
+            botAI->ResetStrategies();
+        }
         else if (param.find("spec list") != std::string::npos)
         {
             out << (IsCoaClass(bot) ? CoaSpecList() : SpecList());
@@ -237,7 +257,9 @@ bool ChangeTalentsAction::Execute(Event event)
 
         // CoA classes have no Blizzard talent tabs: FormatClass counts those and always reports
         // "(0/0/0)". For them, the specialization mod-ascension-compat holds.
-        if (CoaSpecStrategy const* coaSpec = GetCoaSpecStrategyFor(bot))
+        if (CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(bot))
+            out << legendaryClass->name << "\n";
+        else if (CoaSpecStrategy const* coaSpec = GetCoaSpecStrategyFor(bot))
         {
             out << coaSpec->specName;
             if (!GetAscensionActiveSpecialization(bot))

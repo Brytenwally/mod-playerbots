@@ -9,6 +9,7 @@
 #include "ArenaTeamMgr.h"
 #include "CharacterCache.h"
 #include "CoaBotNames.h"
+#include "CoaLegendaryClasses.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "DatabaseEnv.h"
@@ -879,6 +880,29 @@ void RandomPlayerbotFactory::CreateRandomBots()
         WorldSession* session = new WorldSession(accountId, "", 0x0, nullptr, SEC_PLAYER, EXPANSION_WRATH_OF_THE_LICH_KING,
                                                 time_t(0), LOCALE_enUS, 0, false, false, 0, true);
         sessionBots.push_back(session);
+
+        // Area 52 Freepick: every random bot is a Hero; its Legendary class makes it a tank, healer or damage dealer.
+        if (CoaHeroBotsWanted())
+        {
+            for (uint32 slot = count; slot < 10; ++slot)
+            {
+                Player* playerBot = factory.CreateRandomBot(session, CoaHeroClass, nameCache);
+                if (!playerBot)
+                {
+                    LOG_ERROR("playerbots", "Fail to create a Hero for account {}", accountId);
+                    break;
+                }
+
+                playerBot->SaveToDB(true, false);
+                sCharacterCache->AddCharacterCacheEntry(playerBot->GetGUID(), accountId, playerBot->GetName(),
+                                                        playerBot->getGender(), playerBot->getRace(),
+                                                        playerBot->getClass(), playerBot->GetLevel());
+                playerBot->CleanupsBeforeDelete();
+                delete playerBot;
+                bot_creation++;
+            }
+            continue;
+        }
 
         for (uint8 cls = CLASS_WARRIOR; cls < MAX_CLASSES - count; ++cls)
         {
