@@ -11,7 +11,7 @@ Source: the owner's screenshots of the player guide "Mystic Knight" by Veritest 
 | Role / position | tank / close |
 | Primary stat | Intellect |
 | Equipment | Plate, shield, one-handed sword |
-| Stat priority | Stamina > Block Value > Intellect > Strength |
+| Stat priority | Intellect = Stamina, far above Block Value, Defense and Armor; Strength ignored (owner, 2026-10-27) |
 | Combat strategy | `custom::mystic-knight` |
 | Non-combat strategy | `custom::mystic-knight-nc` |
 | Rotation rows | `data/sql/playerbots/custom/area52_mystic_knight.sql` |

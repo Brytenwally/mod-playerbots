@@ -431,11 +431,10 @@ INSERT INTO `playerbots_legendary_enchant` (`spec`, `slot`, `spell`) VALUES
 DELETE FROM `playerbots_legendary_weight` WHERE `spec` IN ('mknight', 'hoplite', 'naturalist');
 INSERT INTO `playerbots_legendary_weight` (`spec`, `stat`, `weight`) VALUES
 ('mknight', 'stamina', 3),
-('mknight', 'block_value', 2.5),
-('mknight', 'intellect', 2),
-('mknight', 'strength', 1),
-('mknight', 'defense', 1),
-('mknight', 'armor', 0.02),
+('mknight', 'intellect', 3),
+('mknight', 'block_value', 0.4),
+('mknight', 'defense', 0.4),
+('mknight', 'armor', 0.005),
 ('hoplite', 'strength', 2.5),
 ('hoplite', 'attack_power', 1),
 ('hoplite', 'hit', 1.4),
