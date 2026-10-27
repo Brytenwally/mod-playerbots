@@ -190,7 +190,10 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
   `EnsureCoaLegendaryClass` equips the best shield from the bags, or for a random bot runs the gear pass for the
   off-hand. `ItemUsageValue` counts such a shield as an upgrade (`CoaHeroHoldsShieldWith`). Before the aura is on,
   `InitEquipment` (random gear, `autogear`) puts the best shield in the bags instead (`CoaShieldWaitsForLegendary`,
-  only one better than every shield carried), and `ItemUsageValue` keeps such a shield.
+  only one better than every shield carried), and `ItemUsageValue` keeps such a shield. A class with a shield looks
+  at shields only for its off-hand (`GetPossibleInventoryTypeListBySlot`): the 25-candidate list, with a quarter
+  skipped at random, otherwise filled with unusable off-hand items and some Hoplite bots got none. The shield step
+  runs whenever such a class has an empty off-hand, and an off-hand-only gear pass also runs below level 5.
 - **Points**: a Hero's spells come only from its picks, so its AE and TE are spent: class trainers
   (`InitAvailableSpells`) and class quest reward spells are skipped for Heroes. `EnsureCoaLegendaryClass` logs a
   refused apply at info level ("could not take its <class> picks"). The three class builds pass the core's `Select` and

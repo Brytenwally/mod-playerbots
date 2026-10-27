@@ -2752,7 +2752,8 @@ void StoreWaitingShield(Player* bot, uint32 itemId, int32 randomProperty, float 
 
 void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance, int32 onlySlot)
 {
-    if (level < 5)
+    // A pass for the off-hand alone (a Hoplite's shield, EnsureCoaLegendaryClass) runs at any level.
+    if (level < 5 && onlySlot != EQUIPMENT_SLOT_OFFHAND)
     {
         if (IsAscensionCustomClassId(bot->getClass()))
         {
@@ -5952,6 +5953,15 @@ std::vector<InventoryType> PlayerbotFactory::GetPossibleInventoryTypeListBySlot(
             ret.push_back(INVTYPE_WEAPONMAINHAND);
             break;
         case EQUIPMENT_SLOT_OFFHAND:
+            // A Legendary class that carries a shield looks at shields only: the off-hand list stops growing at 25
+            // candidates and a quarter of them are skipped at random, so off-hand items it cannot use (held items,
+            // polearms) filled the list and some Hoplite bots ended up with no shield at all.
+            if (CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(bot);
+                legendaryClass && legendaryClass->shield)
+            {
+                ret.push_back(INVTYPE_SHIELD);
+                break;
+            }
             ret.push_back(INVTYPE_WEAPON);
             ret.push_back(INVTYPE_2HWEAPON);
             ret.push_back(INVTYPE_WEAPONOFFHAND);

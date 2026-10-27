@@ -240,11 +240,8 @@ bool HoldsShieldWith(Hero const* bot, ItemTemplate const* main, ItemTemplate con
 
 bool ShieldMissing(Player* bot, CoaLegendaryClass const& legendaryClass)
 {
-    if (!legendaryClass.shield || !bot->HasAura(legendaryClass.legendary) ||
-        bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-        return false;
-    Item* main = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    return main && main->GetTemplate()->InventoryType == INVTYPE_2HWEAPON;
+    return legendaryClass.shield && bot->HasAura(legendaryClass.legendary) &&
+        !bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 }
 
 Item* BestBagShield(Player* bot)
@@ -256,7 +253,8 @@ Item* BestBagShield(Player* bot)
     auto consider = [&](Item* item)
     {
         if (!item || item->GetTemplate()->InventoryType != INVTYPE_SHIELD ||
-            !HoldsShieldWith(bot, main->GetTemplate(), item->GetTemplate()))
+            (main && main->GetTemplate()->InventoryType == INVTYPE_2HWEAPON &&
+             !HoldsShieldWith(bot, main->GetTemplate(), item->GetTemplate())))
             return;
         float const score = calculator.CalculateItem(item->GetEntry(), item->GetItemRandomPropertyId());
         if (score > bestScore)
