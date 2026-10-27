@@ -31,6 +31,7 @@
 #include "PlayerbotAI.h"
 #include "PlayerbotAIConfig.h"
 #include "PlayerbotFactory.h"
+#include "CoaLegendaryClasses.h"
 #include "CoaSpecialization.h"
 #include "AscensionSpecialization.h"
 #include "SpellMgr.h"
@@ -2160,7 +2161,7 @@ void RandomPlayerbotMgr::PrepareAddclassCache()
     {
         for (uint8 claz = CLASS_WARRIOR; claz <= CLASS_DRUID; claz++)
         {
-            if (claz == 10)
+            if (claz == CoaHeroClass && !CoaHeroBotsWanted())
                 continue;
 
             QueryResult results = CharacterDatabase.Query(
@@ -2730,7 +2731,7 @@ bool RandomPlayerbotMgr::IsAddclassBot(ObjectGuid::LowType bot)
     // Check the cache with faction considerations
     for (uint8 claz = CLASS_WARRIOR; claz <= CLASS_DRUID; claz++)
     {
-        if (claz == 10)
+        if (claz == CoaHeroClass && !CoaHeroBotsWanted())
             continue;
 
         for (uint8 isAlliance = 0; isAlliance <= 1; isAlliance++)

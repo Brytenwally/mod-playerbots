@@ -1190,9 +1190,10 @@ bool CoaLegendarySetupAction::isUseful() { return !bot->IsInCombat() && bot->IsA
 
 bool CoaLegendarySetupAction::Execute(Event /*event*/)
 {
-    bool const hadClass = GetCoaLegendaryClass(bot) != nullptr;
+    CoaLegendaryClass const* const previous = GetCoaLegendaryClass(bot);
     EnsureCoaLegendaryClass(bot);
-    if (!hadClass && GetCoaLegendaryClass(bot))
+    CoaLegendaryClass const* const current = GetCoaLegendaryClass(bot);
+    if (current && current != previous)
         botAI->ResetStrategies();
     return true;
 }

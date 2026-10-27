@@ -1198,7 +1198,12 @@ std::vector<std::string> PlayerbotHolder::HandlePlayerbotCommand(char const* arg
             return messages;
         }
         uint8 claz;
-        if (!strcmp(charname, "warrior"))
+        CoaLegendaryClass const* legendaryClass = CoaHeroBotsWanted() ? FindCoaLegendaryClass(charname) : nullptr;
+        if (legendaryClass)
+        {
+            claz = CoaHeroClass;
+        }
+        else if (!strcmp(charname, "warrior"))
         {
             claz = 1;
         }
@@ -1240,7 +1245,14 @@ std::vector<std::string> PlayerbotHolder::HandlePlayerbotCommand(char const* arg
         }
         else
         {
-            messages.push_back("Error: Invalid Class. Try again.");
+            std::string error = "Error: Invalid Class. Try again.";
+            if (CoaHeroBotsWanted())
+            {
+                error += " Legendary classes:";
+                for (CoaLegendaryClass const& known : CoaLegendaryClasses())
+                    error += " " + known.spec;
+            }
+            messages.push_back(error);
             return messages;
         }
         //  Added for gender choice : Parsing gender
@@ -1280,8 +1292,10 @@ std::vector<std::string> PlayerbotHolder::HandlePlayerbotCommand(char const* arg
             uint32 guildId = sCharacterCache->GetCharacterGuildIdByGuid(guid);
             if (guildId && PlayerbotGuildMgr::instance().IsRealGuild(guildId))
                 continue;
+            if (legendaryClass)
+                CoaRequestLegendaryClass(guid, *legendaryClass);
             AddPlayerBot(guid, master->GetSession()->GetAccountId());
-            messages.push_back("Add class " + std::string(charname));
+            messages.push_back("Add class " + (legendaryClass ? legendaryClass->name : std::string(charname)));
             return messages;
         }
         messages.push_back("Add class failed, no available characters!");

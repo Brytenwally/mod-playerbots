@@ -18,6 +18,7 @@
 #include "Timer.h"
 #include "World.h"
 #include <algorithm>
+#include <cctype>
 #include <map>
 #include <mutex>
 #include <set>
@@ -206,6 +207,35 @@ struct LegendaryState
 
 std::mutex StatesLock;
 std::unordered_map<uint64, LegendaryState> States;
+std::unordered_map<uint64, std::string> RequestedSpecs;
+
+CoaLegendaryClass const* RequestedClass(Player const* bot)
+{
+    std::string spec;
+    {
+        std::lock_guard<std::mutex> guard(StatesLock);
+        auto const found = RequestedSpecs.find(bot->GetGUID().GetRawValue());
+        if (found == RequestedSpecs.end())
+            return nullptr;
+        spec = found->second;
+    }
+    return FindCoaLegendaryClass(spec);
+}
+
+void ForgetRequestedClass(Player const* bot)
+{
+    std::lock_guard<std::mutex> guard(StatesLock);
+    RequestedSpecs.erase(bot->GetGUID().GetRawValue());
+}
+
+std::string ClassKey(std::string_view text)
+{
+    std::string key;
+    for (char c : text)
+        if (std::isalnum(static_cast<unsigned char>(c)))
+            key += char(std::tolower(static_cast<unsigned char>(c)));
+    return key;
+}
 
 bool Due(uint32 now, uint32 when) { return !when || int32(now - when) >= 0; }
 
@@ -488,10 +518,19 @@ CoaLegendaryClass const* GetCoaLegendaryClass(Player const* player)
 
 CoaLegendaryClass const* FindCoaLegendaryClass(std::string const& spec)
 {
+    std::string const key = ClassKey(spec);
+    if (key.empty())
+        return nullptr;
     for (CoaLegendaryClass const& legendaryClass : LoadedClasses())
-        if (spec == legendaryClass.spec)
+        if (key == ClassKey(legendaryClass.spec) || key == ClassKey(legendaryClass.name))
             return &legendaryClass;
     return nullptr;
+}
+
+void CoaRequestLegendaryClass(ObjectGuid guid, CoaLegendaryClass const& legendaryClass)
+{
+    std::lock_guard<std::mutex> guard(StatesLock);
+    RequestedSpecs[guid.GetRawValue()] = legendaryClass.spec;
 }
 
 bool ApplyCoaLegendaryClass(Player* bot, CoaLegendaryClass const& legendaryClass, std::string& error)
@@ -556,6 +595,11 @@ void EnsureCoaLegendaryClass(Player* bot)
         return;
 
     CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(bot);
+    CoaLegendaryClass const* const requested = RequestedClass(bot);
+    if (requested && requested == legendaryClass)
+        ForgetRequestedClass(bot);
+    else if (requested)
+        legendaryClass = requested;
     if (!legendaryClass)
     {
         if (!sRandomPlayerbotMgr.IsRandomBot(bot))
@@ -607,6 +651,8 @@ void EnsureCoaLegendaryClass(Player* bot)
 
     std::string error;
     bool const applied = ApplyCoaLegendaryClass(bot, *legendaryClass, error);
+    if (applied && legendaryClass == requested)
+        ForgetRequestedClass(bot);
     bool report = false;
     {
         std::lock_guard<std::mutex> guard(StatesLock);
@@ -625,7 +671,8 @@ bool CoaLegendaryClassUnready(Player* bot)
         return false;
 
     CoaLegendaryClass const* legendaryClass = GetCoaLegendaryClass(bot);
-    if (!legendaryClass)
+    CoaLegendaryClass const* const requested = RequestedClass(bot);
+    if (!legendaryClass && !requested)
         return sRandomPlayerbotMgr.IsRandomBot(bot);
 
     std::lock_guard<std::mutex> guard(StatesLock);
@@ -634,6 +681,8 @@ bool CoaLegendaryClassUnready(Player* bot)
         return true;
     uint32 const now = getMSTime();
     LegendaryState const& state = found->second;
+    if (requested && requested != legendaryClass)
+        return Due(now, state.nextTry);
     if (state.appliedLevel == bot->GetLevel() && bot->HasAura(legendaryClass->legendary))
         return (ShieldMissing(bot, *legendaryClass) && Due(now, state.nextShield)) ||
             (state.slotTries < SlotTries && Due(now, state.nextSlots) && !SlotsMatch(bot, *legendaryClass));

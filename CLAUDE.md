@@ -185,6 +185,11 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
   strategy setup and the non-combat strategy `coa legendary` (trigger `coa legendary unready`, action
   `coa legendary setup`). `AiPlayerbot.Area52HeroBots` (default 1) makes the random bot factory create Heroes only.
 - **Master command**: `talents spec <mknight|hoplite|naturalist>` applies a class; `talents spec list` lists them.
+- **`.playerbot bot addclass <class>`** takes a Legendary class by its `spec` or `name` from
+  `playerbots_legendary_class` (case, spaces and punctuation ignored: `mknight`, `mysticknight`). It logs in a Hero
+  from the addclass accounts (the addclass cache holds class 10 when `CoaHeroBotsWanted()`) and queues the class
+  with `CoaRequestLegendaryClass`; `EnsureCoaLegendaryClass` applies it after login, over any class the Hero had.
+  A new class row works with addclass after a restart, no rebuild.
 - **Play**: Heroes get `CoaAiObjectContext`; their role (`GetCoaRole`, `PlayerbotAI::IsTank/IsHeal/IsDps/IsRanged`)
   and style come from the class; combat strategies as the CoA classes ("coa tank" + "tank assist", "coa heal",
   "coa"/"coa ranged" + "dps assist") plus `custom::<class>` and its position; non-combat adds `custom::<class>-nc`.

@@ -17,6 +17,7 @@
 
 #include "CoaSpecStrategies.h"
 #include "Define.h"
+#include "ObjectGuid.h"
 #include <array>
 #include <span>
 #include <string>
@@ -80,7 +81,11 @@ bool IsCoaHero(Player const* player);
 // The class of the Legendary slotted in the bot's active preset, or null.
 CoaLegendaryClass const* GetCoaLegendaryClass(Player const* player);
 
+// By its spec or its name, ignoring case, spaces and punctuation: "mknight", "Mystic Knight", "mysticknight".
 CoaLegendaryClass const* FindCoaLegendaryClass(std::string const& spec);
+
+// The bot takes this class the next time EnsureCoaLegendaryClass runs, over the one it has: addclass <spec>.
+void CoaRequestLegendaryClass(ObjectGuid guid, CoaLegendaryClass const& legendaryClass);
 
 // Takes the picks of the class for the bot's level and slots its enchants (the collection comes from
 // CoaFillMysticCollection). False with the reason when the core refused.
