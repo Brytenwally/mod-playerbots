@@ -66,8 +66,8 @@ bool CoaHeroBotsWanted();
 // Whether the core lets the bot hold this shield next to this two-handed weapon (a Hoplite's polearm).
 bool CoaHeroHoldsShieldWith(Player const* bot, ItemTemplate const* main, ItemTemplate const* off);
 
-// Puts every Mystic Enchant in a bot account's collection (the owner's rule for bots) before the bot logs in: the
-// core reads the collection at login, and its "mystic grant" command never finishes for a bot (see
+// Puts every Mystic Enchant the server supports in a bot account's collection (the owner's rule for bots) before the
+// bot logs in: the core reads the collection at login, and its "mystic grant" command never finishes for a bot (see
 // PlayerbotHolder::UpdateSessions). Once per account and server start; nothing on a core without Free Pick.
 void CoaFillMysticCollection(uint32 accountId);
 

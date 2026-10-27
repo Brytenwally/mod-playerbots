@@ -19,6 +19,7 @@
 #include "World.h"
 #include <algorithm>
 #include <cctype>
+#include <iterator>
 #include <map>
 #include <mutex>
 #include <optional>
@@ -511,19 +512,22 @@ void CoaFillMysticCollection(uint32 accountId)
     }();
     if (enchants.empty() || !AscensionFreePick::Enabled())
         return;
+    // Only the enchants this server supports: the rest can never be slotted, and an alt bot fills its owner's
+    // account, whose altar then offered 3,822 enchants of which the core accepted 84 (27/10).
+    std::vector<uint32> connected;
+    std::copy_if(enchants.begin(), enchants.end(), std::back_inserter(connected),
+        [](uint32 spell) { return AscensionMysticEnchant::IsConnected(spell); });
+    if (connected.empty())
+        return;
     {
         std::lock_guard<std::mutex> guard(lock);
         if (!filled.insert(accountId).second)
             return;
     }
-    if (QueryResult owned = CharacterDatabase.Query(
-            "SELECT COUNT(*) FROM `account_freepick_mystic_collection` WHERE `account` = {}", accountId))
-        if (owned->Fetch()[0].Get<uint64>() >= enchants.size())
-            return;
     std::ostringstream insert;
     insert << "INSERT IGNORE INTO `account_freepick_mystic_collection` (`account`, `spell`) VALUES ";
-    for (std::size_t i = 0; i < enchants.size(); ++i)
-        insert << (i ? "," : "") << '(' << accountId << ',' << enchants[i] << ')';
+    for (std::size_t i = 0; i < connected.size(); ++i)
+        insert << (i ? "," : "") << '(' << accountId << ',' << connected[i] << ')';
     CharacterDatabase.DirectExecute(insert.str());
 #else
     (void)accountId;
