@@ -208,7 +208,7 @@ bool ChangeTalentsAction::Execute(Event event)
         }
         else if (IsCoaHero(bot) && param.find("spec list") != std::string::npos)
         {
-            out << CoaLegendaryClassList(bot);
+            out << CoaLegendaryClassList(bot, param.substr(param.find("spec list") + 9));
         }
         else if (IsCoaHero(bot) && param.find("spec ") != std::string::npos)
         {

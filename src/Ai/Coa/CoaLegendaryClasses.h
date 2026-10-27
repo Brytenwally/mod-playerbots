@@ -101,6 +101,10 @@ void EnsureCoaLegendaryClass(Player* bot);
 // the shield of its class missing.
 bool CoaLegendaryClassUnready(Player* bot);
 
-std::string CoaLegendaryClassList(Player const* bot);
+// "tank", "healer", "mdps" (close damage) or "rdps" (ranged damage), from the class's role and position.
+std::string CoaLegendaryClassCategory(CoaLegendaryClass const& legendaryClass);
+
+// The classes of one category; without a known category, how to ask for one.
+std::string CoaLegendaryClassList(Player const* bot, std::string const& category);
 
 #endif

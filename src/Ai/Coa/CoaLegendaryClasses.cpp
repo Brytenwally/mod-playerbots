@@ -689,17 +689,37 @@ bool CoaLegendaryClassUnready(Player* bot)
     return Due(now, state.nextTry);
 }
 
-std::string CoaLegendaryClassList(Player const* bot)
+std::string CoaLegendaryClassCategory(CoaLegendaryClass const& legendaryClass)
 {
+    if (legendaryClass.role == CoaSpecRole::Tank)
+        return "tank";
+    if (legendaryClass.role == CoaSpecRole::Heal)
+        return "healer";
+    return legendaryClass.position == "ranged" ? "rdps" : "mdps";
+}
+
+std::string CoaLegendaryClassList(Player const* bot, std::string const& category)
+{
+    static char const* const Categories[] = {"tank", "healer", "mdps", "rdps"};
+    std::string wanted = ClassKey(category);
+    if (wanted == "heal")
+        wanted = "healer";
+    if (std::none_of(std::begin(Categories), std::end(Categories), [&](char const* known) { return wanted == known; }))
+        return "Type 'talents spec list tank', 'talents spec list healer', 'talents spec list mdps' (melee damage) or "
+               "'talents spec list rdps' (ranged damage), then 'talents spec <name>'.";
+
     CoaLegendaryClass const* current = GetCoaLegendaryClass(bot);
     std::ostringstream out;
-    out << "Legendary classes (talents spec <name>):";
+    out << "Legendary classes, " << wanted << " (talents spec <name>):";
+    bool any = false;
     for (CoaLegendaryClass const& legendaryClass : LoadedClasses())
     {
-        char const* role = legendaryClass.role == CoaSpecRole::Tank ? "tank" :
-            legendaryClass.role == CoaSpecRole::Heal ? "healer" : "damage";
-        out << (&legendaryClass == current ? "\n> " : "\n  ") << legendaryClass.spec << " - "
-            << legendaryClass.name << ", " << role << ", " << legendaryClass.position;
+        if (CoaLegendaryClassCategory(legendaryClass) != wanted)
+            continue;
+        any = true;
+        out << (&legendaryClass == current ? "\n> " : "\n  ") << legendaryClass.spec << " - " << legendaryClass.name;
     }
+    if (!any)
+        out << "\n  none yet";
     return out.str();
 }

@@ -184,7 +184,9 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
   Knight, 20% Naturalist, 60% Hoplite) and keeps its picks at its level. Called from `InitTalentsTree`, the combat
   strategy setup and the non-combat strategy `coa legendary` (trigger `coa legendary unready`, action
   `coa legendary setup`). `AiPlayerbot.Area52HeroBots` (default 1) makes the random bot factory create Heroes only.
-- **Master command**: `talents spec <mknight|hoplite|naturalist>` applies a class; `talents spec list` lists them.
+- **Master command**: `talents spec <name>` applies a class (spec or name, no category needed). `talents spec list`
+  explains the categories; `talents spec list tank|healer|mdps|rdps` lists that category, from the class's `role`
+  and `position` (dps + close = mdps, dps + ranged = rdps).
 - **`.playerbot bot addclass <class>`** takes a Legendary class by its `spec` or `name` from
   `playerbots_legendary_class` (case, spaces and punctuation ignored: `mknight`, `mysticknight`). It logs in a Hero
   from the addclass accounts (the addclass cache holds class 10 when `CoaHeroBotsWanted()`) and queues the class
