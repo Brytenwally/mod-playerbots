@@ -758,6 +758,9 @@ bool PlayerbotAIConfig::Initialize()
         sConfigMgr->GetOption<bool>("AiPlayerbot.AutoLearnTradeskillSpells", true);
     coaClassesOnly = sConfigMgr->GetOption<bool>("AiPlayerbot.CoaClassesOnly", false);
     area52HeroBots = sConfigMgr->GetOption<bool>("AiPlayerbot.Area52HeroBots", true);
+    area52HeroTankChance = std::min<uint32>(sConfigMgr->GetOption<uint32>("AiPlayerbot.Area52HeroTankChance", 20), 100);
+    area52HeroHealerChance = std::min<uint32>(
+        sConfigMgr->GetOption<uint32>("AiPlayerbot.Area52HeroHealerChance", 20), 100 - area52HeroTankChance);
     gatherOnlySkillUp = sConfigMgr->GetOption<bool>("AiPlayerbot.GatherOnlySkillUp", true, false);
     // Written by the CoA Server Manager's custom races module ("bots use custom races"): a list of race ids,
     // not a mask, since its races go up to 97. CrashingBotRaces adds to it the races that module's author lists

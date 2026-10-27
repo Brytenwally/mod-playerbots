@@ -401,6 +401,8 @@ public:
     bool autoLearnTradeskillSpells;
     bool coaClassesOnly;
     bool area52HeroBots;
+    uint32 area52HeroTankChance;
+    uint32 area52HeroHealerChance;
     bool gatherOnlySkillUp;
     std::vector<uint32> excludedBotRaces;
     bool customRacesForBots;

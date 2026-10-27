@@ -45,7 +45,7 @@ struct CoaLegendaryClass
     uint32 primaryStat = 0;               // Area52Build::Entry::PrimaryStat: 0 Strength, 3 Intellect, 4 Spirit
     std::string combat;                   // custom::<class>
     std::string nonCombat;                // custom::<class>-nc
-    uint32 chance = 0;                    // percent of the random bots that play it
+    uint32 chance = 0;                    // weight among the random bots of its role, 0 for none
     std::vector<CoaLegendaryPick> picks;
     std::array<uint32, 17> enchants{};
     uint32 heaviestArmor = 0;             // ITEM_SUBCLASS_ARMOR_CLOTH to ITEM_SUBCLASS_ARMOR_PLATE
@@ -91,10 +91,12 @@ void CoaRequestLegendaryClass(ObjectGuid guid, CoaLegendaryClass const& legendar
 // CoaFillMysticCollection). False with the reason when the core refused.
 bool ApplyCoaLegendaryClass(Player* bot, CoaLegendaryClass const& legendaryClass, std::string& error);
 
-// A Hero bot without a class gets one: random bots by chance (20% tank, 20% healer, 60% damage), the same one
-// for a bot every time. A Hero with a class gets its picks for its level and, until its Legendary is on, its
-// enchants again. Once its Legendary is on, a class that carries a shield and has none on equips one (a Hoplite's
-// beside its polearm, which the core refuses before the Legendary is on). Does nothing for anyone else.
+// A Hero bot without a class gets one: random bots roll a role (AiPlayerbot.Area52HeroTankChance and
+// Area52HeroHealerChance, the rest damage), then a class of that role weighed by its chance, the same one for a bot
+// every time. A Hero with a class gets its picks for its level and, until its Legendary is on, its enchants again.
+// An empty off-hand is filled once the class can use it: a shield class's shield when its Legendary is on (a
+// Hoplite's beside its polearm, which the core refuses before), a second two-hander with Titan's Grip (a Crusader).
+// Does nothing for anyone else.
 void EnsureCoaLegendaryClass(Player* bot);
 
 // Whether a Hero bot's class is not fully set up: no class, picks behind its level, the Legendary not on yet, or

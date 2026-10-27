@@ -26,6 +26,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "Timer.h"
+#include <array>
 #include <map>
 #include <cctype>
 #include <cstdlib>
@@ -1133,7 +1134,16 @@ static Player* CoaSpreadTarget(PlayerbotAI* botAI, Player* bot, std::string cons
         return nullptr;
 
     std::string const& spell = parts[0];
-    bool const othersOnly = parts.size() > 1 && parts[1] == "others";
+    bool othersOnly = false;
+    std::array<bool, 3> roles{};
+    for (size_t i = 1; i < parts.size(); ++i)
+    {
+        othersOnly |= parts[i] == "others";
+        roles[0] |= parts[i] == "tank";
+        roles[1] |= parts[i] == "heal";
+        roles[2] |= parts[i] == "dps";
+    }
+    bool const anyRole = roles[0] || roles[1] || roles[2];
     auto const rank = [](Player* member)
     { return PlayerbotAI::IsTank(member) ? 0 : PlayerbotAI::IsHeal(member) ? 1 : 2; };
     return PickMember(
@@ -1142,7 +1152,8 @@ static Player* CoaSpreadTarget(PlayerbotAI* botAI, Player* bot, std::string cons
         { return rank(a) != rank(b) ? rank(a) < rank(b) : a->GetHealthPct() < b->GetHealthPct(); },
         [&](Player* member)
         {
-            return (!othersOnly || member != bot) && !CoaOwnStacks(botAI, member, spell) &&
+            return (!othersOnly || member != bot) && (!anyRole || roles[rank(member)]) &&
+                !CoaOwnStacks(botAI, member, spell) &&
                 botAI->CanCastSpell(spell, member);
         });
 }

@@ -30,7 +30,7 @@ TABLES = """CREATE TABLE IF NOT EXISTS `playerbots_legendary_class` (
   `primary_stat` TINYINT UNSIGNED NOT NULL COMMENT '0 Strength, 1 Agility, 3 Intellect, 4 Spirit, 6 Stamina',
   `combat` VARCHAR(64) NOT NULL COMMENT 'combat rotation, custom::<name> in playerbots_custom_strategy',
   `noncombat` VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'non-combat rotation',
-  `chance` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'percent of the random bots playing it',
+  `chance` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'weight among the random bots of its role, 0 for none',
   `armor` VARCHAR(8) NOT NULL COMMENT 'heaviest armor: cloth, leather, mail or plate',
   `shield` TINYINT UNSIGNED NOT NULL DEFAULT 0,
   `weapons` VARCHAR(128) NOT NULL COMMENT 'comma separated: axe, axe2, bow, gun, mace, mace2, polearm, sword, sword2, staff, fist, dagger, thrown, crossbow, wand',

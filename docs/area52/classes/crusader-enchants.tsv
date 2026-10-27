@@ -1,0 +1,18 @@
+slot	spell	name	quality	level	worldforged	effect
+1	965295	Consecrated Strikes	Legendary	1	0	Templar's Slash; Seal of Command deals weapon damage; Crusader Strike and Divine Storm may create Consecrated Ground
+2	986280	Exorcist's Slash	Epic	1	1	adds Exorcist's Slash (needs Heroic Strike)
+3	977900	Ward of Light	Epic	1	0	Divine Storm damage; spell damage taken may reset its cooldown
+4	84579	Faithful Flex	Epic	1	0	Physical and Holy damage feed each other
+5	965395	Vanquishing Storm	Rare	1	0	Divine Storm crit and healing (stack 1 of 3)
+6	965395	Vanquishing Storm	Rare	1	0	Divine Storm crit and healing (stack 2 of 3)
+7	965395	Vanquishing Storm	Rare	1	0	Divine Storm crit and healing (stack 3 of 3)
+8	920224	Seals of the Pure	Rare	1	0	Seal and Judgement damage (stack 1 of 3)
+9	920224	Seals of the Pure	Rare	1	0	Seal and Judgement damage (stack 2 of 3)
+10	920224	Seals of the Pure	Rare	1	0	Seal and Judgement damage (stack 3 of 3)
+11	932043	Sanctity of Battle	Rare	1	0	Exorcism, Crusader Strike, Divine Storm, Execution Sentence, Consecration damage (stack 1 of 3)
+12	932043	Sanctity of Battle	Rare	1	0	Exorcism, Crusader Strike, Divine Storm, Execution Sentence, Consecration damage (stack 2 of 3)
+13	932043	Sanctity of Battle	Rare	1	0	Exorcism, Crusader Strike, Divine Storm, Execution Sentence, Consecration damage (stack 3 of 3)
+14	920264	Divine Strength	Rare	1	0	Strength
+15	931866	Crusade	Rare	1	0	Holy damage
+16	84537	Strength in Faith	Rare	1	0	Physical and Holy ability damage
+17	913715	Dual Wield Specialization	Rare	1	0	crit while dual wielding

@@ -1,4 +1,5 @@
 spec	file	name	legendary	role	position	primary_stat	combat	noncombat	chance	armor	shield	weapons	pet	weights
 mknight	mystic-knight	Mystic Knight	81116	tank	close	3	custom::mystic-knight	custom::mystic-knight-nc	20	plate	1	sword	0	stamina:3,intellect:3,block_value:0.4,defense:0.4,armor:0.005
-hoplite	hoplite	Hoplite	978217	dps	close	0	custom::hoplite	custom::hoplite-nc	60	mail	1	polearm,thrown	1131	strength:2.5,attack_power:1,hit:1.4,crit:1.2,armor_penetration:1,melee_dps:5
+hoplite	hoplite	Hoplite	978217	dps	close	0	custom::hoplite	custom::hoplite-nc	30	mail	1	polearm,thrown	1131	strength:2.5,attack_power:1,hit:1.4,crit:1.2,armor_penetration:1,melee_dps:5
 naturalist	naturalist	Naturalist	965937	heal	ranged	4	custom::naturalist	custom::naturalist-nc	20	leather	0	staff	0	spirit:2.5,intellect:2,heal_power:1.5,spell_power:1,mana_regeneration:1.5,haste:1
+crusader	crusader	Crusader	965295	dps	close	0	custom::crusader	custom::crusader-nc	30	plate	0	sword2,axe2,mace2	0	strength:2.5,hit:1.4,crit:1.2,expertise:1.2,attack_power:1,haste:1,melee_dps:5

@@ -180,8 +180,11 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
   `RemoveUnpickedSpells` then removes Free Pick spells of entries the bot has not picked (trainer, quest or old class
   leftovers), keeping enchant grants and, for a class with a pet, the pet commands; `LeaveClass` removes the old
   class's pet and re-gears a random bot. The core accepts every switch between the three classes (checked offline).
-- **Random bots**: `EnsureCoaLegendaryClass` gives a classless Hero random bot a class by a stable roll (20% Mystic
-  Knight, 20% Naturalist, 60% Hoplite) and keeps its picks at its level. Called from `InitTalentsTree`, the combat
+- **Random bots**: `EnsureCoaLegendaryClass` gives a classless Hero random bot a class by a stable roll: first a role
+  (`AiPlayerbot.Area52HeroTankChance` 20, `Area52HeroHealerChance` 20, the rest damage), then a class of that role
+  weighed by its `chance` column (equal values in a role: equal shares; 0 keeps a class off random bots;
+  the shipped 20/30/30/20 also read right as percents for a server still on the older roll). It keeps its picks at its
+  level. Called from `InitTalentsTree`, the combat
   strategy setup and the non-combat strategy `coa legendary` (trigger `coa legendary unready`, action
   `coa legendary setup`). `AiPlayerbot.Area52HeroBots` (default 1) makes the random bot factory create Heroes only.
 - **Master command**: `talents spec <name>` applies a class (spec or name, no category needed). `talents spec list`
@@ -203,8 +206,10 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
   `InitEquipment` (random gear, `autogear`) puts the best shield in the bags instead (`CoaShieldWaitsForLegendary`,
   only one better than every shield carried), and `ItemUsageValue` keeps such a shield. A class with a shield looks
   at shields only for its off-hand (`GetPossibleInventoryTypeListBySlot`): the 25-candidate list, with a quarter
-  skipped at random, otherwise filled with unusable off-hand items and some Hoplite bots got none. The shield step
-  runs whenever such a class has an empty off-hand, and an off-hand-only gear pass also runs below level 5.
+  skipped at random, otherwise filled with unusable off-hand items and some Hoplite bots got none. The off-hand step
+  (`OffHandMissing`, `EquipLegendaryOffHand`) runs whenever such a class has an empty off-hand, and for a class without
+  a shield once Titan's Grip is on (a Crusader's second two-hander from level 60); an off-hand-only gear pass also runs
+  below level 5.
 - **Points**: a Hero's spells come only from its picks, so its AE and TE are spent: class trainers
   (`InitAvailableSpells`) and class quest reward spells are skipped for Heroes. `EnsureCoaLegendaryClass` logs a
   refused apply at info level ("could not take its <class> picks"). The three class builds pass the core's `Select` and
@@ -220,7 +225,8 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
 
 Classes written:
 - **Mystic Knight** (Eldritch Knight 81116, tank), **Hoplite** (978217, melee damage), **Naturalist** (Seed of Life
-  965937, healer): `docs/area52/classes/<class>.md`, its `-build.tsv` and `-enchants.tsv`, rotation rows in
+  965937, healer), **Crusader** (Consecrated Strikes 965295, melee damage, two two-handers from 60 with Titan's
+  Grip): `docs/area52/classes/<class>.md`, its `-build.tsv` and `-enchants.tsv`, rotation rows in
   `data/sql/playerbots/custom/area52_<class>.sql`.
 
 A class file holds: the Legendary and what its enchants swap in (rotation lines name the swapped-in spells), the
@@ -235,8 +241,9 @@ Triggers added for Legendary classes (`src/Ai/Coa/CoaGenericContext.h`): `coa al
 `coa party aura spread::<aura>,<members>`, `coa tank aura below::<aura>,<stacks>`, `coa tank health::<min>,<max>`,
 `target stacks below max::<aura>`, `target aura expiring::<aura>,<seconds>`, `last cast not::<spell>`,
 `coa no imbue`, `coa enemy casting::<kick>[,alone|,<ms>]`. Actions: `cast on tank::<spell>`,
-`coa spread::<spell>[,others]`, `cast on aura::<spell>,<aura>`, `coa kick::<kick>[,alone|,<ms>]` (shares the claims of
-the interrupt coordination), `cast imbue::<spell>`; break off a channel with the base action `cancel channel`.
+`coa spread::<spell>[,others][,tank][,heal][,dps]`, `cast on aura::<spell>,<aura>`,
+`coa kick::<kick>[,alone|,<ms>]` (shares the claims of the interrupt coordination), `cast imbue::<spell>`;
+break off a channel with the base action `cancel channel`.
 
 Legendary pets (`src/Ai/Coa/CoaLegendaryPets.h`): a Legendary that plays with a pet gives the bot a fixed creature and
 the pet commands (Call, Dismiss, Revive Pet, learnt inside `AscensionFreePick::SpellLearningScope`) as soon as its
@@ -263,4 +270,4 @@ The owner sends builds known to work on Area 52, as screenshots of the Ascension
 
 - DBCs: `MysticEnchant.dbc`, `CharacterAdvancement.dbc`, `CharacterAdvancementClassTypes.dbc` and
   `CharacterAdvancementCategories.dbc` arrived 2026-10-26 (summarised in `docs/area52/`).
-- Per Legendary: the build and the basic rotation (done: Mystic Knight, Hoplite, Naturalist).
+- Per Legendary: the build and the basic rotation (done: Mystic Knight, Hoplite, Naturalist, Crusader).

@@ -758,9 +758,10 @@ public:
     bool isPossible() override;
 };
 
-/* "coa spread::<spell>[,others]" - on a group member within 40 yards without the bot's own aura of that name: a
- * tank first, then a healer, then the most hurt. "others" leaves the bot out: a Hoplite keeps Blessing of Might on
- * itself and gives the group Kings, and one caster's blessings replace each other on a target. */
+/* "coa spread::<spell>[,others][,tank][,heal][,dps]" - on a group member within 40 yards without the bot's own aura
+ * of that name: a tank first, then a healer, then the most hurt. "others" leaves the bot out: a Hoplite keeps
+ * Blessing of Might on itself and gives the group Kings, and one caster's blessings replace each other on a target.
+ * Roles limit it to those members: a Crusader gives Kings to tanks and damage dealers and Wisdom to healers. */
 class CoaSpreadAction : public Action, public Qualified
 {
 public:

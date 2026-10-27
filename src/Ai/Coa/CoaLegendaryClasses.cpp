@@ -21,6 +21,7 @@
 #include <cctype>
 #include <map>
 #include <mutex>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <string_view>
@@ -246,17 +247,46 @@ std::string SlotSetting(Player const* player)
     return "core.freepick.mystic." + std::to_string(preset);
 }
 
-CoaLegendaryClass const* RandomClassFor(Player const* bot)
+CoaSpecRole RandomRoleFor(uint32 counter)
 {
-    uint32 const roll = (bot->GetGUID().GetCounter() * 2654435761u >> 16) % 100;
+    uint32 const roll = (counter * 2654435761u >> 16) % 100;
+    if (roll < sPlayerbotAIConfig.area52HeroTankChance)
+        return CoaSpecRole::Tank;
+    if (roll < sPlayerbotAIConfig.area52HeroTankChance + sPlayerbotAIConfig.area52HeroHealerChance)
+        return CoaSpecRole::Heal;
+    return CoaSpecRole::Dps;
+}
+
+CoaLegendaryClass const* RandomClassOf(uint32 counter, std::optional<CoaSpecRole> role)
+{
+    uint32 total = 0;
+    for (CoaLegendaryClass const& legendaryClass : LoadedClasses())
+        if (!role || legendaryClass.role == *role)
+            total += legendaryClass.chance;
+    if (!total)
+        return nullptr;
+
+    uint32 const roll = (counter * 40503u + 977u) % total;
     uint32 reached = 0;
     for (CoaLegendaryClass const& legendaryClass : LoadedClasses())
     {
+        if (role && legendaryClass.role != *role)
+            continue;
         reached += legendaryClass.chance;
         if (roll < reached)
             return &legendaryClass;
     }
-    return LoadedClasses().empty() ? nullptr : &LoadedClasses().back();
+    return nullptr;
+}
+
+CoaLegendaryClass const* RandomClassFor(Player const* bot)
+{
+    uint32 const counter = bot->GetGUID().GetCounter();
+    if (CoaLegendaryClass const* legendaryClass = RandomClassOf(counter, RandomRoleFor(counter)))
+        return legendaryClass;
+    if (CoaLegendaryClass const* legendaryClass = RandomClassOf(counter, std::nullopt))
+        return legendaryClass;
+    return LoadedClasses().empty() ? nullptr : &LoadedClasses().front();
 }
 
 template <typename Hero>
@@ -268,23 +298,43 @@ bool HoldsShieldWith(Hero const* bot, ItemTemplate const* main, ItemTemplate con
         return false;
 }
 
-bool ShieldMissing(Player* bot, CoaLegendaryClass const& legendaryClass)
+bool GripsTwoHanders(Player const* bot, CoaLegendaryClass const& legendaryClass)
 {
-    return legendaryClass.shield && bot->HasAura(legendaryClass.legendary) &&
-        !bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+    return !legendaryClass.shield && bot->CanDualWield() && bot->CanTitanGrip();
 }
 
-Item* BestBagShield(Player* bot)
+// The off-hand a class fills once it can: a shield class's shield while its Legendary is on (a Hoplite's beside its
+// polearm), and a second two-hander for a class without one that has Titan's Grip (a Crusader from level 60).
+bool OffHandMissing(Player* bot, CoaLegendaryClass const& legendaryClass)
 {
-    Item* main = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    if (bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+        return false;
+    return (legendaryClass.shield && bot->HasAura(legendaryClass.legendary)) || GripsTwoHanders(bot, legendaryClass);
+}
+
+bool FitsOffHand(Player* bot, CoaLegendaryClass const& legendaryClass, Item* item)
+{
+    ItemTemplate const* proto = item->GetTemplate();
+    if (legendaryClass.shield)
+    {
+        Item* main = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        return proto->InventoryType == INVTYPE_SHIELD &&
+            (!main || main->GetTemplate()->InventoryType != INVTYPE_2HWEAPON ||
+             HoldsShieldWith(bot, main->GetTemplate(), proto));
+    }
+    uint16 dest;
+    return proto->InventoryType == INVTYPE_2HWEAPON && (legendaryClass.weapons & (1u << proto->SubClass)) &&
+        bot->CanEquipItem(EQUIPMENT_SLOT_OFFHAND, dest, item, false) == EQUIP_ERR_OK;
+}
+
+Item* BestBagOffHand(Player* bot, CoaLegendaryClass const& legendaryClass)
+{
     StatsWeightCalculator calculator(bot);
     Item* best = nullptr;
     float bestScore = -1.0f;
     auto consider = [&](Item* item)
     {
-        if (!item || item->GetTemplate()->InventoryType != INVTYPE_SHIELD ||
-            (main && main->GetTemplate()->InventoryType == INVTYPE_2HWEAPON &&
-             !HoldsShieldWith(bot, main->GetTemplate(), item->GetTemplate())))
+        if (!item || !FitsOffHand(bot, legendaryClass, item))
             return;
         float const score = calculator.CalculateItem(item->GetEntry(), item->GetItemRandomPropertyId());
         if (score > bestScore)
@@ -302,15 +352,15 @@ Item* BestBagShield(Player* bot)
     return best;
 }
 
-void EquipLegendaryShield(Player* bot)
+void EquipLegendaryOffHand(Player* bot, CoaLegendaryClass const& legendaryClass)
 {
-    if (Item* shield = BestBagShield(bot))
+    if (Item* offHand = BestBagOffHand(bot, legendaryClass))
     {
         uint16 dest;
-        if (bot->CanEquipItem(EQUIPMENT_SLOT_OFFHAND, dest, shield, false) == EQUIP_ERR_OK)
+        if (bot->CanEquipItem(EQUIPMENT_SLOT_OFFHAND, dest, offHand, false) == EQUIP_ERR_OK)
         {
-            bot->RemoveItem(shield->GetBagSlot(), shield->GetSlot(), true);
-            bot->EquipItem(dest, shield, true);
+            bot->RemoveItem(offHand->GetBagSlot(), offHand->GetSlot(), true);
+            bot->EquipItem(dest, offHand, true);
             return;
         }
     }
@@ -625,7 +675,7 @@ void EnsureCoaLegendaryClass(Player* bot)
                 ++state.slotTries;
                 equipSlots = true;
             }
-            if (ShieldMissing(bot, *legendaryClass) && Due(now, state.nextShield))
+            if (OffHandMissing(bot, *legendaryClass) && Due(now, state.nextShield))
             {
                 state.nextShield = now + SlotRetryMs;
                 equipShield = true;
@@ -645,7 +695,7 @@ void EnsureCoaLegendaryClass(Player* bot)
             EquipSlots(bot, *legendaryClass);
 #endif
         if (equipShield)
-            EquipLegendaryShield(bot);
+            EquipLegendaryOffHand(bot, *legendaryClass);
         return;
     }
 
@@ -684,7 +734,7 @@ bool CoaLegendaryClassUnready(Player* bot)
     if (requested && requested != legendaryClass)
         return Due(now, state.nextTry);
     if (state.appliedLevel == bot->GetLevel() && bot->HasAura(legendaryClass->legendary))
-        return (ShieldMissing(bot, *legendaryClass) && Due(now, state.nextShield)) ||
+        return (OffHandMissing(bot, *legendaryClass) && Due(now, state.nextShield)) ||
             (state.slotTries < SlotTries && Due(now, state.nextSlots) && !SlotsMatch(bot, *legendaryClass));
     return Due(now, state.nextTry);
 }

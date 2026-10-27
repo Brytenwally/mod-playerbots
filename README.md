@@ -19,7 +19,8 @@ installation guides and credits, follows [below](#original-mod-playerbots-readme
 | Class | `spec` | Legendary Mystic Enchant | Role | Weapons | Random bots |
 |---|---|---|---|---|---|
 | Mystic Knight | `mknight` | Eldritch Knight (81116) | Tank | one-handed sword and shield | 20% |
-| Hoplite | `hoplite` | Hoplite (978217) | Melee damage | polearm and shield, thrown | 60% |
+| Hoplite | `hoplite` | Hoplite (978217) | Melee damage | polearm and shield, thrown | 30% |
+| Crusader | `crusader` | Consecrated Strikes (965295) | Melee damage | two-handed sword, axe or mace; two of them from 60 | 30% |
 | Naturalist | `naturalist` | Seed of Life (965937) | Healer | staff | 20% |
 
 Each class has a page with its build, enchants and rotation in [docs/area52/classes](docs/area52/classes).
@@ -27,13 +28,16 @@ Each class has a page with its build, enchants and rotation in [docs/area52/clas
 ## What the bots do
 
 - **Random bots are Heroes.** With `AiPlayerbot.Area52HeroBots = 1`, the bot accounts are filled with Heroes. Each
-  random Hero takes a Legendary class by the `chance` column, and always the same one for the same character.
+  random Hero rolls a role (20% tank, 20% healer, 60% damage by default, `AiPlayerbot.Area52HeroTankChance` and
+  `Area52HeroHealerChance`), then one of that role's classes, each with an equal share. A character always gets the
+  same class.
 - **They earn their spells.** A Hero bot spends its own AE and TE on its class's picks for its level, through the
   core's Free Pick rules. It never learns spells through GM commands, and its picks follow it level by level.
 - **They wear their enchants.** Every bot account gets the whole Mystic Enchant collection. The bot slots the 17
   enchants of its class; its Legendary turns on once the slots are valid.
 - **They gear for their class.** Autogear and the gear choices use the class's stat weights and weapon types. A
-  Hoplite gets a shield and holds it beside its polearm once its Legendary is on.
+  Hoplite gets a shield and holds it beside its polearm once its Legendary is on; a Crusader takes a second
+  two-hander when Titan's Grip comes at level 60.
 - **They play their rotation.** Combat and out-of-combat rotations are custom strategies (`custom::<name>`): buffs
   that are not cast again while the same effect is up, taunts and aggro tools, cooldowns and pets.
 - **They fill their role.** Tanks tank, healers heal, and the Dungeon Finder queues each bot by its class's role.
@@ -91,8 +95,8 @@ This branch is a small addition to the work of many people:
   of mod-playerbots this branch comes from.
 - **[jealous-sound](https://github.com/jealous-sound/azerothcore-wotlk-coa)**, for the Conquest of Azeroth core.
 - **[@CWO4PapaBear](https://github.com/CWO4PapaBear)**, for the Area 52 core this branch plays on.
-- **Veritest** and **Literally Elbowttv**, whose Area 52 player guides (Mystic Knight and Hoplite; Naturalist) the
-  bot builds follow.
+- **Veritest** and **Literally Elbowttv**, whose Area 52 player guides (Mystic Knight and Hoplite; Naturalist and
+  Crusader) the bot builds follow.
 - **[AzerothCore](https://www.azerothcore.org/)**.
 
 ---
