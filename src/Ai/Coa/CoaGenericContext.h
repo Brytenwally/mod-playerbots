@@ -423,8 +423,7 @@ public:
 };
 
 /* "coa steady aggro" - enemies are fighting and every one of them is on the bot. "has aggro" looks at the
- * current target only, which says nothing about the rest of a pack. A Mystic Knight channels Invocation for
- * mana only while the whole pack stays on it (the owner's rule, 27/10). */
+ * current target only, which says nothing about the rest of a pack. */
 class CoaSteadyAggroTrigger : public Trigger
 {
 public:

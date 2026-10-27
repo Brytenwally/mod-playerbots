@@ -42,7 +42,7 @@ wait. Every pick and rank with its spell id, tree and cost:
 | 1 | Charge, Devastate |
 | 4 | Mana-forged Barrier |
 | 8 | Consecration |
-| 10-12 | Sinister Strike, Benediction 3/3, Seal Mastery, Seal of Wisdom |
+| 10-12 | Crusader Strike, Benediction 3/3, Seal Mastery, Seal of Wisdom |
 | 13-15 | Spellblade 3/3, Invocation |
 | 16-18 | Power Surge 3/3, Arcane Explosion, Demon Mastery, Summon Voidwalker |
 | 19-20 | Spiritual Attunement 2/2, Judgement Mastery, Judgement of Wisdom |
@@ -79,16 +79,22 @@ Owner's rules (2026-10-26):
 - Brilliance Aura (91234) is a cooldown: cast it when 2 or more party members within 35 yards, the tank included,
   are below 30% mana (`coa party low mana::2,30`).
 - Deconstruct, never Devastate.
-- Invocation (a channel) only when low on mana (below 15%, `AiPlayerbot.LowMana`) and every enemy in the fight is
-  on the tank (`coa steady aggro`). It then comes before the damage rotation. If any enemy turns to someone else
-  (`coa aggro lost`), the tank breaks off the channel and goes back to taking aggro.
+- Invocation (2026-10-27) is the main aggro tool: a 3 s channel that pulses damage and threat on every enemy within
+  20 yards and makes the tank immune to interrupts and pushback. It goes out on cooldown whenever the target is in
+  melee range, ahead of the damage rotation, and comes first of the aggro tools when an enemy turns to someone else
+  (`coa aggro lost`). The channel is no longer broken off.
+- Consecration ranks above Arcane Explosion (2026-10-27): Consecration (Emanate), and plain Consecration for a bot
+  whose enchants are not on yet, both only with the target in melee range.
+- Crusader Strike replaces Sinister Strike in the build and as the melee filler (2026-10-27).
 - Capacitor Totem lands at the caster's feet and stuns enemies within 8 yards: cast it with 3+ enemies close by.
 
 Defaults stated to the owner and not contradicted:
 
-- Arcane Barrage is the single-target filler (from level 60); Sinister Strike is the melee filler below it, because
+- Arcane Barrage is the single-target filler (from level 60); Crusader Strike is the melee filler below it, because
   melee abilities feed Eldritch Weapon.
-- Pet: Voidwalker until 56, then Felguard (Felguard first in the list; without the spell the line cannot fire).
+- Pet: Voidwalker until 56, then Felguard (Felguard first in the list; without the spell the line cannot fire). The
+  summons are `cast buff` lines: a plain `cast` aims at the current target, and out of combat there is none, so the
+  bot never summoned.
 - Blessing of Sanctuary on the tank only. Blessing of Kings is not cast: one blessing per caster and target, so a
   party-wide Kings would overwrite the tank's Sanctuary.
 - Arcane Orb on cooldown with 2+ enemies close by.

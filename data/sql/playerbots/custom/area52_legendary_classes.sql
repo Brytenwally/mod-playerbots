@@ -53,7 +53,7 @@ INSERT INTO `playerbots_legendary_pick` (`spec`, `spell`, `level`) VALUES
 ('mknight', 20243, 1),
 ('mknight', 701463, 4),
 ('mknight', 26573, 8),
-('mknight', 1752, 10),
+('mknight', 35395, 10),
 ('mknight', 20101, 10),
 ('mknight', 20102, 11),
 ('mknight', 20103, 12),
