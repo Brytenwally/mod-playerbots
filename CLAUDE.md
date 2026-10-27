@@ -163,11 +163,11 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
 - **Hero detection**: `IsCoaHero` = class 10 and `AscensionFreePick::Applies`. A Hero's class is the Legendary slotted
   in its active enchant preset (`GetCoaLegendaryClass`); no other storage.
 - **Applying a class** (`ApplyCoaLegendaryClass`): `PlanSelection` + `Apply` with the class's picks (those in the
-  catalog) and primary stat. The collection: `CoaFillMysticCollection` writes every catalog enchant into
-  `account_freepick_mystic_collection` for the bot account before the bot logs in, only the enchants the server
-  supports (`AscensionMysticEnchant::IsConnected`, added to core `main` 27/10 with the owner's OK: an alt bot fills its
-  owner's account, whose altar offered 3,822 enchants the core refused all but 84 of) (`HandlePlayerBotLoginCallback`),
-  and the core loads it at login. A bot session never runs `WorldSession::Update`, so `PlayerbotHolder::UpdateSessions`
+  catalog) and primary stat. The collection: `CoaFillMysticCollection` writes every enchant the server supports
+  (`AscensionMysticEnchant::IsConnected`, added to core `main` 27/10 with the owner's OK) into
+  `account_freepick_mystic_collection` for the bot account before the bot logs in (`HandlePlayerBotLoginCallback`),
+  and the core loads it at login. An alt bot fills its owner's account: filled with the whole catalog, that altar
+  offered 3,822 enchants and the core silently refused all but the 84 connected ones. A bot session never runs `WorldSession::Update`, so `PlayerbotHolder::UpdateSessions`
   drains its query processor (`GetQueryProcessor().ProcessReadyCallbacks()`): without it the core's collection load
   never finished and a bot wore no enchant at all (no Hoplite aura, no shield beside the polearm). The core's
   `mystic grant` is not used for bots: its completion goes through the session's private transaction callbacks,
