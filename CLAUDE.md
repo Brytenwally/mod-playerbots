@@ -38,6 +38,10 @@ compile-time detection like `src/Ai/Class/Coa/CoaTalentCompat.h` (`if constexpr 
 - Run the core's `apps/codestyle/codestyle-cpp.py --files` on changed sources.
 - Do not run full builds in the cloud unless asked.
 
+**Class changes:** whenever a Legendary class is changed or tweaked (build, enchants, weights, rotation), commit
+and push the repo change, and also hand the owner a ready-to-run SQL file with the changed `area52_*.sql` content,
+so they can apply it to the live playerbots database at once and restart instead of waiting for a build.
+
 **Testing:** Claude does not test in game. Say so when reporting.
 
 **Naming:** keep upstream naming to avoid merge conflicts.
