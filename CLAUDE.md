@@ -97,8 +97,8 @@ add new findings there, not here.
   - `update_sources.bat`: downloads the core `main` and playerbots `area52-freepick` zips, extracts them with
     `tar` skipping `.claude` (symbolic links Windows cannot create), puts playerbots in `modules/mod-playerbots` and
     only then replaces `azerothcore-wotlk-coa-main`.
-- The Freepick-build workflow takes about 2 hours (build #13, 28/10, held compoundpower-build and the first
-  dragonwarrior-build).
+- The Freepick-build workflow takes about 2 hours (build #13, 28/10, held compoundpower-build and dragonwarrior-build with
+  Dragon Charge).
 
 ## Map
 
