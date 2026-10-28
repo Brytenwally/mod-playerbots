@@ -69,6 +69,11 @@ The owner sends a build's Mystic Enchant panel; check each enchant with the serv
 `<legendaryenchantname>-build`, on core `main`. Inputs wanted: the audit export and a dump of `spell_proc`,
 `spell_script_names` and `spell_dbc` from the world database the enchants run on. A connected enchant only passes
 the core's structural check; it is not proof the enchant behaves right.
+When an enchant's behavior is unclear (a missing value, an unknown effect, an unclear trigger), look in the
+server's Spell.dbc before asking the owner: the enchant's own effects, the spells it triggers and the spells
+its tooltip names (`$<id>s1`, `@s:<id>@`), and the neighbouring ids, which usually hold its helper spells. For
+example, Draconic Slam's "extra damage" is its trigger spell 954260 (200% weapon damage). Ask the owner only
+when the data still leaves it open.
 
 ## Map
 
