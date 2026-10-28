@@ -64,26 +64,41 @@ so they can apply it to the live playerbots database at once and restart instead
 
 ## Mystic Enchant scripting (requested 28/10)
 
-The owner sends a build's Mystic Enchant panel; check each enchant with the server's `.mystic audit` export
-(connected or not) and script the unconnected ones in the core. One commit per build, named
-`<legendaryenchantname>-build`, on core `main`. Inputs wanted: the audit export and a dump of `spell_proc`,
-`spell_script_names` and `spell_dbc` from the world database the enchants run on. A connected enchant only passes
-the core's structural check; it is not proof the enchant behaves right.
-**Checking Spell.dbc is mandatory for every spell an enchant scripts or grants, however long it takes** (owner's
-rule, 28/10). Read every line of the tooltip and resolve each one in the data: the enchant's own effects, every
-spell it triggers or names, the hidden helper auras and the other ranks or copies of the spell. Earlier builds
-missed parts that were there: Draconic Slam's damage spell, Compound Shot's recast aura and Combo Shot, and
-Syndicate Sniper Shot's capstone (Syndicate Sniper Training 983867-983869, Hone In 983887-983888). When an
-enchant's behavior is unclear (a missing value, an unknown effect, an unclear trigger), look in the
-server's Spell.dbc before asking the owner: the enchant's own effects, the spells it triggers and the spells
-its tooltip names (`$<id>s1`, `@s:<id>@`), and the neighbouring ids, which usually hold its helper spells. For
-example, Draconic Slam's "extra damage" is its trigger spell 954260 (200% weapon damage). Ask the owner only
-when the data still leaves it open.
-A spell an enchant grants must land in the spellbook tab of the class it belongs to (for example a spell that
-needs Aimed Shot goes in the Hunter tab). The client picks the tab from `SkillLineAbility.dbc`, so grant the spell
-id that has a row in that class's skill line; a copy without a row lands in General. The enchant's DUMMY effect
-(MiscValue = required spell, MiscValueB = granted spell) names the intended id: Compound Power names 826679 (Hunter
-skill line 50), not the tab-less 984925 its tooltip shows.
+The owner sends a build's Mystic Enchant panel; check each enchant in the server's `.mystic audit` export and make
+the unsupported ones (and the connected ones that do nothing) work in the core. **The full guide lives in the core's
+`CLAUDE.md` ("Area 52 Mystic Enchant scripting")**: workflow, the mandatory Spell.dbc check, spell grants and
+spellbook tabs, how procs behave on this core and the recurring Ascension patterns. Read it before scripting and
+add new findings there, not here.
+
+- **Pace** (owner, 28/10): slow, methodical and right beats fast. Map every enchant in the data, report what each
+  does plus the open questions, and code only after the owner answers.
+- **Owner rules**: Spell.dbc is read for every spell, however long it takes; granted spells go in their class's
+  spellbook tab; an enchant's spell replaces its requirement only when the owner says so.
+- **Builds done** (core `main`, one commit per build plus follow-ups):
+  - Marksman, `compoundpower-build`: Compound Shot 826679 (7 ranks, beside Aimed Shot) with its 3 s recast into
+    Combo Shot; Syndicate Sniper Shot keeps its 3 s cast (every copy in the data has it); Sniper Training's
+    Syndicate stacks, capstone Hone In and damage bonus on the shot.
+  - Dragon Warrior, `dragonwarrior-build`: Dragon Roar replaces Death Wish and Dragon Charge replaces Intercept
+    (owner's choice); Draconic Slam's damage is its proc spell 954260 (200% weapon damage); Skull Crusher keeps its
+    3 s limit on the whole proc and now cools down Dragon Roar.
+  - Gutripper, `bloodandguts-build`: Disembowel beside Eviscerate, per-point damage multiplied by combo points plus
+    AP x points squared; Mutilating Disembowel per weapon hit; Deadly Combo needs Sudden Death's final rank;
+    Sudden Death's 6 s iCD (411167) restored for Free Pick; Death Sentence, Be Still and Die, Necrotic Execute's
+    Necrotic Power finished.
+  - Next in line: Knight of the Eclipse (screenshot received 28/10).
+- **Pull request upstream**: branch `area52-legendary-builds` on the core fork holds only the class commits on top
+  of `CWO4PapaBear/azerothcore-wotlk-coa` `main`. A session with `Brytenwally/azerothcore-wotlk-coa` attached cannot
+  open PRs on CWO4PapaBear's repository (same repository name), so the owner opens it from the compare link.
+- **Owner tools** made on 28/10 (in `/home/user` of that session, re-create if needed):
+  - In-game GM macros that add and equip a build's enchants: `.mystic grant 0` adds every supported enchant to the
+    account but finishes asynchronously, so the first press only adds and the second equips; each press first
+    empties all 17 slots (`.mystic equip <slot> 0`), then equips the Legendary first. WoW macros are limited to 255
+    characters, so the macro sends the commands from a `/run` loop.
+  - `update_sources.bat`: downloads the core `main` and playerbots `area52-freepick` zips, extracts them with
+    `tar` skipping `.claude` (symbolic links Windows cannot create), puts playerbots in `modules/mod-playerbots` and
+    only then replaces `azerothcore-wotlk-coa-main`.
+- The Freepick-build workflow takes about 2 hours (build #13, 28/10, held compoundpower-build and the first
+  dragonwarrior-build).
 
 ## Map
 
