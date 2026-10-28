@@ -85,7 +85,10 @@ add new findings there, not here.
     AP x points squared; Mutilating Disembowel per weapon hit; Deadly Combo needs Sudden Death's final rank;
     Sudden Death's 6 s iCD (411167) restored for Free Pick; Death Sentence, Be Still and Die, Necrotic Execute's
     Necrotic Power finished.
-  - Next in line: Knight of the Eclipse (screenshot received 28/10).
+  - Knight of the Eclipse, `knightoftheeclipse-build`: Eclipse Strike, Solar Strike and Knightfall replace Sinister
+    Strike, Eviscerate and Starfall (owner's choice); Eclipse Strike starts the Solar phase first, needs Eclipse's
+    final rank, deals 100% weapon damage (80% two-handed) plus 10% SP; Solar Burn uses the old CoA coefficient
+    (25.522% SP and AP per tick). The build guide also has rotation, itemization and macro pages for the bot class.
 - **Pull request upstream**: branch `area52-legendary-builds` on the core fork holds only the class commits on top
   of `CWO4PapaBear/azerothcore-wotlk-coa` `main`. A session with `Brytenwally/azerothcore-wotlk-coa` attached cannot
   open PRs on CWO4PapaBear's repository (same repository name), so the owner opens it from the compare link.
