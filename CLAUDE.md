@@ -53,8 +53,9 @@ so they can apply it to the live playerbots database at once and restart instead
   `C:\Users\User\Desktop\azerothcore-wotlk-coa-main` (`SourceDirectory`), data in `Data` next to the exe.
 - World database: empty `acore_world`, import the CoA world package (`data/coa-world/coa-world-20260912.zip`,
   ledger tables `updates`, `updates_include`, `version` last), then start the worldserver. The package has no Area 52
-  `coa_*` tables; core migrations `rev_20261005_51`, `rev_20261009_64`, `rev_20261016_29` and `rev_20261018_00`
-  (pushed 28/10) create the tables and the column later updates need. With them the worldserver starts clean.
+  `coa_*` tables; core migrations `rev_20261005_51`, `rev_20261009_64`, `rev_20261016_29`, `rev_20261018_00` and
+  `rev_20261028_00` (world and characters, pushed 28/10) create the tables and the column later updates and the
+  server's startup need. A table the server queries that does not exist stops it at startup.
   Tables they create start empty (boss kits, XP hotspots, vanity store); the live database keeps its data.
 - Config templates in core `main` ship as a Free Pick realm (010b7772e): `coa.conf.dist` with the Hero class model,
   Mystic Enchants and the Build Creator on, `worldserver.conf.dist` with `MaxPlayerLevel = 60`. Machine paths stay in
