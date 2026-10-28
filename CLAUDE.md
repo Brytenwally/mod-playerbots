@@ -46,6 +46,29 @@ so they can apply it to the live playerbots database at once and restart instead
 
 **Naming:** keep upstream naming to avoid merge conflicts.
 
+## Fresh server (the owner's laptop, 28/10)
+
+- MySQL: portable MySQL 8.4.2, the version the Freepick-build zip links (`libmysql.dll`), in
+  `C:\Users\User\Desktop\Freepick Build\mySQL`, user `acore`/`acore` on 127.0.0.1:3306. Source checkout:
+  `C:\Users\User\Desktop\azerothcore-wotlk-coa-main` (`SourceDirectory`), data in `Data` next to the exe.
+- World database: empty `acore_world`, import the CoA world package (`data/coa-world/coa-world-20260912.zip`,
+  ledger tables `updates`, `updates_include`, `version` last), then start the worldserver. The package has no Area 52
+  `coa_*` tables; core migrations `rev_20261005_51`, `rev_20261009_64`, `rev_20261016_29` and `rev_20261018_00`
+  (pushed 28/10) create the tables and the column later updates need. With them the worldserver starts clean.
+  Tables they create start empty (boss kits, XP hotspots, vanity store); the live database keeps its data.
+- Config templates in core `main` ship as a Free Pick realm (010b7772e): `coa.conf.dist` with the Hero class model,
+  Mystic Enchants and the Build Creator on, `worldserver.conf.dist` with `MaxPlayerLevel = 60`. Machine paths stay in
+  the owner's own `.conf` files.
+- The owner tests things himself: do not simulate databases or servers unless asked (28/10).
+
+## Mystic Enchant scripting (requested 28/10)
+
+The owner sends a build's Mystic Enchant panel; check each enchant with the server's `.mystic audit` export
+(connected or not) and script the unconnected ones in the core. One commit per build, named
+`<legendaryenchantname>-build`, on core `main`. Inputs wanted: the audit export and a dump of `spell_proc`,
+`spell_script_names` and `spell_dbc` from the world database the enchants run on. A connected enchant only passes
+the core's structural check; it is not proof the enchant behaves right.
+
 ## Map
 
 Taken against core `037025155` (azerothcore-wotlk-coa `main`, 2026-10-24) and this branch at 1c08cc1.
