@@ -74,6 +74,11 @@ server's Spell.dbc before asking the owner: the enchant's own effects, the spell
 its tooltip names (`$<id>s1`, `@s:<id>@`), and the neighbouring ids, which usually hold its helper spells. For
 example, Draconic Slam's "extra damage" is its trigger spell 954260 (200% weapon damage). Ask the owner only
 when the data still leaves it open.
+A spell an enchant grants must land in the spellbook tab of the class it belongs to (for example a spell that
+needs Aimed Shot goes in the Hunter tab). The client picks the tab from `SkillLineAbility.dbc`, so grant the spell
+id that has a row in that class's skill line; a copy without a row lands in General. The enchant's DUMMY effect
+(MiscValue = required spell, MiscValueB = granted spell) names the intended id: Compound Power names 826679 (Hunter
+skill line 50), not the tab-less 984925 its tooltip shows.
 
 ## Map
 
