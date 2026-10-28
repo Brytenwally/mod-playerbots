@@ -69,7 +69,12 @@ The owner sends a build's Mystic Enchant panel; check each enchant with the serv
 `<legendaryenchantname>-build`, on core `main`. Inputs wanted: the audit export and a dump of `spell_proc`,
 `spell_script_names` and `spell_dbc` from the world database the enchants run on. A connected enchant only passes
 the core's structural check; it is not proof the enchant behaves right.
-When an enchant's behavior is unclear (a missing value, an unknown effect, an unclear trigger), look in the
+**Checking Spell.dbc is mandatory for every spell an enchant scripts or grants, however long it takes** (owner's
+rule, 28/10). Read every line of the tooltip and resolve each one in the data: the enchant's own effects, every
+spell it triggers or names, the hidden helper auras and the other ranks or copies of the spell. Earlier builds
+missed parts that were there: Draconic Slam's damage spell, Compound Shot's recast aura and Combo Shot, and
+Syndicate Sniper Shot's capstone (Syndicate Sniper Training 983867-983869, Hone In 983887-983888). When an
+enchant's behavior is unclear (a missing value, an unknown effect, an unclear trigger), look in the
 server's Spell.dbc before asking the owner: the enchant's own effects, the spells it triggers and the spells
 its tooltip names (`$<id>s1`, `@s:<id>@`), and the neighbouring ids, which usually hold its helper spells. For
 example, Draconic Slam's "extra damage" is its trigger spell 954260 (200% weapon damage). Ask the owner only
