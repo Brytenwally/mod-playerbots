@@ -97,6 +97,10 @@ add new findings there, not here.
     every Lightning Rod target with the highest Lightning Bolt rank, free and off cooldown; Living Lightning's own
     crits cut its cooldown; Transcendental Embrace only on its tooltip's crits, plus one more Chain Heal jump;
     Charged Tides spends all stacks at once.
+  - Master of Shadows, `masterofshadows-build`: Dark Intent on every bleed tick of Garrote, Rupture and Crimson
+    Tempest, but only Gloomblade's first hit; Sinister Flurry's strike counts as Sinister Strike; Pestilence is
+    scripted on its own (not effect 169), 10 yards, up to 6 targets, copying Corruption's remaining duration;
+    Shadow Strikes keeps the data's 50%; Find Weakness covers every rogue ability including damage over time.
 - **Pull request upstream**: branch `area52-legendary-builds` on the core fork holds only the class commits on top
   of `CWO4PapaBear/azerothcore-wotlk-coa` `main`. A session with `Brytenwally/azerothcore-wotlk-coa` attached cannot
   open PRs on CWO4PapaBear's repository (same repository name), so the owner opens it from the compare link.
