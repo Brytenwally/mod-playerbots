@@ -103,6 +103,9 @@ add new findings there, not here.
     Tempest, but only Gloomblade's first hit; Sinister Flurry's strike counts as Sinister Strike; Pestilence is
     scripted on its own (not effect 169), 10 yards, up to 6 targets, copying Corruption's remaining duration;
     Shadow Strikes keeps the data's 50%; Find Weakness covers every rogue ability including damage over time.
+  - Evoker, `evoker-build`: the Evoker buff is a plain stacking buff (no charges); the first Frostbolt spends
+    Frost Evoked; Shatter boosts only the first Mage spell cast before the Frostbolt lands; the empowered Frosty
+    Frost Frostbolt counts toward the next two.
 - **Pull request upstream**: branch `area52-legendary-builds` on the core fork holds only the class commits on top
   of `CWO4PapaBear/azerothcore-wotlk-coa` `main`. A session with `Brytenwally/azerothcore-wotlk-coa` attached cannot
   open PRs on CWO4PapaBear's repository (same repository name), so the owner opens it from the compare link.
