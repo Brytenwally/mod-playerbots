@@ -73,7 +73,10 @@ add new findings there, not here.
 - **Pace** (owner, 28/10): slow, methodical and right beats fast. Map every enchant in the data, report what each
   does plus the open questions, and code only after the owner answers.
 - **Owner rules**: Spell.dbc is read for every spell, however long it takes; granted spells go in their class's
-  spellbook tab; an enchant's spell replaces its requirement only when the owner says so.
+  spellbook tab; an enchant's spell replaces its requirement only when the owner says so; unless the owner says
+  otherwise, modifiers on a spell also apply to the spell replacing it (29/10).
+- **Order** (29/10): Mystic Enchants only, no bot builds or classes for now; Legendary builds one at a time from the
+  owner's list (build 1 Tree of Wrath). The owner prepares two new classes before build 15.
 - **Builds done** (core `main`, one commit per build plus follow-ups):
   - Marksman, `compoundpower-build`: Compound Shot 826679 (7 ranks, beside Aimed Shot) with its 3 s recast into
     Combo Shot; Syndicate Sniper Shot keeps its 3 s cast (every copy in the data has it); Sniper Training's
@@ -89,6 +92,11 @@ add new findings there, not here.
     Strike, Eviscerate and Starfall (owner's choice); Eclipse Strike starts the Solar phase first, needs Eclipse's
     final rank, deals 100% weapon damage (80% two-handed) plus 10% SP; Solar Burn uses the old CoA coefficient
     (25.522% SP and AP per tick). The build guide also has rotation, itemization and macro pages for the bot class.
+  - Tree of Wrath, `treeofwrath-build`: Tree of Wrath replaces Tree of Life and Living Lightning replaces Chain
+    Heal (owner: replace everything); the form allows every spell its tooltip names; critical Nature heals bolt
+    every Lightning Rod target with the highest Lightning Bolt rank, free and off cooldown; Living Lightning's own
+    crits cut its cooldown; Transcendental Embrace only on its tooltip's crits, plus one more Chain Heal jump;
+    Charged Tides spends all stacks at once.
 - **Pull request upstream**: branch `area52-legendary-builds` on the core fork holds only the class commits on top
   of `CWO4PapaBear/azerothcore-wotlk-coa` `main`. A session with `Brytenwally/azerothcore-wotlk-coa` attached cannot
   open PRs on CWO4PapaBear's repository (same repository name), so the owner opens it from the compare link.
