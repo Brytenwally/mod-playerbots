@@ -75,6 +75,8 @@ add new findings there, not here.
 - **Owner rules**: Spell.dbc is read for every spell, however long it takes; granted spells go in their class's
   spellbook tab; an enchant's spell replaces its requirement only when the owner says so; unless the owner says
   otherwise, modifiers on a spell also apply to the spell replacing it (29/10).
+- **Builds** (29/10): a Freepick build takes about 2 hours, so don't start one after every fix; batch the work and
+  start a build only when the owner asks.
 - **Order** (29/10): Mystic Enchants only, no bot builds or classes for now; Legendary builds one at a time from the
   owner's list (build 1 Tree of Wrath). The owner prepares two new classes before build 15.
 - **Builds done** (core `main`, one commit per build plus follow-ups):
