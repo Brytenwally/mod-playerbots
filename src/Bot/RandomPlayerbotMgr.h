@@ -18,6 +18,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
+// The 1v1 arena type, kept by number: only some cores have it, and bots never queue for it.
+uint8 constexpr CoaArenaType1v1 = 1;
+
 struct BattlegroundInfo
 {
     std::vector<uint32> bgInstances;
@@ -66,7 +69,7 @@ struct BattlegroundInfo
     uint32 ratedSoloHealersNeeded = 0;
     uint32 ratedSoloDamageNeeded = 0;
     // Bots a real player's other role may need (CoaRatedSoloRoleFallback), and bots no lineup needs:
-    // these leave the queue after their usual wait, the 1v1 ones in the damage count.
+    // these leave the queue after their usual wait.
     uint32 ratedSoloFallbackHealers = 0;
     uint32 ratedSoloFallbackDamage = 0;
     uint32 ratedSoloHealersSurplus = 0;

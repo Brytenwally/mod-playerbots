@@ -972,7 +972,8 @@ std::vector<uint32> parseBrackets(std::string const& str)
 }
 
 // A rated solo queue entry (AscensionArenaQueue) is rated and holds one player: no rated team queues alone.
-// Its 2v2 and 3v3 matches are played by two temporary teams, its 1v1 matches by personal teams. A party joined
+// Its 2v2 and 3v3 matches are played by two temporary teams, a 1v1 match (on a core that has one) by personal
+// teams. A party joined
 // as a group with personal teams waits there as one entry too: the core files it with the solos, in the normal
 // queues, where a rated arena team never goes.
 enum class RatedSolo : uint8
@@ -1001,7 +1002,7 @@ static RatedSolo GetRatedSolo(Player* player, BattlegroundQueueTypeId queueTypeI
 
     Battleground* bg = player->GetBattleground();
     if (bg && bg->isArena() && bg->isRated() &&
-        (bg->GetArenaType() == ARENA_TYPE_1v1 || bg->GetArenaTeamIdForTeam(TEAM_ALLIANCE) >= MAX_ARENA_TEAM_ID))
+        (bg->GetArenaType() == CoaArenaType1v1 || bg->GetArenaTeamIdForTeam(TEAM_ALLIANCE) >= MAX_ARENA_TEAM_ID))
         return RatedSolo::Taken;
     return RatedSolo::None;
 }
@@ -1402,7 +1403,7 @@ void RandomPlayerbotMgr::CheckBgQueue()
     LogBattlegroundInfo();
 }
 
-// Bots for the rated solo queues a real player waits in, just enough to complete matches. A 1v1 pairs any two.
+// Bots for the rated solo queues a real player waits in, just enough to complete matches. Bots never join a 1v1.
 // A 2v2 or 3v3 lineup (AscensionArenaQueue::ComposeLineup) holds either one healer and damage dealers per side,
 // or damage dealers only, and never leaves a waiting healer the only one of a match: each pair of real healers
 // gets damage dealers, the real damage dealers left over fill matches of their own.
@@ -1420,7 +1421,7 @@ void RandomPlayerbotMgr::CountRatedSoloNeeds()
     for (RatedSoloWait const& wait : ratedSoloWaiting)
     {
         uint8 const arenaType = BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId(wait.queueTypeId));
-        if (arenaType == ARENA_TYPE_1v1)
+        if (arenaType == CoaArenaType1v1)
             continue;
 
         BattlegroundInfo& info = BattlegroundData[wait.queueTypeId][wait.bracketId];
@@ -1463,45 +1464,35 @@ void RandomPlayerbotMgr::CountRatedSoloNeeds()
 
     for (int bracket = BG_BRACKET_ID_FIRST; bracket < MAX_BATTLEGROUND_BRACKETS; ++bracket)
     {
-        for (BattlegroundQueueTypeId queueTypeId : { BATTLEGROUND_QUEUE_1v1, BATTLEGROUND_QUEUE_2v2, BATTLEGROUND_QUEUE_3v3 })
+        for (BattlegroundQueueTypeId queueTypeId : { BATTLEGROUND_QUEUE_2v2, BATTLEGROUND_QUEUE_3v3 })
         {
             BattlegroundInfo& info = BattlegroundData[queueTypeId][bracket];
             uint32 const realHealers = info.ratedSoloPlayerHealers;
             uint32 const realDamage = info.ratedSoloPlayerDamage;
 
             uint8 const arenaType = BattlegroundMgr::BGArenaType(queueTypeId);
-            if (arenaType == ARENA_TYPE_1v1)
-            {
-                uint32 const real = realHealers + realDamage;
-                uint32 const bots = info.ratedSoloBotHealers + info.ratedSoloBotDamage;
-                info.ratedSoloDamageNeeded = real ? (real + bots) % 2 : 0;
-                info.ratedSoloDamageSurplus = bots - std::min(bots, real % 2);
-            }
-            else
-            {
-                // Real solos take the slots the parties leave first; the others play matches of solos.
-                uint32 const premadeHealers = info.ratedSoloPremadeHealerSlots;
-                uint32 const premadeDamage = info.ratedSoloPremadeDamageSlots;
-                uint32 const soloHealers = realHealers - std::min(realHealers, premadeHealers);
-                uint32 const soloDamage = realDamage - std::min(realDamage, premadeDamage);
-                uint32 const teamSize = sBattlegroundMgr->isArenaTesting() ? 1 : arenaType;
-                uint32 const healerMatches = (soloHealers + 1) / 2;
-                uint32 const healerMatchDamage = healerMatches * (2 * teamSize - 2);
-                uint32 const damageLeft = soloDamage > healerMatchDamage ? soloDamage - healerMatchDamage : 0;
-                uint32 const damageMatches = (damageLeft + 2 * teamSize - 1) / (2 * teamSize);
-                uint32 const healers = premadeHealers + 2 * healerMatches + info.ratedSoloFallbackHealers;
-                uint32 const damage =
-                    premadeDamage + healerMatchDamage + damageMatches * 2 * teamSize + info.ratedSoloFallbackDamage;
-                uint32 const haveHealers = realHealers + info.ratedSoloBotHealers;
-                uint32 const haveDamage = realDamage + info.ratedSoloBotDamage;
-                info.ratedSoloHealersNeeded = healers > haveHealers ? healers - haveHealers : 0;
-                info.ratedSoloDamageNeeded = damage > haveDamage ? damage - haveDamage : 0;
-                uint32 const botHealers = healers > realHealers ? healers - realHealers : 0;
-                uint32 const botDamage = damage > realDamage ? damage - realDamage : 0;
-                info.ratedSoloHealersSurplus =
-                    info.ratedSoloBotHealers > botHealers ? info.ratedSoloBotHealers - botHealers : 0;
-                info.ratedSoloDamageSurplus = info.ratedSoloBotDamage > botDamage ? info.ratedSoloBotDamage - botDamage : 0;
-            }
+            // Real solos take the slots the parties leave first; the others play matches of solos.
+            uint32 const premadeHealers = info.ratedSoloPremadeHealerSlots;
+            uint32 const premadeDamage = info.ratedSoloPremadeDamageSlots;
+            uint32 const soloHealers = realHealers - std::min(realHealers, premadeHealers);
+            uint32 const soloDamage = realDamage - std::min(realDamage, premadeDamage);
+            uint32 const teamSize = sBattlegroundMgr->isArenaTesting() ? 1 : arenaType;
+            uint32 const healerMatches = (soloHealers + 1) / 2;
+            uint32 const healerMatchDamage = healerMatches * (2 * teamSize - 2);
+            uint32 const damageLeft = soloDamage > healerMatchDamage ? soloDamage - healerMatchDamage : 0;
+            uint32 const damageMatches = (damageLeft + 2 * teamSize - 1) / (2 * teamSize);
+            uint32 const healers = premadeHealers + 2 * healerMatches + info.ratedSoloFallbackHealers;
+            uint32 const damage =
+                premadeDamage + healerMatchDamage + damageMatches * 2 * teamSize + info.ratedSoloFallbackDamage;
+            uint32 const haveHealers = realHealers + info.ratedSoloBotHealers;
+            uint32 const haveDamage = realDamage + info.ratedSoloBotDamage;
+            info.ratedSoloHealersNeeded = healers > haveHealers ? healers - haveHealers : 0;
+            info.ratedSoloDamageNeeded = damage > haveDamage ? damage - haveDamage : 0;
+            uint32 const botHealers = healers > realHealers ? healers - realHealers : 0;
+            uint32 const botDamage = damage > realDamage ? damage - realDamage : 0;
+            info.ratedSoloHealersSurplus =
+                info.ratedSoloBotHealers > botHealers ? info.ratedSoloBotHealers - botHealers : 0;
+            info.ratedSoloDamageSurplus = info.ratedSoloBotDamage > botDamage ? info.ratedSoloBotDamage - botDamage : 0;
 
             // Where a real player waits: what the bots are counted on, when it changes and every 2 minutes.
             if (realHealers + realDamage + info.ratedSoloPremades)

@@ -598,10 +598,6 @@ bool BGJoinAction::JoinQueue(uint32 type)
 
         switch (arenaType)
         {
-            case ARENA_TYPE_1v1:
-                arenaslot = 2;
-                _bgType = "1v1";
-                break;
             case ARENA_TYPE_2v2:
                 arenaslot = 0;
                 _bgType = "2v2";
@@ -679,18 +675,18 @@ uint32* BGJoinAction::RatedSoloNeed(BattlegroundQueueTypeId queueTypeId, Battleg
         return nullptr;
 
     ArenaType const type = ArenaType(BattlegroundMgr::BGArenaType(queueTypeId));
-    if (type != ARENA_TYPE_1v1 && type != ARENA_TYPE_2v2 && type != ARENA_TYPE_3v3)
+    if (type != ARENA_TYPE_2v2 && type != ARENA_TYPE_3v3)
         return nullptr;
 
     BattlegroundInfo& info = sRandomPlayerbotMgr.BattlegroundData[queueTypeId][bracketId];
-    uint32* need = type != ARENA_TYPE_1v1 && GetCoaRole(bot) == CoaRole::Heal ? &info.ratedSoloHealersNeeded
-                                                                              : &info.ratedSoloDamageNeeded;
+    uint32* need =
+        GetCoaRole(bot) == CoaRole::Heal ? &info.ratedSoloHealersNeeded : &info.ratedSoloDamageNeeded;
     if (!*need)
         return nullptr;
 
-    // The core plays it with a personal team in that slot (the 5v5 one for 1v1), one it creates or the bot
-    // already has from an earlier match: a bot of a real team there is left out.
-    uint8 const slot = ArenaTeam::GetSlotByType(type == ARENA_TYPE_1v1 ? uint32(ARENA_TEAM_5v5) : uint32(type));
+    // The core plays it with a personal team in that slot, one it creates or the bot already has from an earlier
+    // match: a bot of a real team there is left out.
+    uint8 const slot = ArenaTeam::GetSlotByType(uint32(type));
     if (uint32 teamId = bot->GetArenaTeamId(slot))
     {
         ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(teamId);
@@ -700,7 +696,7 @@ uint32* BGJoinAction::RatedSoloNeed(BattlegroundQueueTypeId queueTypeId, Battleg
     // The core names a new personal team "<name> <bracket>" and refuses the queue when that name is taken, as
     // by a bot team its captain named so: the need would be spent on a bot that never queues.
     else if (sArenaTeamMgr->GetArenaTeamByName(bot->GetName() + " " +
-                                               (type == ARENA_TYPE_1v1 ? "1v1" : type == ARENA_TYPE_2v2 ? "2v2" : "3v3")))
+                                               (type == ARENA_TYPE_2v2 ? "2v2" : "3v3")))
         return nullptr;
 
     return need;
@@ -724,9 +720,9 @@ bool BGJoinAction::JoinRatedSolo(BattlegroundQueueTypeId queueTypeId)
         return false;
 
     ArenaType const type = ArenaType(BattlegroundMgr::BGArenaType(queueTypeId));
-    bool const healer = type != ARENA_TYPE_1v1 && GetCoaRole(bot) == CoaRole::Heal;
+    bool const healer = GetCoaRole(bot) == CoaRole::Heal;
     WorldPacket packet(CMSG_BATTLEMASTER_JOIN_ARENA_WITH_ROLE, 8);
-    packet << uint32(type == ARENA_TYPE_1v1 ? 5 : type) << uint32(healer ? ARENA_ROLE_HEALER : 0);
+    packet << uint32(type) << uint32(healer ? ARENA_ROLE_HEALER : 0);
     if (sScriptMgr->CanPacketReceiveEarly(bot->GetSession(), packet))
     {
         LOG_DEBUG("playerbots", "Bot {} <{}>: the rated solo queue is not available", bot->GetGUID().ToString(),
@@ -1051,9 +1047,6 @@ bool BGStatusAction::Execute(Event event)
 
     switch (arenaType)
     {
-        case ARENA_TYPE_1v1:
-            _bgType = "1v1";
-            break;
         case ARENA_TYPE_2v2:
             _bgType = "2v2";
             break;
@@ -1155,9 +1148,8 @@ bool BGStatusAction::Execute(Event event)
             // A bot of a rated solo queue waits as long as a real player waits there, unless no lineup needs it.
             if (isRated && ginfo.Players.size() == 1)
             {
-                uint32& surplus = arenaType != ARENA_TYPE_1v1 && GetCoaRole(bot) == CoaRole::Heal
-                                      ? info.ratedSoloHealersSurplus
-                                      : info.ratedSoloDamageSurplus;
+                uint32& surplus = GetCoaRole(bot) == CoaRole::Heal ? info.ratedSoloHealersSurplus
+                                                                   : info.ratedSoloDamageSurplus;
                 realPlayers =
                     !surplus && info.ratedSoloPlayerHealers + info.ratedSoloPlayerDamage + info.ratedSoloPremades > 0;
                 if (surplus)
