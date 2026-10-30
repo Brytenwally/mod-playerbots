@@ -284,6 +284,13 @@ void StatsWeightCalculator::GenerateBasicWeights(Player* player)
         return;
     }
 
+    // A Freepick Hero whose build has no Legendary class weights falls back on its Free Pick primary stat.
+    if (IsCoaHero(player))
+    {
+        GenerateCoaWeights(player);
+        return;
+    }
+
     // Conquest of Azeroth classes have no talent tabs: without this they all fell through to
     // the bear tank weights below, casters included.
     if (IsAscensionCustomClassId(cls))
@@ -578,10 +585,26 @@ void StatsWeightCalculator::GenerateBasicWeights(Player* player)
 }
 
 // Weights for a CoA specialization, from its primary stats, fighting style and role.
+// The Free Pick primary stat paths (Primary Stat: Strength, Agility, Intellect, Spirit and Path of Duality,
+// which takes attack power from Strength or Agility and spell power from items).
+static uint8 GetCoaHeroPrimaryStats(Player const* player)
+{
+    static constexpr std::pair<uint32, uint8> paths[] = {
+        {84864, COA_STAT_STRENGTH}, {84865, COA_STAT_AGILITY}, {84866, COA_STAT_INTELLECT},
+        {84867, COA_STAT_SPIRIT}, {129243, COA_STAT_AGILITY | COA_STAT_INTELLECT}};
+    uint8 stats = 0;
+    for (auto const& [spell, stat] : paths)
+        if (player->HasSpell(spell))
+            stats |= stat;
+    return stats;
+}
+
 void StatsWeightCalculator::GenerateCoaWeights(Player* player)
 {
-    uint8 const stats = GetCoaPrimaryStats(player);
-    CoaStyle const style = GetCoaStyle(player);
+    bool const hero = IsCoaHero(player);
+    uint8 const stats = hero ? GetCoaHeroPrimaryStats(player) : GetCoaPrimaryStats(player);
+    CoaStyle const style = !hero ? GetCoaStyle(player) :
+        (stats & (COA_STAT_STRENGTH | COA_STAT_AGILITY)) ? CoaStyle::Melee : CoaStyle::Caster;
     bool const physical = stats & (COA_STAT_STRENGTH | COA_STAT_AGILITY);
     bool const magical = stats & (COA_STAT_INTELLECT | COA_STAT_SPIRIT);
 
@@ -633,7 +656,7 @@ void StatsWeightCalculator::GenerateCoaWeights(Player* player)
         stats_weights_[STATS_TYPE_BLOCK_RATING] += 1.0f;
         stats_weights_[STATS_TYPE_BLOCK_VALUE] += 0.5f;
     }
-    else if (PlayerbotAI::IsHeal(player))
+    else if (PlayerbotAI::IsHeal(player) || (hero && (stats & COA_STAT_SPIRIT)))
     {
         stats_weights_[STATS_TYPE_HEAL_POWER] += 1.0f;
         stats_weights_[STATS_TYPE_MANA_REGENERATION] += 0.9f;

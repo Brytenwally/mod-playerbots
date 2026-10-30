@@ -287,6 +287,11 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
   (`OffHandMissing`, `EquipLegendaryOffHand`) runs whenever such a class has an empty off-hand, and for a class without
   a shield once Titan's Grip is on (a Crusader's second two-hander from level 60); an off-hand-only gear pass also runs
   below level 5.
+- **Weights without a class** (owner's decision, 2026-10-30): a Hero whose build has no Legendary class weights
+  (Tree of Wrath and the other Area 52 builds) is weighted on its Free Pick primary stat path (84864 Strength,
+  84865 Agility, 84866 Intellect, 84867 Spirit, 129243 Path of Duality as Agility plus Intellect) through
+  `GenerateCoaWeights`; Strength or Agility gives melee weights, otherwise caster, and Spirit adds healer weights.
+  Weapon type (two-hander, one-hander, shield) is not chosen by this fallback, which the owner accepts.
 - **Points**: a Hero's spells come only from its picks, so its AE and TE are spent: class trainers
   (`InitAvailableSpells`) and class quest reward spells are skipped for Heroes. `EnsureCoaLegendaryClass` logs a
   refused apply at info level ("could not take its <class> picks"). The three class builds pass the core's `Select` and
