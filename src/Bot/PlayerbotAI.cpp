@@ -6742,8 +6742,14 @@ InventoryResult PlayerbotAI::CanEquipItem(uint8 slot, uint16& dest, Item* pItem,
                         return EQUIP_ERR_CANT_DUAL_WIELD;
                 }
 
+                // A Hoplite holds a shield beside its polearm while its Legendary is on
+                // (Player::CanUseTwoHandWithShield).
                 if (bot->IsTwoHandUsed())
-                    return EQUIP_ERR_CANT_EQUIP_WITH_TWOHANDED;
+                {
+                    Item const* main = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                    if (!main || !CoaHeroHoldsShieldWith(bot, main->GetTemplate(), pProto))
+                        return EQUIP_ERR_CANT_EQUIP_WITH_TWOHANDED;
+                }
             }
 
             // equip two-hand weapon case (with possible unequip 2 items)
@@ -6762,7 +6768,7 @@ InventoryResult PlayerbotAI::CanEquipItem(uint8 slot, uint16& dest, Item* pItem,
                     // offhand item must can be stored in inventory for offhand item and it also must be unequipped
                     Item* offItem = bot->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
                     ItemPosCountVec off_dest;
-                    if (offItem && (!not_loading ||
+                    if (offItem && !CoaHeroHoldsShieldWith(bot, pProto, offItem->GetTemplate()) && (!not_loading ||
                                     bot->CanUnequipItem(uint16(INVENTORY_SLOT_BAG_0) << 8 | EQUIPMENT_SLOT_OFFHAND,
                                                         false) != EQUIP_ERR_OK ||
                                     bot->CanStoreItem(NULL_BAG, NULL_SLOT, off_dest, offItem, false) != EQUIP_ERR_OK))

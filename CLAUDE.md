@@ -287,6 +287,9 @@ Built (`src/Ai/Coa/CoaLegendaryClasses.{h,cpp}`):
   (`OffHandMissing`, `EquipLegendaryOffHand`) runs whenever such a class has an empty off-hand, and for a class without
   a shield once Titan's Grip is on (a Crusader's second two-hander from level 60); an off-hand-only gear pass also runs
   below level 5.
+  `PlayerbotAI::CanEquipItem` (playerbots' copy of the core check, used by `autogear` and the gear passes) allows
+  that shield beside the polearm as the core does (`CoaHeroHoldsShieldWith`); without it every shield was refused
+  once the polearm was on, and only the bag step above ever equipped one (30/10).
 - **Weights without a class** (owner's decision, 2026-10-30): a Hero whose build has no Legendary class weights
   (Tree of Wrath and the other Area 52 builds) is weighted on its Free Pick primary stat path (84864 Strength,
   84865 Agility, 84866 Intellect, 84867 Spirit, 129243 Path of Duality as Agility plus Intellect) through
